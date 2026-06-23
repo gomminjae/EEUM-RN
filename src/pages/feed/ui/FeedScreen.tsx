@@ -8,6 +8,7 @@ import { PostCard, type FeedKind, type Post } from '@/entities/post';
 import { usePlayerStore } from '@/features/play-track';
 import type { RootStackParamList } from '@/app/navigation';
 import { useFeed } from '../model/useFeed';
+import { IngCarousel } from './IngCarousel';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -44,13 +45,27 @@ export function FeedScreen() {
         ))}
       </View>
 
-      <FeedList
-        query={query}
-        posts={posts}
-        onPressPost={openPost}
-        playingUrl={playingUrl}
-        onPlay={togglePlay}
-      />
+      {query.isLoading ? (
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.accentPrimary} />
+        </View>
+      ) : tab === 'ing' ? (
+        <IngCarousel
+          query={query}
+          posts={posts}
+          onPressPost={openPost}
+          playingUrl={playingUrl}
+          onPlay={togglePlay}
+        />
+      ) : (
+        <FeedList
+          query={query}
+          posts={posts}
+          onPressPost={openPost}
+          playingUrl={playingUrl}
+          onPlay={togglePlay}
+        />
+      )}
     </View>
   );
 }
