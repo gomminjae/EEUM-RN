@@ -16,6 +16,7 @@ import { AppText, colors, spacing } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/date';
 import { CommentItem, type Comment } from '@/entities/comment';
 import { useToggleLike } from '@/features/like-post';
+import { usePlayerStore } from '@/features/play-track';
 import { CommentInputBar, ReportCommentSheet, useReportComment } from '@/features/comment';
 import { PostActionSheet, EditPostSheet, useManagePost } from '@/features/manage-post';
 import type { RootStackParamList } from '@/app/navigation';
@@ -30,6 +31,8 @@ export function PostDetailScreen({ route, navigation }: Props) {
   const toggleLike = useToggleLike(postId);
   const manage = useManagePost(postId);
   const report = useReportComment();
+  const togglePlay = usePlayerStore((s) => s.toggle);
+  const playingUrl = usePlayerStore((s) => (s.isPlaying ? s.currentUrl : null));
 
   const [actionSheet, setActionSheet] = useState(false);
   const [editSheet, setEditSheet] = useState(false);
@@ -129,17 +132,28 @@ export function PostDetailScreen({ route, navigation }: Props) {
               {detail.artistName}
             </AppText>
           </View>
-          <Pressable
-            onPress={() => toggleLike.mutate(detail.isLiked)}
-            disabled={toggleLike.isPending}
-            hitSlop={8}
-          >
-            <Ionicons
-              name={detail.isLiked ? 'heart' : 'heart-outline'}
-              size={26}
-              color={detail.isLiked ? colors.accentPrimary : colors.textPrimary}
-            />
-          </Pressable>
+          <View style={styles.songActions}>
+            {!!detail.appleMusicUrl && (
+              <Pressable onPress={() => togglePlay(detail.appleMusicUrl)} hitSlop={8}>
+                <Ionicons
+                  name={playingUrl === detail.appleMusicUrl ? 'pause' : 'play'}
+                  size={26}
+                  color={colors.textPrimary}
+                />
+              </Pressable>
+            )}
+            <Pressable
+              onPress={() => toggleLike.mutate(detail.isLiked)}
+              disabled={toggleLike.isPending}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={detail.isLiked ? 'heart' : 'heart-outline'}
+                size={26}
+                color={detail.isLiked ? colors.accentPrimary : colors.textPrimary}
+              />
+            </Pressable>
+          </View>
         </View>
 
         <AppText size={15} weight="semiBold" style={styles.commentsHeader}>
@@ -149,6 +163,8 @@ export function PostDetailScreen({ route, navigation }: Props) {
           <CommentItem
             key={c.commentId ?? Math.random().toString()}
             comment={c}
+            isPlaying={!!c.appleMusicUrl && playingUrl === c.appleMusicUrl}
+            onPlay={c.appleMusicUrl ? () => togglePlay(c.appleMusicUrl!) : undefined}
             onReport={c.userId ? () => setReportTarget(c) : undefined}
           />
         ))}
@@ -225,6 +241,7 @@ const styles = StyleSheet.create({
   artwork: { width: 56, height: 56, borderRadius: 8 },
   artworkEmpty: { backgroundColor: 'rgba(0,0,0,0.1)' },
   songInfo: { flex: 1, gap: spacing.xs },
+  songActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   commentsHeader: { marginTop: spacing.lg },
   empty: { marginTop: spacing.md },
   center: {

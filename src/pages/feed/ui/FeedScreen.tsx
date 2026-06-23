@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppText, colors, fonts, spacing } from '@/shared/ui';
 import { PostCard, type FeedKind, type Post } from '@/entities/post';
+import { usePlayerStore } from '@/features/play-track';
 import type { RootStackParamList } from '@/app/navigation';
 import { useFeed } from '../model/useFeed';
 
@@ -19,6 +20,8 @@ export function FeedScreen() {
   const [tab, setTab] = useState<FeedKind>('ing');
   const query = useFeed(tab);
   const navigation = useNavigation<Nav>();
+  const togglePlay = usePlayerStore((s) => s.toggle);
+  const playingUrl = usePlayerStore((s) => (s.isPlaying ? s.currentUrl : null));
 
   const posts = query.data?.pages.flat() ?? [];
 
@@ -41,7 +44,13 @@ export function FeedScreen() {
         ))}
       </View>
 
-      <FeedList query={query} posts={posts} onPressPost={openPost} />
+      <FeedList
+        query={query}
+        posts={posts}
+        onPressPost={openPost}
+        playingUrl={playingUrl}
+        onPlay={togglePlay}
+      />
     </View>
   );
 }
@@ -50,10 +59,14 @@ function FeedList({
   query,
   posts,
   onPressPost,
+  playingUrl,
+  onPlay,
 }: {
   query: ReturnType<typeof useFeed>;
   posts: Post[];
   onPressPost: (post: Post) => void;
+  playingUrl: string | null;
+  onPlay: (url: string) => void;
 }) {
   const insets = useSafeAreaInsets();
 
@@ -82,7 +95,14 @@ function FeedList({
     <FlatList
       data={posts}
       keyExtractor={(item, i) => item.postId ?? String(i)}
-      renderItem={({ item }) => <PostCard post={item} onPress={() => onPressPost(item)} />}
+      renderItem={({ item }) => (
+        <PostCard
+          post={item}
+          onPress={() => onPressPost(item)}
+          isPlaying={!!item.appleMusicUrl && playingUrl === item.appleMusicUrl}
+          onPlay={item.appleMusicUrl ? () => onPlay(item.appleMusicUrl!) : undefined}
+        />
+      )}
       contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + spacing.lg }]}
       ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
       onEndReachedThreshold={0.4}
