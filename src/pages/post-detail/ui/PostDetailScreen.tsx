@@ -158,9 +158,9 @@ export function PostDetailScreen({ route, navigation }: Props) {
         <AppText size={15} weight="semiBold" style={styles.commentsHeader}>
           댓글 {detail.comments.length}
         </AppText>
-        {detail.comments.map((c) => (
+        {detail.comments.map((c, i) => (
           <CommentItem
-            key={c.commentId ?? Math.random().toString()}
+            key={c.commentId ?? `comment-${i}`}
             comment={c}
             isPlaying={!!c.appleMusicUrl && playingUrl === c.appleMusicUrl}
             onPlay={c.appleMusicUrl ? () => togglePlay(c.appleMusicUrl!) : undefined}
