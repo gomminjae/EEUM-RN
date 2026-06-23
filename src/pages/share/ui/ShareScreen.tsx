@@ -17,7 +17,7 @@ import { AppText, colors, fonts, spacing } from '@/shared/ui';
 import type { Music } from '@/entities/track';
 import { useMusicPicker } from '@/features/music-search';
 import { CompletionSheet, useShareStory, type CompletionType } from '@/features/share-post';
-import type { RootStackParamList } from '@/app/navigation';
+import type { RootStackParamList } from '@/shared/config/navigation';
 
 const MAX_STORY = 200;
 type Nav = NativeStackNavigationProp<RootStackParamList>;

@@ -6,7 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppText, colors, fonts, spacing } from '@/shared/ui';
 import { PostCard, type FeedKind, type Post } from '@/entities/post';
 import { usePlayerStore } from '@/features/play-track';
-import type { RootStackParamList } from '@/app/navigation';
+import type { RootStackParamList } from '@/shared/config/navigation';
 import { useFeed } from '../model/useFeed';
 import { IngCarousel } from './IngCarousel';
 

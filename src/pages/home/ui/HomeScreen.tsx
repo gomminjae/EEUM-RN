@@ -1,74 +1,153 @@
-import { View, ScrollView, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from 'react';
+import { View, Text, Pressable, Alert, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withSequence,
+  withDelay,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, spacing } from '@/shared/ui';
-import { PostCard, getRandomPost } from '@/entities/post';
-import { usePlayerStore } from '@/features/play-track';
-import type { RootStackParamList } from '@/app/navigation';
+import { AppText, colors, fonts, spacing } from '@/shared/ui';
+import { useShake } from '@/shared/lib/useShake';
+import { getRandomPost, type Post } from '@/entities/post';
+import type { RootStackParamList } from '@/shared/config/navigation';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
+/** 원본 HomeView 이식 — 흔들면 랜덤 사연 카드 등장 */
 export function HomeScreen() {
+  const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // 원본 loadRandomPost: getRandomPosts().first, 없으면 알림, isLoading 가드
+  const load = useCallback(async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const p = await getRandomPost();
+      if (p) setPost(p);
+      else Alert.alert('알림', '현재 받을 수 있는 게시글이 없습니다.');
+    } catch {
+      // 원본도 실패 시 조용히 무시
+    } finally {
+      setLoading(false);
+    }
+  }, [loading]);
+
+  useShake(load);
+
+  if (post) {
+    return <RandomPostCard post={post} />;
+  }
+  return <ShakePrompt onTrigger={load} />;
+}
+
+/** 대기 화면 — 큰 "Shake" + 안내 (시뮬레이터/탭 폴백으로 누르면 로드) */
+function ShakePrompt({ onTrigger }: { onTrigger: () => void }) {
+  return (
+    <Pressable style={styles.promptContainer} onPress={onTrigger}>
+      <View style={styles.promptText}>
+        <Text style={styles.shake}>Shake</Text>
+        <Text style={styles.shakeSub}>{'to receive someone’s letter\nanswer with music'}</Text>
+      </View>
+    </Pressable>
+  );
+}
+
+/** 원본 RandomPostCard — 슬라이드 등장 + 살짝 흔들리는 애니메이션 */
+function RandomPostCard({ post }: { post: Post }) {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<Nav>();
-  const togglePlay = usePlayerStore((s) => s.toggle);
-  const playingUrl = usePlayerStore((s) => (s.isPlaying ? s.currentUrl : null));
 
-  const { data: post, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ['random-post'],
-    queryFn: getRandomPost,
-  });
+  const translateY = useSharedValue(300);
+  const opacity = useSharedValue(0);
+  const rotate = useSharedValue(0);
+
+  useEffect(() => {
+    // 새 사연마다 재생 (원본 .id(post.postId) + onAppear)
+    translateY.value = 300;
+    opacity.value = 0;
+    rotate.value = 0;
+    translateY.value = withSpring(0, { damping: 12, stiffness: 100 });
+    opacity.value = withTiming(1, { duration: 400 });
+    // gentle single shake: -4 → 3 → 0
+    rotate.value = withDelay(
+      200,
+      withSequence(
+        withTiming(-4, { duration: 150 }),
+        withTiming(3, { duration: 150 }),
+        withTiming(0, { duration: 200 }),
+      ),
+    );
+  }, [post.postId]);
+
+  const cardStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }, { rotate: `${rotate.value}deg` }],
+  }));
+  const fadeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.lg }]}
-    >
-      <AppText size={32} weight="bold">
-        이음
-      </AppText>
-      <AppText size={15} color="textFootnote">
-        당신의 이야기에 어울리는 음악을 나눠요
+    <View style={[styles.cardContainer, { paddingTop: insets.top + spacing.lg }]}>
+      <AppText size={18} color="textFootnote" style={styles.cardCaption}>
+        {'Shake to receive someone’s letter\nanswer with music'}
       </AppText>
 
-      <View style={styles.sectionHeader}>
+      <Animated.View style={[styles.card, cardStyle]}>
         <AppText size={18} weight="bold">
-          오늘의 사연
+          {post.title ?? '제목 없음'}
         </AppText>
-        <Pressable onPress={() => refetch()} disabled={isFetching} hitSlop={8}>
-          <AppText size={14} color="accentPrimary">
-            새로고침
-          </AppText>
-        </Pressable>
-      </View>
+        <AppText size={14} color="textFootnote" numberOfLines={8} style={styles.cardBody}>
+          {post.content ?? ''}
+        </AppText>
+      </Animated.View>
 
-      {isLoading ? (
-        <ActivityIndicator color={colors.accentPrimary} style={{ marginTop: spacing.xl }} />
-      ) : post ? (
-        <PostCard
-          post={post}
-          isPlaying={!!post.appleMusicUrl && playingUrl === post.appleMusicUrl}
-          onPlay={post.appleMusicUrl ? () => togglePlay(post.appleMusicUrl!) : undefined}
-          onPress={() => post.postId && navigation.navigate('PostDetail', { postId: post.postId })}
-        />
-      ) : (
-        <AppText color="textFootnote" style={{ marginTop: spacing.lg }}>
-          표시할 사연이 없어요
-        </AppText>
+      <View style={styles.spacer} />
+
+      {post.postId && (
+        <Animated.View style={[styles.viewWrap, { paddingBottom: insets.bottom + spacing.xl }, fadeStyle]}>
+          <Pressable
+            style={styles.viewButton}
+            onPress={() => navigation.navigate('PostDetail', { postId: post.postId! })}
+          >
+            <Text style={styles.viewLabel}>view</Text>
+          </Pressable>
+        </Animated.View>
       )}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.mainBackground },
-  content: { padding: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xl },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: spacing.lg,
+  promptContainer: { flex: 1, backgroundColor: colors.mainBackground, justifyContent: 'center' },
+  promptText: { paddingHorizontal: spacing.lg, gap: spacing.sm },
+  shake: { fontFamily: fonts.helvetica.bold, fontSize: 96, color: colors.textPrimary },
+  shakeSub: { fontFamily: fonts.helvetica.regular, fontSize: 18, color: colors.textPrimary, lineHeight: 24 },
+
+  cardContainer: { flex: 1, backgroundColor: colors.mainBackground },
+  cardCaption: { textAlign: 'center', lineHeight: 24 },
+  card: {
+    marginHorizontal: 42,
+    marginTop: 32,
+    padding: 24,
+    minHeight: 380,
+    borderRadius: 20,
+    backgroundColor: 'rgba(234,232,224,0.5)',
+    gap: spacing.md,
   },
+  cardBody: { lineHeight: 20 },
+  spacer: { flex: 1 },
+  viewWrap: { paddingHorizontal: 32 },
+  viewButton: {
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  viewLabel: { fontFamily: fonts.pretendard.medium, fontSize: 16, color: '#FFFFFF' },
 });

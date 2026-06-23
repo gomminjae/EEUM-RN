@@ -1,5 +1,5 @@
 import { api, unwrap, unwrapList, type ApiResponse } from '@/shared/api';
-import { fromCommentDTO, type CommentModelDTO } from '@/entities/comment';
+import { fromCommentDTO, type CommentModelDTO } from '@/entities/comment/@x/post';
 import type { Post, FeedKind, PostDetail } from '../model/types';
 
 /** 원본 InfiniteScrollPostDTO (Ing/Done 무한스크롤 응답 요소) */

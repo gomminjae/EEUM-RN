@@ -19,7 +19,7 @@ import { useToggleLike } from '@/features/like-post';
 import { usePlayerStore } from '@/features/play-track';
 import { CommentInputBar, ReportCommentSheet, useReportComment } from '@/features/comment';
 import { PostActionSheet, EditPostSheet, useManagePost } from '@/features/manage-post';
-import type { RootStackParamList } from '@/app/navigation';
+import type { RootStackParamList } from '@/shared/config/navigation';
 import { usePostDetail, useIsMyPost } from '../model/usePostDetail';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PostDetail'>;

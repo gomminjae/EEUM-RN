@@ -1,4 +1,4 @@
-import type { Comment } from '@/entities/comment';
+import type { Comment } from '@/entities/comment/@x/post';
 
 /** 원본 Domain/Entity/Post 이식 — 서버 필드가 대부분 nullable */
 export type Post = {
