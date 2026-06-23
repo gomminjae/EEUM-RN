@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, Pressable, Alert, StyleSheet } from 'react-native';
+import { View, Text, Image, Pressable, Alert, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,7 +11,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, fonts, spacing } from '@/shared/ui';
+import { AppText, colors, fonts, spacing, images } from '@/shared/ui';
 import { useShake } from '@/shared/lib/useShake';
 import { getRandomPost, type Post } from '@/entities/post';
 import type { RootStackParamList } from '@/shared/config/navigation';
@@ -51,7 +51,10 @@ function ShakePrompt({ onTrigger }: { onTrigger: () => void }) {
   return (
     <Pressable style={styles.promptContainer} onPress={onTrigger}>
       <View style={styles.promptText}>
-        <Text style={styles.shake}>Shake</Text>
+        <View style={styles.shakeRow}>
+          <Text style={styles.shake}>Shake</Text>
+          <Image source={images.logo} style={styles.logo} resizeMode="contain" />
+        </View>
         <Text style={styles.shakeSub}>{'to receive someone’s letter\nanswer with music'}</Text>
       </View>
     </Pressable>
@@ -125,6 +128,8 @@ function RandomPostCard({ post }: { post: Post }) {
 const styles = StyleSheet.create({
   promptContainer: { flex: 1, backgroundColor: colors.mainBackground, justifyContent: 'center' },
   promptText: { paddingHorizontal: spacing.lg, gap: spacing.sm },
+  shakeRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
+  logo: { width: 40, height: 40, marginBottom: 12 },
   shake: { fontFamily: fonts.helvetica.bold, fontSize: 96, color: colors.textPrimary },
   shakeSub: { fontFamily: fonts.helvetica.regular, fontSize: 18, color: colors.textPrimary, lineHeight: 24 },
 

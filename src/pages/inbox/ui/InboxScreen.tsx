@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { View, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, FlatList, Image, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, fonts, spacing } from '@/shared/ui';
+import { AppText, colors, spacing, images } from '@/shared/ui';
 import { PostGridCard, PostRow, type Post } from '@/entities/post';
 import type { RootStackParamList } from '@/shared/config/navigation';
 import { useInbox, type InboxTab } from '../model/useInbox';
@@ -78,9 +78,10 @@ export function InboxScreen() {
         query.isLoading ? (
           <ActivityIndicator color={colors.accentPrimary} style={{ marginTop: 60 }} />
         ) : (
-          <AppText color="textFootnote" style={styles.empty}>
-            {meta.empty}
-          </AppText>
+          <View style={styles.empty}>
+            <Image source={images.nodata} style={styles.emptyImage} resizeMode="contain" />
+            <AppText color="textFootnote">{meta.empty}</AppText>
+          </View>
         )
       }
       refreshing={query.isRefetching}
@@ -96,5 +97,6 @@ const styles = StyleSheet.create({
   headerInfo: { gap: spacing.xs, marginBottom: spacing.md },
   column: { gap: spacing.md },
   gridItem: { flex: 1, maxWidth: '48%' },
-  empty: { textAlign: 'center', marginTop: 60 },
+  empty: { alignItems: 'center', gap: spacing.md, marginTop: 60 },
+  emptyImage: { width: 120, height: 120, opacity: 0.8 },
 });

@@ -25,7 +25,8 @@
       "expo-secure-store",
       "expo-font",
       "expo-audio",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-asset"
     ]
   }
 }
