@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { View, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -23,6 +24,19 @@ export function FeedScreen() {
   const navigation = useNavigation<Nav>();
   const togglePlay = usePlayerStore((s) => s.toggle);
   const playingUrl = usePlayerStore((s) => (s.isPlaying ? s.currentUrl : null));
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable onPress={() => navigation.navigate('Inbox')} hitSlop={8} style={styles.inboxButton}>
+          <AppText size={14} weight="medium">
+            Inbox
+          </AppText>
+          <Ionicons name="arrow-up" size={13} color={colors.textPrimary} style={styles.inboxArrow} />
+        </Pressable>
+      ),
+    });
+  }, [navigation]);
 
   const posts = query.data?.pages.flat() ?? [];
 
@@ -150,6 +164,16 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sm,
   },
   tabLabel: { fontFamily: fonts.helvetica.bold },
+  inboxButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    backgroundColor: colors.contentBackground,
+    borderRadius: 16,
+  },
+  inboxArrow: { transform: [{ rotate: '45deg' }] },
   list: { padding: spacing.lg },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingTop: 80 },
   retry: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md },

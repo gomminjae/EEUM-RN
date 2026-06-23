@@ -3,6 +3,22 @@ import { api, parseData, parseList } from '@/shared/api';
 import { commentSchema } from '@/entities/comment/@x/post';
 import type { Post, FeedKind, PostDetail } from '../model/types';
 
+/** Post 엔티티 기본값 채우기 (DTO → Post 변환 보조) */
+function makePost(p: Partial<Post> & { postId: string }): Post {
+  return {
+    writerId: null,
+    title: null,
+    content: null,
+    songName: null,
+    artistName: null,
+    artworkUrl: null,
+    appleMusicUrl: null,
+    createdAt: null,
+    isCompleted: null,
+    ...p,
+  };
+}
+
 /** 원본 InfiniteScrollPostDTO → Post (Ing/Done 무한스크롤) */
 const infiniteScrollPostSchema = z
   .object({
@@ -124,4 +140,100 @@ export async function getMyPostIds(): Promise<string[]> {
   return (data.getMyPostResponses ?? [])
     .map((p) => (p.postId == null ? null : String(p.postId)))
     .filter((v): v is string => v != null);
+}
+
+// ── Inbox: 내 사연 / 좋아요 / 댓글 단 사연 ──────────────────────────
+
+const s = (v: string | null | undefined) => v ?? null;
+
+/** 원본 PostModelDTO → Post (내 사연) */
+const postModelSchema = z
+  .object({
+    postId: z.number().nullish(),
+    writerId: z.number().nullish(),
+    title: z.string().nullish(),
+    content: z.string().nullish(),
+    songName: z.string().nullish(),
+    artistName: z.string().nullish(),
+    artworkUrl: z.string().nullish(),
+    appleMusicUrl: z.string().nullish(),
+    createdAt: z.string().nullish(),
+    isCompleted: z.boolean().nullish(),
+  })
+  .transform((d) =>
+    makePost({
+      postId: String(d.postId ?? ''),
+      writerId: d.writerId == null ? null : String(d.writerId),
+      title: s(d.title),
+      content: s(d.content),
+      songName: s(d.songName),
+      artistName: s(d.artistName),
+      artworkUrl: s(d.artworkUrl),
+      appleMusicUrl: s(d.appleMusicUrl),
+      createdAt: s(d.createdAt),
+      isCompleted: d.isCompleted ?? null,
+    }),
+  );
+
+const myPostsFullSchema = z
+  .object({ getMyPostResponses: z.array(postModelSchema).nullish() })
+  .transform((d) => d.getMyPostResponses ?? []);
+
+/** 내 사연 목록 (원본 PostAPI.getMyPosts) — GET /posts/my */
+export async function getMyPosts(): Promise<Post[]> {
+  const json = await api.get<unknown>('/posts/my');
+  return parseData(myPostsFullSchema, json);
+}
+
+/** 원본 LikedPostDTO → Post */
+const likedPostSchema = z
+  .object({
+    postId: z.number(),
+    artworkUrl: z.string().nullish(),
+    title: z.string().nullish(),
+    content: z.string().nullish(),
+    songName: z.string().nullish(),
+    artistName: z.string().nullish(),
+    appleMusicUrl: z.string().nullish(),
+    createdAt: z.string().nullish(),
+  })
+  .transform((d) =>
+    makePost({
+      postId: String(d.postId),
+      title: s(d.title),
+      content: s(d.content),
+      songName: s(d.songName),
+      artistName: s(d.artistName),
+      artworkUrl: s(d.artworkUrl),
+      appleMusicUrl: s(d.appleMusicUrl),
+      createdAt: s(d.createdAt),
+    }),
+  );
+
+const likedPostsFullSchema = z
+  .object({ getLikedPostsResponses: z.array(likedPostSchema).nullish() })
+  .transform((d) => d.getLikedPostsResponses ?? []);
+
+/** 좋아요한 사연 (원본 PostAPI.getLikedPosts) — GET /posts/liked */
+export async function getLikedPosts(): Promise<Post[]> {
+  const json = await api.get<unknown>('/posts/liked', { query: { pageSize: 20 } });
+  return parseData(likedPostsFullSchema, json);
+}
+
+/** 원본 CommentedPostDTO → Post */
+const commentedPostSchema = z
+  .object({
+    postId: z.number(),
+    artworkUrl: z.string().nullish(),
+    title: z.string().nullish(),
+    createdAt: z.string().nullish(),
+  })
+  .transform((d) =>
+    makePost({ postId: String(d.postId), title: s(d.title), artworkUrl: s(d.artworkUrl), createdAt: s(d.createdAt) }),
+  );
+
+/** 댓글 단 사연 (원본 PostAPI.getCommentedPosts) — GET /posts/commented */
+export async function getCommentedPosts(): Promise<Post[]> {
+  const json = await api.get<unknown>('/posts/commented');
+  return parseList(commentedPostSchema, json);
 }

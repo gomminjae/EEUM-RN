@@ -13,4 +13,5 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList> | undefined;
   PostDetail: { postId: string };
   Search: undefined;
+  Inbox: undefined;
 };

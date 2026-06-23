@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { colors, fonts } from '@/shared/ui';
 import { PostDetailScreen } from '@/pages/post-detail';
 import { SearchScreen } from '@/pages/search';
+import { InboxScreen } from '@/pages/inbox';
 import { MainTabNavigator } from './MainTabNavigator';
 import type { RootStackParamList } from './types';
 
@@ -25,6 +26,7 @@ export function RootNavigator() {
         component={SearchScreen}
         options={{ title: '음악 검색', presentation: 'modal' }}
       />
+      <Stack.Screen name="Inbox" component={InboxScreen} options={{ title: 'Inbox' }} />
     </Stack.Navigator>
   );
 }
