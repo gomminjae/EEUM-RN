@@ -1,10 +1,17 @@
+import { Image, Pressable } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { colors, fonts } from '@/shared/ui';
+import { colors, fonts, images, spacing } from '@/shared/ui';
+import { HomeScreen } from '@/pages/home';
+import { FeedScreen } from '@/pages/feed';
+import { ShareScreen } from '@/pages/share';
+import { SettingsScreen } from '@/pages/settings';
 import { PostDetailScreen } from '@/pages/post-detail';
 import { EditPostScreen } from '@/pages/edit-post';
 import { SearchScreen } from '@/pages/search';
-import { InboxScreen } from '@/pages/inbox';
-import { MainTabNavigator } from './MainTabNavigator';
+import { PostsListScreen } from '@/pages/posts-list';
+import { InboxMenuScreen } from '@/pages/inbox-menu';
+import { CommentsListScreen } from '@/pages/comments-list';
+import { LikesListScreen } from '@/pages/likes-list';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -20,7 +27,28 @@ export function RootNavigator() {
         contentStyle: { backgroundColor: colors.mainBackground },
       }}
     >
-      <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={({ navigation }) => ({
+          title: '',
+          headerRight: () => (
+            <Pressable
+              onPress={() => navigation.navigate('Settings')}
+              hitSlop={8}
+              style={{ paddingHorizontal: spacing.xs }}
+            >
+              <Image
+                source={images.gear}
+                style={{ width: 24, height: 24, tintColor: colors.textPrimary }}
+              />
+            </Pressable>
+          ),
+        })}
+      />
+      <Stack.Screen name="Feed" component={FeedScreen} options={{ title: '피드' }} />
+      <Stack.Screen name="Share" component={ShareScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: '설정' }} />
       <Stack.Screen name="PostDetail" component={PostDetailScreen} />
       <Stack.Screen name="EditPost" component={EditPostScreen} options={{ title: '게시물 수정' }} />
       <Stack.Screen
@@ -28,7 +56,10 @@ export function RootNavigator() {
         component={SearchScreen}
         options={{ title: '음악 검색', presentation: 'modal' }}
       />
-      <Stack.Screen name="Inbox" component={InboxScreen} options={{ title: 'Inbox' }} />
+      <Stack.Screen name="PostsList" component={PostsListScreen} options={{ title: '' }} />
+      <Stack.Screen name="InboxMenu" component={InboxMenuScreen} options={{ title: 'menu' }} />
+      <Stack.Screen name="CommentsList" component={CommentsListScreen} options={{ title: '' }} />
+      <Stack.Screen name="LikesList" component={LikesListScreen} options={{ title: '' }} />
     </Stack.Navigator>
   );
 }

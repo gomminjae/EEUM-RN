@@ -8,12 +8,12 @@ import Animated, {
   withSequence,
   withDelay,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppText, colors, fonts, spacing, images } from '@/shared/ui';
 import { useShake } from '@/shared/lib/useShake';
 import { getRandomPost, type Post } from '@/entities/post';
+import { HomeBottomNav } from '@/widgets/home-bottom-nav';
 import type { RootStackParamList } from '@/shared/config/navigation';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -40,10 +40,14 @@ export function HomeScreen() {
 
   useShake(load);
 
-  if (post) {
-    return <RandomPostCard post={post} />;
-  }
-  return <ShakePrompt onTrigger={load} />;
+  return (
+    <View style={styles.root}>
+      <View style={styles.content}>
+        {post ? <RandomPostCard post={post} /> : <ShakePrompt onTrigger={load} />}
+      </View>
+      <HomeBottomNav />
+    </View>
+  );
 }
 
 /** 대기 화면 — 큰 "Shake" + 안내 (시뮬레이터/탭 폴백으로 누르면 로드) */
@@ -63,7 +67,6 @@ function ShakePrompt({ onTrigger }: { onTrigger: () => void }) {
 
 /** 원본 RandomPostCard — 슬라이드 등장 + 살짝 흔들리는 애니메이션 */
 function RandomPostCard({ post }: { post: Post }) {
-  const insets = useSafeAreaInsets();
   const navigation = useNavigation<Nav>();
 
   const translateY = useSharedValue(300);
@@ -95,7 +98,7 @@ function RandomPostCard({ post }: { post: Post }) {
   const fadeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   return (
-    <View style={[styles.cardContainer, { paddingTop: insets.top + spacing.lg }]}>
+    <View style={[styles.cardContainer, { paddingTop: spacing.lg }]}>
       <AppText size={18} color="textFootnote" style={styles.cardCaption}>
         {'Shake to receive someone’s letter\nanswer with music'}
       </AppText>
@@ -112,7 +115,7 @@ function RandomPostCard({ post }: { post: Post }) {
       <View style={styles.spacer} />
 
       {post.postId && (
-        <Animated.View style={[styles.viewWrap, { paddingBottom: insets.bottom + spacing.xl }, fadeStyle]}>
+        <Animated.View style={[styles.viewWrap, { paddingBottom: spacing.lg }, fadeStyle]}>
           <Pressable
             style={styles.viewButton}
             onPress={() => navigation.navigate('PostDetail', { postId: post.postId! })}
@@ -126,6 +129,8 @@ function RandomPostCard({ post }: { post: Post }) {
 }
 
 const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.mainBackground },
+  content: { flex: 1 },
   promptContainer: { flex: 1, backgroundColor: colors.mainBackground, justifyContent: 'center' },
   promptText: { paddingHorizontal: spacing.lg, gap: spacing.sm },
   shakeRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },

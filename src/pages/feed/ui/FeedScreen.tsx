@@ -28,7 +28,7 @@ export function FeedScreen() {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Pressable onPress={() => navigation.navigate('Inbox')} hitSlop={8} style={styles.inboxButton}>
+        <Pressable onPress={() => navigation.navigate('PostsList')} hitSlop={8} style={styles.inboxButton}>
           <AppText size={14} weight="medium">
             Inbox
           </AppText>

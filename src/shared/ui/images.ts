@@ -2,4 +2,8 @@
 export const images = {
   logo: require('../../../assets/images/logo.png'),
   nodata: require('../../../assets/images/nodata.png'),
+  folder: require('../../../assets/images/folder.png'),
+  headphone: require('../../../assets/images/headphone.png'),
+  gear: require('../../../assets/images/gear.png'),
+  home: require('../../../assets/images/home.png'),
 } as const;

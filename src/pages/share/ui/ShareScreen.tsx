@@ -6,14 +6,17 @@ import {
   Pressable,
   Image,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
   Alert,
+  ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useFocusEffect } from '@react-navigation/native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, fonts, spacing } from '@/shared/ui';
+import { AppText, colors, fonts, images, spacing } from '@/shared/ui';
 import type { Music } from '@/entities/track';
 import { useMusicPicker } from '@/features/music-search';
 import { CompletionSheet, useShareStory, type CompletionType } from '@/features/share-post';
@@ -22,19 +25,20 @@ import type { RootStackParamList } from '@/shared/config/navigation';
 const MAX_STORY = 200;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
+/** 원본 ShareView 이식 — 우상단 원형 음악버튼 + 베이지 단일카드(제목/본문)
+ *  + 카드 아래 글자수 + 검정 캡슐 share 버튼.
+ *  좌상단 home 으로 뒤로가기, 완료 시 fullscreen 안내 후 자동 pop. */
 export function ShareScreen() {
   const navigation = useNavigation<Nav>();
   const consumePicked = useMusicPicker((s) => s.consume);
   const share = useShareStory();
 
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [story, setStory] = useState('');
   const [music, setMusic] = useState<Music | null>(null);
   const [sheet, setSheet] = useState(false);
   const [done, setDone] = useState(false);
 
-  // 검색 화면에서 고른 음악을 복귀 시점에 흡수
   useFocusEffect(
     useCallback(() => {
       const picked = consumePicked();
@@ -48,24 +52,34 @@ export function ShareScreen() {
     if (!title.trim()) missing.push('제목');
     if (!story.trim()) missing.push('내용');
     if (missing.length) {
-      Alert.alert('입력 필요', `${missing.join(', ')}을(를) 입력해 주세요.`);
+      Alert.alert('입력 확인', `${missing.join(', ')}을(를) 입력해 주세요.`);
       return;
     }
+    Keyboard.dismiss();
     setSheet(true);
   };
 
   const submit = (completionType: CompletionType, commentCountLimit: number) => {
     share.mutate(
-      { title: title.trim(), description: description.trim(), story: story.trim(), music, completionType, commentCountLimit },
+      {
+        title: title.trim(),
+        description: '',
+        story: story.trim(),
+        music,
+        completionType,
+        commentCountLimit,
+      },
       {
         onSuccess: () => {
           setSheet(false);
           setTitle('');
-          setDescription('');
           setStory('');
           setMusic(null);
           setDone(true);
-          setTimeout(() => setDone(false), 1500);
+          setTimeout(() => {
+            setDone(false);
+            navigation.goBack();
+          }, 1500);
         },
         onError: () => Alert.alert('공유 실패', '잠시 후 다시 시도해주세요'),
       },
@@ -73,140 +87,238 @@ export function ShareScreen() {
   };
 
   if (done) {
-    return (
-      <View style={styles.doneView}>
-        <AppText size={18} weight="semiBold">
-          나의 이야기 공유 완료!
-        </AppText>
-        <AppText size={14} style={styles.doneBody}>
-          이제 기다릴 시간이에요.{'\n'}친구들이 당신의 이야기에 어울리는 음악을 얹고 있어요.
-        </AppText>
-      </View>
-    );
+    return <ShareCompleteView />;
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Pressable style={styles.musicBox} onPress={() => navigation.navigate('Search')}>
-          {music ? (
-            <>
-              {music.artworkUrl ? (
-                <Image source={{ uri: music.artworkUrl }} style={styles.artwork} />
-              ) : (
-                <View style={[styles.artwork, styles.artworkEmpty]} />
-              )}
-              <View style={styles.flex}>
-                <AppText size={15} weight="semiBold" numberOfLines={1}>
-                  {music.songName}
-                </AppText>
-                <AppText size={13} color="textFootnote" numberOfLines={1}>
-                  {music.artistName}
-                </AppText>
-              </View>
-              <AppText size={13} color="accentPrimary">
-                변경
-              </AppText>
-            </>
-          ) : (
-            <AppText color="textFootnote">+ 음악 선택</AppText>
-          )}
-        </Pressable>
-
-        <TextInput
-          style={styles.title}
-          value={title}
-          onChangeText={setTitle}
-          placeholder="제목"
-          placeholderTextColor={colors.textFootnote}
-        />
-        <TextInput
-          style={styles.title}
-          value={description}
-          onChangeText={setDescription}
-          placeholder="한 줄 소개 (선택)"
-          placeholderTextColor={colors.textFootnote}
-        />
-        <TextInput
-          style={styles.story}
-          value={story}
-          onChangeText={(t) => setStory(t.slice(0, MAX_STORY))}
-          placeholder="당신의 이야기를 들려주세요"
-          placeholderTextColor={colors.textFootnote}
-          multiline
-        />
-        <AppText size={12} color="textFootnote" style={styles.counter}>
-          {story.length}/{MAX_STORY}
-        </AppText>
-
-        <Pressable style={styles.shareButton} onPress={openSettings}>
-          <AppText weight="semiBold" style={{ color: '#FFFFFF' }}>
-            공유하기
-          </AppText>
-        </Pressable>
-      </ScrollView>
-
-      <CompletionSheet
-        visible={sheet}
-        pending={share.isPending}
-        onClose={() => setSheet(false)}
-        onConfirm={submit}
-      />
-    </KeyboardAvoidingView>
+    <ShareForm
+      title={title}
+      story={story}
+      music={music}
+      pending={share.isPending}
+      sheetVisible={sheet}
+      onTitleChange={setTitle}
+      onStoryChange={(t) => setStory(t.slice(0, MAX_STORY))}
+      onPickMusic={() => navigation.navigate('Search')}
+      onSubmit={openSettings}
+      onConfirm={submit}
+      onCloseSheet={() => setSheet(false)}
+      onBack={() => navigation.goBack()}
+    />
   );
 }
 
+type FormProps = {
+  title: string;
+  story: string;
+  music: Music | null;
+  pending: boolean;
+  sheetVisible: boolean;
+  onTitleChange: (t: string) => void;
+  onStoryChange: (t: string) => void;
+  onPickMusic: () => void;
+  onSubmit: () => void;
+  onConfirm: (type: CompletionType, limit: number) => void;
+  onCloseSheet: () => void;
+  onBack: () => void;
+};
+
+function ShareForm(p: FormProps) {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <SafeAreaView style={styles.root} edges={['top']}>
+      <View style={styles.topBar}>
+        <Pressable onPress={p.onBack} hitSlop={8} style={styles.topBarButton}>
+          <Image source={images.home} style={styles.topBarIcon} resizeMode="contain" />
+        </Pressable>
+      </View>
+
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <Pressable style={styles.flex} onPress={Keyboard.dismiss} accessible={false}>
+          <ScrollView
+            contentContainerStyle={styles.scroll}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
+          >
+            <View style={styles.musicRow}>
+              <Pressable onPress={p.onPickMusic} hitSlop={8}>
+                <View style={styles.musicCircle}>
+                  {p.music?.artworkUrl ? (
+                    <Image source={{ uri: p.music.artworkUrl }} style={styles.musicArtwork} />
+                  ) : (
+                    <Ionicons name="pulse" size={24} color={colors.textPrimary} />
+                  )}
+                  <View style={styles.plusBadge}>
+                    <AppText size={12} weight="bold" style={styles.plusText}>
+                      +
+                    </AppText>
+                  </View>
+                </View>
+              </Pressable>
+            </View>
+
+            <View style={styles.card}>
+              <TextInput
+                style={styles.titleInput}
+                value={p.title}
+                onChangeText={p.onTitleChange}
+                placeholder="사연의 제목을 작성해 주세요"
+                placeholderTextColor={colors.textFootnote}
+              />
+              <TextInput
+                style={styles.storyInput}
+                value={p.story}
+                onChangeText={p.onStoryChange}
+                placeholder=" 200자 이내로 자유롭게 공유하고싶은 사연을 작성해주세요"
+                placeholderTextColor={colors.textFootnote}
+                multiline
+                textAlignVertical="top"
+              />
+            </View>
+
+            <AppText size={12} color="textFootnote" style={styles.counter}>
+              {p.story.length}/{MAX_STORY}
+            </AppText>
+          </ScrollView>
+        </Pressable>
+
+        <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
+          <Pressable
+            style={[styles.shareButton, p.pending && styles.shareButtonDisabled]}
+            onPress={p.onSubmit}
+            disabled={p.pending}
+          >
+            {p.pending ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <AppText weight="semiBold" style={styles.shareLabel}>
+                share
+              </AppText>
+            )}
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+
+      <CompletionSheet
+        visible={p.sheetVisible}
+        pending={p.pending}
+        onClose={p.onCloseSheet}
+        onConfirm={p.onConfirm}
+      />
+    </SafeAreaView>
+  );
+}
+
+/** 원본 ShareCompleteView — 1.5초 후 home 으로 자동 dismiss */
+function ShareCompleteView() {
+  return (
+    <View style={styles.doneRoot}>
+      <AppText size={18} weight="semiBold">
+        나의 이야기 공유 완료!
+      </AppText>
+      <AppText size={14} style={styles.doneBody}>
+        이제 기다릴 시간이에요.{'\n'}친구들이 당신의 이야기에 어울리는 음악을 얹고
+        있어요.{'\n'}다 완성되면, 세상에 단 하나뿐인 플레이리스트가 도착합니다.
+      </AppText>
+    </View>
+  );
+}
+
+const CARD_BG = 'rgba(234,232,224,0.5)';
+
 const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.mainBackground },
   flex: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.md, backgroundColor: colors.mainBackground },
-  musicBox: {
+
+  topBar: {
+    height: 44,
+    paddingHorizontal: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.md,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 12,
-    minHeight: 72,
   },
-  artwork: { width: 48, height: 48, borderRadius: 6 },
-  artworkEmpty: { backgroundColor: 'rgba(0,0,0,0.1)' },
-  title: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+  topBarButton: { padding: spacing.xs },
+  topBarIcon: { width: 24, height: 24, tintColor: colors.textPrimary },
+
+  scroll: {
+    paddingHorizontal: 24,
+    paddingTop: 4,
+    paddingBottom: spacing.lg,
+  },
+
+  musicRow: { alignItems: 'flex-end' },
+  musicCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: colors.contentBackground,
-    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'visible',
+  },
+  musicArtwork: { width: 64, height: 64, borderRadius: 32 },
+  plusBadge: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.accentPrimary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  plusText: { color: '#FFFFFF', lineHeight: 14 },
+
+  card: {
+    marginTop: 32,
+    padding: 20,
+    minHeight: 250,
+    borderRadius: 20,
+    backgroundColor: CARD_BG,
+    gap: 12,
+  },
+  titleInput: {
     fontFamily: fonts.pretendard.semiBold,
-    fontSize: 16,
+    fontSize: 20,
     color: colors.textPrimary,
+    padding: 0,
   },
-  story: {
-    minHeight: 140,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 12,
-    textAlignVertical: 'top',
+  storyInput: {
+    flex: 1,
+    minHeight: 160,
     fontFamily: fonts.pretendard.regular,
     fontSize: 15,
     color: colors.textPrimary,
+    lineHeight: 22,
+    padding: 0,
   },
-  counter: { textAlign: 'right' },
+  counter: { marginTop: spacing.sm, textAlign: 'left' },
+
+  bottomBar: {
+    paddingHorizontal: 32,
+    paddingTop: spacing.sm,
+    backgroundColor: colors.mainBackground,
+  },
   shareButton: {
-    marginTop: spacing.sm,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.textPrimary,
     alignItems: 'center',
-    paddingVertical: spacing.md,
-    backgroundColor: colors.accentPrimary,
-    borderRadius: 12,
+    justifyContent: 'center',
   },
-  doneView: {
+  shareButtonDisabled: { opacity: 0.6 },
+  shareLabel: { color: '#FFFFFF', fontSize: 16 },
+
+  doneRoot: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.md,
-    padding: spacing.xl,
+    paddingHorizontal: 32,
     backgroundColor: colors.mainBackground,
   },
   doneBody: { textAlign: 'center', lineHeight: 22 },
