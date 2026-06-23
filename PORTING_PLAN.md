@@ -70,16 +70,21 @@ App.tsx
 
 ## 4. 마일스톤 (증분 진행 — 각 단계 설계 확인 후 코드 작성)
 
-- **M0 — 스캐폴드**: Expo+TS 프로젝트, 폴더 구조, 폰트, 디자인 토큰, 네비게이션 뼈대(탭 5개), ky 클라이언트
-- **M1 — 인증/네트워킹**: 게스트 로그인, 토큰 저장/주입, authStore, 공용 에러 처리
-- **M2 — Home/Feed 리스트**: 피드 조회, FeedCard, 무한스크롤 (스와이프 전 단계)
-- **M3 — PostDetail**: 상세, 댓글 목록/입력, 좋아요, 액션시트/신고/수정
-- **M4 — Search/Share**: 음악 검색, 공유(게시) 플로우
-- **M5 — 오디오 재생**: track-player 연동, playerStore, 락스크린/백그라운드
-- **M6 — Feed 카드 스와이프**: Reanimated 제스처 폴리싱 (핵심 UX)
-- **M7 — Settings + 마감**: 설정, 빌드 정리
+- [x] **M0 — 스캐폴드**: Expo+TS, FSD 구조, 폰트, 디자인 토큰, 네비게이션(탭4), fetch 클라이언트
+- [x] **M1 — 인증/네트워킹**: 게스트 로그인, 토큰 저장/주입(AuthGate), ApiResponse 봉투, 에러 정규화
+- [x] **M2 — Feed 리스트**: Ing/Done 무한스크롤, PostCard, 당겨서 새로고침
+- [x] **M3 — PostDetail**: 상세, 댓글 목록/입력, 좋아요(낙관), 액션시트/신고/수정
+- [x] **M4 — Search/Share**: 음악 검색(디바운스), 공유(게시) + 완료방식 시트
+- [x] **M5 — 오디오 재생**: expo-audio 전역 playerStore (track-player 대신 — Expo Go 호환)
+- [x] **M6 — Feed Ing 캐러셀**: 가로 페이징 스냅(원본은 Tinder식이 아닌 페이저였음)
+- [x] **M7 — Settings + Home**: 설정(계정/정보), Home '오늘의 사연' 랜덤, 탭 한글/아이콘
 
-리스크 상위: **M5 오디오**(백그라운드 세션), **M6 카드 스와이프**(손맛). 나머지는 직관적.
+**전 마일스톤 완료.** 각 단계 `tsc --noEmit` + `expo export` 검증 통과, 마일스톤 단위 커밋.
+
+### 미포팅(선택 후속)
+- Inbox(내 사연/좋아요/댓글 단 리스트 — 원본 PostsListView)
+- Feed Done 그리드(현재 리스트로 단순화), EditPostSheet 음악 변경
+- 실기기 테스트, dev build/배포 설정
 
 ---
 
