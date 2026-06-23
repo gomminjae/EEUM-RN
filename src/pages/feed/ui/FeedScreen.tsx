@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import { View, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppText, colors, fonts, spacing } from '@/shared/ui';
 import { PostCard, type FeedKind, type Post } from '@/entities/post';
+import type { RootStackParamList } from '@/app/navigation';
 import { useFeed } from '../model/useFeed';
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const TABS: { key: FeedKind; label: string }[] = [
   { key: 'ing', label: 'Ing' },
@@ -13,8 +18,13 @@ const TABS: { key: FeedKind; label: string }[] = [
 export function FeedScreen() {
   const [tab, setTab] = useState<FeedKind>('ing');
   const query = useFeed(tab);
+  const navigation = useNavigation<Nav>();
 
   const posts = query.data?.pages.flat() ?? [];
+
+  const openPost = (post: Post) => {
+    if (post.postId) navigation.navigate('PostDetail', { postId: post.postId });
+  };
 
   return (
     <View style={styles.container}>
@@ -31,7 +41,7 @@ export function FeedScreen() {
         ))}
       </View>
 
-      <FeedList query={query} posts={posts} />
+      <FeedList query={query} posts={posts} onPressPost={openPost} />
     </View>
   );
 }
@@ -39,9 +49,11 @@ export function FeedScreen() {
 function FeedList({
   query,
   posts,
+  onPressPost,
 }: {
   query: ReturnType<typeof useFeed>;
   posts: Post[];
+  onPressPost: (post: Post) => void;
 }) {
   const insets = useSafeAreaInsets();
 
@@ -70,7 +82,7 @@ function FeedList({
     <FlatList
       data={posts}
       keyExtractor={(item, i) => item.postId ?? String(i)}
-      renderItem={({ item }) => <PostCard post={item} />}
+      renderItem={({ item }) => <PostCard post={item} onPress={() => onPressPost(item)} />}
       contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + spacing.lg }]}
       ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
       onEndReachedThreshold={0.4}
