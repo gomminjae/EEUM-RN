@@ -1,13 +1,20 @@
-import { api, unwrapList, type ApiResponse } from '@/shared/api';
+import { z } from 'zod';
+import { api, parseList } from '@/shared/api';
 import type { Music } from '../model/types';
 
 /** 원본 MusicDTO — Music 과 동일 shape */
-type MusicDTO = Music;
+const musicSchema = z.object({
+  albumName: z.string(),
+  songName: z.string(),
+  artistName: z.string(),
+  artworkUrl: z.string(),
+  previewMusicUrl: z.string(),
+});
 
 /** 음악 검색 (원본 MusicAPI.search) — GET /apple-music/search */
 export async function searchMusic(term: string): Promise<Music[]> {
-  const res = await api.get<ApiResponse<MusicDTO[]>>('/apple-music/search', {
+  const json = await api.get<unknown>('/apple-music/search', {
     query: { term, types: 'songs', limit: '20' },
   });
-  return unwrapList(res);
+  return parseList(musicSchema, json);
 }
