@@ -18,7 +18,7 @@ import { CommentItem, type Comment } from '@/entities/comment';
 import { useToggleLike } from '@/features/like-post';
 import { usePlayerStore } from '@/features/play-track';
 import { CommentInputBar, ReportCommentSheet, useReportComment } from '@/features/comment';
-import { PostActionSheet, EditPostSheet, useManagePost } from '@/features/manage-post';
+import { PostActionSheet, useManagePost } from '@/features/manage-post';
 import type { RootStackParamList } from '@/shared/config/navigation';
 import { usePostDetail, useIsMyPost } from '../model/usePostDetail';
 
@@ -35,7 +35,6 @@ export function PostDetailScreen({ route, navigation }: Props) {
   const playingUrl = usePlayerStore((s) => (s.isPlaying ? s.currentUrl : null));
 
   const [actionSheet, setActionSheet] = useState(false);
-  const [editSheet, setEditSheet] = useState(false);
   const [reportTarget, setReportTarget] = useState<Comment | null>(null);
 
   useLayoutEffect(() => {
@@ -178,42 +177,20 @@ export function PostDetailScreen({ route, navigation }: Props) {
       <CommentInputBar postId={postId} />
 
       {isMyPost && (
-        <>
-          <PostActionSheet
-            visible={actionSheet}
-            onClose={() => setActionSheet(false)}
-            isCompleted={false}
-            onEdit={() => {
-              setActionSheet(false);
-              setEditSheet(true);
-            }}
-            onComplete={() => {
-              setActionSheet(false);
-              manage.complete.mutate();
-            }}
-            onDelete={confirmDelete}
-          />
-          <EditPostSheet
-            visible={editSheet}
-            detail={detail}
-            pending={manage.update.isPending}
-            onClose={() => setEditSheet(false)}
-            onSave={({ title, content }) =>
-              manage.update.mutate(
-                {
-                  title,
-                  content,
-                  albumName: '',
-                  songName: detail.songName,
-                  artistName: detail.artistName,
-                  artworkUrl: detail.artworkUrl,
-                  appleMusicUrl: detail.appleMusicUrl,
-                },
-                { onSuccess: () => setEditSheet(false) },
-              )
-            }
-          />
-        </>
+        <PostActionSheet
+          visible={actionSheet}
+          onClose={() => setActionSheet(false)}
+          isCompleted={false}
+          onEdit={() => {
+            setActionSheet(false);
+            navigation.navigate('EditPost', { postId });
+          }}
+          onComplete={() => {
+            setActionSheet(false);
+            manage.complete.mutate();
+          }}
+          onDelete={confirmDelete}
+        />
       )}
 
       <ReportCommentSheet

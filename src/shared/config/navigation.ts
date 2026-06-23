@@ -12,6 +12,7 @@ export type MainTabParamList = {
 export type RootStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList> | undefined;
   PostDetail: { postId: string };
+  EditPost: { postId: string };
   Search: undefined;
   Inbox: undefined;
 };

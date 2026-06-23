@@ -6,11 +6,13 @@ import type { Post } from '../model/types';
 type PostGridCardProps = {
   post: Post;
   showHeart?: boolean;
+  /** Done 그리드의 n/total 카운터 뱃지 */
+  badge?: string;
   onPress?: () => void;
 };
 
-/** 원본 MyPostCard 이식 — 2열 그리드용 정사각 썸네일 + 제목/곡 */
-export function PostGridCard({ post, showHeart = false, onPress }: PostGridCardProps) {
+/** 원본 MyPostCard/DonePostCard 이식 — 2열 그리드용 정사각 썸네일 + 제목/곡 */
+export function PostGridCard({ post, showHeart = false, badge, onPress }: PostGridCardProps) {
   return (
     <Pressable style={styles.card} onPress={onPress} disabled={!onPress}>
       <View style={styles.artworkWrap}>
@@ -19,6 +21,13 @@ export function PostGridCard({ post, showHeart = false, onPress }: PostGridCardP
         ) : (
           <View style={[styles.artwork, styles.artworkEmpty]}>
             <Ionicons name="musical-note" size={24} color={colors.textFootnote} />
+          </View>
+        )}
+        {badge != null && (
+          <View style={styles.badge}>
+            <AppText size={11} weight="medium" style={{ color: '#FFFFFF' }}>
+              {badge}
+            </AppText>
           </View>
         )}
       </View>
@@ -52,6 +61,15 @@ const styles = StyleSheet.create({
   card: { flex: 1, gap: spacing.sm },
   artworkWrap: { aspectRatio: 1, borderRadius: 12, overflow: 'hidden' },
   artwork: { width: '100%', height: '100%' },
+  badge: {
+    position: 'absolute',
+    right: 8,
+    bottom: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+  },
   artworkEmpty: { backgroundColor: 'rgba(0,0,0,0.08)', alignItems: 'center', justifyContent: 'center' },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   songRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },

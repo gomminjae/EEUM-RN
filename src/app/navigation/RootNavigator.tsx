@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { colors, fonts } from '@/shared/ui';
 import { PostDetailScreen } from '@/pages/post-detail';
+import { EditPostScreen } from '@/pages/edit-post';
 import { SearchScreen } from '@/pages/search';
 import { InboxScreen } from '@/pages/inbox';
 import { MainTabNavigator } from './MainTabNavigator';
@@ -21,6 +22,7 @@ export function RootNavigator() {
     >
       <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="PostDetail" component={PostDetailScreen} />
+      <Stack.Screen name="EditPost" component={EditPostScreen} options={{ title: '게시물 수정' }} />
       <Stack.Screen
         name="Search"
         component={SearchScreen}
