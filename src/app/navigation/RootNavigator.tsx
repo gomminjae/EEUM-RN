@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { colors, fonts } from '@/shared/ui';
 import { PostDetailScreen } from '@/pages/post-detail';
+import { SearchScreen } from '@/pages/search';
 import { MainTabNavigator } from './MainTabNavigator';
 import type { RootStackParamList } from './types';
 
@@ -19,7 +20,11 @@ export function RootNavigator() {
     >
       <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="PostDetail" component={PostDetailScreen} />
-      {/* M4: Search 화면 추가 */}
+      <Stack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={{ title: '음악 검색', presentation: 'modal' }}
+      />
     </Stack.Navigator>
   );
 }
