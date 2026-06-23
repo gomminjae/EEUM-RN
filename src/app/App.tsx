@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { AppProviders } from './providers';
 import { RootNavigator } from './navigation';
+import { AuthGate } from '@/features/auth';
 import { colors } from '@/shared/ui';
 
 const navTheme = {
@@ -34,7 +35,9 @@ export default function App() {
     <AppProviders>
       <StatusBar style="dark" />
       <NavigationContainer theme={navTheme}>
-        <RootNavigator />
+        <AuthGate>
+          <RootNavigator />
+        </AuthGate>
       </NavigationContainer>
     </AppProviders>
   );
