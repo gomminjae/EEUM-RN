@@ -82,6 +82,26 @@ export async function getPostDetail(postId: number): Promise<PostDetail> {
   return fromPostDetail(unwrap(res));
 }
 
+/** 랜덤 사연 1건 (원본 PostAPI.getRandomPosts) — Home "오늘의 사연" */
+type RandomPostDTO = { postId: number; writerId?: number | null; title: string; content: string };
+export async function getRandomPost(): Promise<Post | null> {
+  const res = await api.get<ApiResponse<RandomPostDTO>>('/posts/random');
+  const dto = res.data;
+  if (!dto) return null;
+  return {
+    postId: String(dto.postId),
+    writerId: dto.writerId == null ? null : String(dto.writerId),
+    title: dto.title,
+    content: dto.content,
+    songName: null,
+    artistName: null,
+    artworkUrl: null,
+    appleMusicUrl: null,
+    createdAt: null,
+    isCompleted: null,
+  };
+}
+
 /** 내 게시물 id 목록 (원본 PostAPI.getMyPosts) — 소유 여부 판별용 */
 type MyPostsResponseDTO = {
   postCount?: number | null;
