@@ -1,6 +1,6 @@
-import { View, Image, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, colors } from '@/shared/ui';
+import { AppText, AppImage, colors } from '@/shared/ui';
 import type { Post } from '../model/types';
 
 type PostRowProps = {
@@ -14,7 +14,7 @@ export function PostRow({ post, subtitle = '참여한 사연과 플레이리스�
   return (
     <Pressable className="flex-row items-center gap-md p-md bg-content rounded-[16px]" onPress={onPress} disabled={!onPress}>
       {post.artworkUrl ? (
-        <Image source={{ uri: post.artworkUrl }} className="w-[56px] h-[56px] rounded-[10px]" />
+        <AppImage source={{ uri: post.artworkUrl }} recyclingKey={post.artworkUrl} className="w-[56px] h-[56px] rounded-[10px]" />
       ) : (
         <View className="w-[56px] h-[56px] rounded-[10px] bg-black/10" />
       )}

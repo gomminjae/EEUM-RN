@@ -1,6 +1,6 @@
-import { View, Image, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, colors } from '@/shared/ui';
+import { AppText, AppImage, colors } from '@/shared/ui';
 import type { Post } from '../model/types';
 
 type PostCardProps = {
@@ -40,7 +40,7 @@ export function PostCard({
 
       <View className="flex-row items-center gap-md p-md bg-content rounded-[12px]">
         {post.artworkUrl ? (
-          <Image source={{ uri: post.artworkUrl }} className="w-[60px] h-[60px] rounded-[8px]" />
+          <AppImage source={{ uri: post.artworkUrl }} recyclingKey={post.artworkUrl} className="w-[60px] h-[60px] rounded-[8px]" />
         ) : (
           <View className="w-[60px] h-[60px] rounded-[8px] bg-black/10" />
         )}

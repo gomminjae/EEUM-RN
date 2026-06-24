@@ -1,6 +1,6 @@
-import { View, Image, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, colors } from '@/shared/ui';
+import { AppText, AppImage, colors } from '@/shared/ui';
 import type { Post } from '../model/types';
 
 type PostGridCardProps = {
@@ -17,7 +17,7 @@ export function PostGridCard({ post, showHeart = false, badge, onPress }: PostGr
     <Pressable className="flex-1 gap-sm" onPress={onPress} disabled={!onPress}>
       <View className="aspect-square rounded-[12px] overflow-hidden">
         {post.artworkUrl ? (
-          <Image source={{ uri: post.artworkUrl }} className="w-full h-full" />
+          <AppImage source={{ uri: post.artworkUrl }} recyclingKey={post.artworkUrl} className="w-full h-full" />
         ) : (
           <View className="w-full h-full bg-black/[0.08] items-center justify-center">
             <Ionicons name="musical-note" size={24} color={colors.textFootnote} />

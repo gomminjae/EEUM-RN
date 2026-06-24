@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   View,
   FlatList,
-  Image,
   Pressable,
   useWindowDimensions,
   type NativeSyntheticEvent,
@@ -10,7 +9,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, colors } from '@/shared/ui';
+import { AppText, AppImage, colors } from '@/shared/ui';
 import type { Post } from '@/entities/post';
 import type { useFeed } from '../model/useFeed';
 
@@ -71,7 +70,7 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
             style={{ width: cardWidth, height: cardWidth, marginRight: GAP }}
           >
             {item.artworkUrl ? (
-              <Image source={{ uri: item.artworkUrl }} style={StyleSheet.absoluteFill} />
+              <AppImage source={{ uri: item.artworkUrl }} recyclingKey={item.artworkUrl} style={StyleSheet.absoluteFill} />
             ) : (
               <View className="bg-black/10" style={StyleSheet.absoluteFill} />
             )}

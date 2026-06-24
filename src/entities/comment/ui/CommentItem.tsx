@@ -1,6 +1,6 @@
-import { View, Image, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, colors } from '@/shared/ui';
+import { AppText, AppImage, colors } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/date';
 import type { Comment } from '../model/types';
 
@@ -23,7 +23,7 @@ export function CommentItem({ comment, isPlaying = false, onPlay, onReport }: Co
         {hasMusic && (
           <View className="flex-row items-center gap-sm p-sm mt-xs bg-content rounded-[10px]">
             {comment.artworkUrl ? (
-              <Image source={{ uri: comment.artworkUrl }} className="w-[36px] h-[36px] rounded-[6px]" />
+              <AppImage source={{ uri: comment.artworkUrl }} recyclingKey={comment.artworkUrl} className="w-[36px] h-[36px] rounded-[6px]" />
             ) : (
               <View className="w-[36px] h-[36px] rounded-[6px] bg-black/10" />
             )}

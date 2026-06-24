@@ -1,5 +1,5 @@
-import { View, Image, Pressable } from 'react-native';
-import { AppText } from '@/shared/ui';
+import { View, Pressable } from 'react-native';
+import { AppText, AppImage } from '@/shared/ui';
 import type { Music } from '../model/types';
 
 type TrackRowProps = {
@@ -16,7 +16,7 @@ export function TrackRow({ music, onPress }: TrackRowProps) {
       disabled={!onPress}
     >
       {music.artworkUrl ? (
-        <Image source={{ uri: music.artworkUrl }} className="w-12 h-12 rounded-md" />
+        <AppImage source={{ uri: music.artworkUrl }} recyclingKey={music.artworkUrl} className="w-12 h-12 rounded-md" />
       ) : (
         <View className="w-12 h-12 rounded-md bg-black/10" />
       )}

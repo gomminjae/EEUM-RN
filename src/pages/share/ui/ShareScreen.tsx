@@ -15,7 +15,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, images, spacing } from '@/shared/ui';
+import { AppText, AppImage, colors, images, spacing } from '@/shared/ui';
 import type { Music } from '@/entities/track';
 import { useMusicPicker } from '@/features/music-search';
 import { CompletionSheet, useShareStory, type CompletionType } from '@/features/share-post';
@@ -152,7 +152,7 @@ function ShareForm(p: FormProps) {
               <Pressable onPress={p.onPickMusic} hitSlop={8}>
                 <View className="w-[64px] h-[64px] rounded-[32px] bg-content items-center justify-center overflow-visible">
                   {p.music?.artworkUrl ? (
-                    <Image source={{ uri: p.music.artworkUrl }} className="w-[64px] h-[64px] rounded-[32px]" />
+                    <AppImage source={{ uri: p.music.artworkUrl }} recyclingKey={p.music.artworkUrl} className="w-[64px] h-[64px] rounded-[32px]" />
                   ) : (
                     <Ionicons name="pulse" size={24} color={colors.textPrimary} />
                   )}

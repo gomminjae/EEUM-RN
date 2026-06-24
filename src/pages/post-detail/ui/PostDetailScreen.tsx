@@ -2,7 +2,6 @@ import { useLayoutEffect, useState } from 'react';
 import {
   View,
   ScrollView,
-  Image,
   Pressable,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -11,7 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AppText, colors, spacing } from '@/shared/ui';
+import { AppText, AppImage, colors, spacing } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/date';
 import { CommentItem, type Comment } from '@/entities/comment';
 import { useToggleLike } from '@/features/like-post';
@@ -121,7 +120,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
 
         <View className="flex-row items-center gap-md p-md mt-md bg-content rounded-[12px]">
           {detail.artworkUrl ? (
-            <Image source={{ uri: detail.artworkUrl }} className="w-[56px] h-[56px] rounded-[8px]" />
+            <AppImage source={{ uri: detail.artworkUrl }} recyclingKey={detail.artworkUrl} className="w-[56px] h-[56px] rounded-[8px]" />
           ) : (
             <View className="w-[56px] h-[56px] rounded-[8px] bg-black/10" />
           )}

@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, spacing, images } from '@/shared/ui';
+import { AppText, AppImage, colors, spacing, images } from '@/shared/ui';
 import { getCommentedPosts, type Post } from '@/entities/post';
 import { InboxHeader } from '@/widgets/inbox-header';
 import type { RootStackParamList } from '@/shared/config/navigation';
@@ -55,7 +55,7 @@ function CommentedPostRow({ post, onPress }: { post: Post; onPress: () => void }
   return (
     <Pressable className="flex-row items-center gap-[12px]" onPress={onPress}>
       {post.artworkUrl ? (
-        <Image source={{ uri: post.artworkUrl }} className="w-[56px] h-[56px] rounded-[10px]" />
+        <AppImage source={{ uri: post.artworkUrl }} recyclingKey={post.artworkUrl} className="w-[56px] h-[56px] rounded-[10px]" />
       ) : (
         <View className="w-[56px] h-[56px] rounded-[10px] bg-black/[0.08] items-center justify-center">
           <Ionicons name="musical-note" size={20} color={colors.textFootnote} />
