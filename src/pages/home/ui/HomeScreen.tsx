@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, Image, Pressable, Alert, StyleSheet } from 'react-native';
+import { View, Text, Image, Pressable, Alert } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, fonts, spacing, images } from '@/shared/ui';
+import { AppText, fonts, images } from '@/shared/ui';
 import { useShake } from '@/shared/lib/useShake';
 import { getRandomPost, type Post } from '@/entities/post';
 import { HomeBottomNav } from '@/widgets/home-bottom-nav';
@@ -41,8 +41,8 @@ export function HomeScreen() {
   useShake(load);
 
   return (
-    <View style={styles.root}>
-      <View style={styles.content}>
+    <View className="flex-1 bg-main">
+      <View className="flex-1">
         {post ? <RandomPostCard post={post} /> : <ShakePrompt onTrigger={load} />}
       </View>
       <HomeBottomNav />
@@ -53,13 +53,27 @@ export function HomeScreen() {
 /** 대기 화면 — 큰 "Shake" + 안내 (시뮬레이터/탭 폴백으로 누르면 로드) */
 function ShakePrompt({ onTrigger }: { onTrigger: () => void }) {
   return (
-    <Pressable style={styles.promptContainer} onPress={onTrigger}>
-      <View style={styles.promptText}>
-        <View style={styles.shakeRow}>
-          <Text style={styles.shake}>Shake</Text>
-          <Image source={images.logo} style={styles.logo} resizeMode="contain" />
+    <Pressable className="flex-1 bg-main justify-center" onPress={onTrigger}>
+      <View className="px-lg gap-sm">
+        <View className="flex-row items-end gap-sm">
+          <Text
+            className="text-primary"
+            style={{ fontFamily: fonts.helvetica.bold, fontSize: 96 }}
+          >
+            Shake
+          </Text>
+          <Image
+            source={images.logo}
+            className="w-[40px] h-[40px] mb-[12px]"
+            resizeMode="contain"
+          />
         </View>
-        <Text style={styles.shakeSub}>{'to receive someone’s letter\nanswer with music'}</Text>
+        <Text
+          className="text-primary leading-[24px]"
+          style={{ fontFamily: fonts.helvetica.regular, fontSize: 18 }}
+        >
+          {'to receive someone’s letter\nanswer with music'}
+        </Text>
       </View>
     </Pressable>
   );
@@ -98,66 +112,40 @@ function RandomPostCard({ post }: { post: Post }) {
   const fadeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   return (
-    <View style={[styles.cardContainer, { paddingTop: spacing.lg }]}>
-      <AppText size={18} color="textFootnote" style={styles.cardCaption}>
+    <View className="flex-1 bg-main pt-lg">
+      <AppText size={18} color="textFootnote" className="text-center leading-[24px]">
         {'Shake to receive someone’s letter\nanswer with music'}
       </AppText>
 
-      <Animated.View style={[styles.card, cardStyle]}>
+      <Animated.View
+        className="mx-[42px] mt-[32px] p-lg min-h-[380px] rounded-[20px] bg-[#EAE8E0]/50 gap-md"
+        style={cardStyle}
+      >
         <AppText size={18} weight="bold">
           {post.title ?? '제목 없음'}
         </AppText>
-        <AppText size={14} color="textFootnote" numberOfLines={8} style={styles.cardBody}>
+        <AppText size={14} color="textFootnote" numberOfLines={8} className="leading-[20px]">
           {post.content ?? ''}
         </AppText>
       </Animated.View>
 
-      <View style={styles.spacer} />
+      <View className="flex-1" />
 
       {post.postId && (
-        <Animated.View style={[styles.viewWrap, { paddingBottom: spacing.lg }, fadeStyle]}>
+        <Animated.View className="px-[32px] pb-lg" style={fadeStyle}>
           <Pressable
-            style={styles.viewButton}
+            className="h-[50px] rounded-[25px] bg-[#000000] items-center justify-center"
             onPress={() => navigation.navigate('PostDetail', { postId: post.postId! })}
           >
-            <Text style={styles.viewLabel}>view</Text>
+            <Text
+              className="text-white"
+              style={{ fontFamily: fonts.pretendard.medium, fontSize: 16 }}
+            >
+              view
+            </Text>
           </Pressable>
         </Animated.View>
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.mainBackground },
-  content: { flex: 1 },
-  promptContainer: { flex: 1, backgroundColor: colors.mainBackground, justifyContent: 'center' },
-  promptText: { paddingHorizontal: spacing.lg, gap: spacing.sm },
-  shakeRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
-  logo: { width: 40, height: 40, marginBottom: 12 },
-  shake: { fontFamily: fonts.helvetica.bold, fontSize: 96, color: colors.textPrimary },
-  shakeSub: { fontFamily: fonts.helvetica.regular, fontSize: 18, color: colors.textPrimary, lineHeight: 24 },
-
-  cardContainer: { flex: 1, backgroundColor: colors.mainBackground },
-  cardCaption: { textAlign: 'center', lineHeight: 24 },
-  card: {
-    marginHorizontal: 42,
-    marginTop: 32,
-    padding: 24,
-    minHeight: 380,
-    borderRadius: 20,
-    backgroundColor: 'rgba(234,232,224,0.5)',
-    gap: spacing.md,
-  },
-  cardBody: { lineHeight: 20 },
-  spacer: { flex: 1 },
-  viewWrap: { paddingHorizontal: 32 },
-  viewButton: {
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#000000',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  viewLabel: { fontFamily: fonts.pretendard.medium, fontSize: 16, color: '#FFFFFF' },
-});

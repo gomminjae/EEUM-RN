@@ -3,6 +3,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppText, colors, images } from '@/shared/ui';
+
+const hairline = StyleSheet.hairlineWidth;
 import type { RootStackParamList } from '@/shared/config/navigation';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -14,46 +16,39 @@ export function HomeBottomNav() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.wrap, { paddingBottom: insets.bottom }]}>
-      <View style={styles.row}>
+    <View
+      className="bg-main border-t border-t-black/[0.04]"
+      style={{ borderTopWidth: hairline, paddingBottom: insets.bottom }}
+    >
+      <View className="flex-row justify-center py-[12px] gap-[90px]">
         <Pressable
-          style={styles.item}
+          className="w-[60px] items-center gap-xs"
           onPress={() => navigation.navigate('Feed')}
           hitSlop={8}
         >
-          <Image source={images.folder} style={styles.icon} resizeMode="contain" />
+          <Image
+            source={images.folder}
+            className="w-[24px] h-[24px]"
+            style={{ tintColor: colors.textPrimary }}
+            resizeMode="contain"
+          />
           <AppText size={12}>feed</AppText>
         </Pressable>
 
         <Pressable
-          style={styles.item}
+          className="w-[60px] items-center gap-xs"
           onPress={() => navigation.navigate('Share')}
           hitSlop={8}
         >
-          <Image source={images.headphone} style={styles.icon} resizeMode="contain" />
+          <Image
+            source={images.headphone}
+            className="w-[24px] h-[24px]"
+            style={{ tintColor: colors.textPrimary }}
+            resizeMode="contain"
+          />
           <AppText size={12}>share</AppText>
         </Pressable>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    backgroundColor: colors.mainBackground,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(0,0,0,0.04)',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    gap: 90,
-  },
-  item: {
-    width: 60,
-    alignItems: 'center',
-    gap: 4,
-  },
-  icon: { width: 24, height: 24, tintColor: colors.textPrimary },
-});

@@ -10,13 +10,12 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
-  StyleSheet,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, fonts, images, spacing } from '@/shared/ui';
+import { AppText, colors, images, spacing } from '@/shared/ui';
 import type { Music } from '@/entities/track';
 import { useMusicPicker } from '@/features/music-search';
 import { CompletionSheet, useShareStory, type CompletionType } from '@/features/share-post';
@@ -127,33 +126,38 @@ function ShareForm(p: FormProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={styles.root} edges={['top']}>
-      <View style={styles.topBar}>
-        <Pressable onPress={p.onBack} hitSlop={8} style={styles.topBarButton}>
-          <Image source={images.home} style={styles.topBarIcon} resizeMode="contain" />
+    <SafeAreaView className="flex-1 bg-main" edges={['top']}>
+      <View className="h-[44px] px-md flex-row items-center">
+        <Pressable onPress={p.onBack} hitSlop={8} className="p-xs">
+          <Image
+            source={images.home}
+            className="w-[24px] h-[24px]"
+            style={{ tintColor: colors.textPrimary }}
+            resizeMode="contain"
+          />
         </Pressable>
       </View>
 
       <KeyboardAvoidingView
-        style={styles.flex}
+        className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Pressable style={styles.flex} onPress={Keyboard.dismiss} accessible={false}>
+        <Pressable className="flex-1" onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView
-            contentContainerStyle={styles.scroll}
+            contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 4, paddingBottom: spacing.lg }}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
           >
-            <View style={styles.musicRow}>
+            <View className="items-end">
               <Pressable onPress={p.onPickMusic} hitSlop={8}>
-                <View style={styles.musicCircle}>
+                <View className="w-[64px] h-[64px] rounded-[32px] bg-content items-center justify-center overflow-visible">
                   {p.music?.artworkUrl ? (
-                    <Image source={{ uri: p.music.artworkUrl }} style={styles.musicArtwork} />
+                    <Image source={{ uri: p.music.artworkUrl }} className="w-[64px] h-[64px] rounded-[32px]" />
                   ) : (
                     <Ionicons name="pulse" size={24} color={colors.textPrimary} />
                   )}
-                  <View style={styles.plusBadge}>
-                    <AppText size={12} weight="bold" style={styles.plusText}>
+                  <View className="absolute top-[-5px] right-[-5px] w-[20px] h-[20px] rounded-[10px] bg-accent items-center justify-center">
+                    <AppText size={12} weight="bold" className="text-white leading-[14px]">
                       +
                     </AppText>
                   </View>
@@ -161,16 +165,16 @@ function ShareForm(p: FormProps) {
               </Pressable>
             </View>
 
-            <View style={styles.card}>
+            <View className="mt-[32px] p-[20px] min-h-[250px] rounded-[20px] bg-[#EAE8E0]/50 gap-[12px]">
               <TextInput
-                style={styles.titleInput}
+                className="font-semibold text-[20px] text-primary p-0"
                 value={p.title}
                 onChangeText={p.onTitleChange}
                 placeholder="사연의 제목을 작성해 주세요"
                 placeholderTextColor={colors.textFootnote}
               />
               <TextInput
-                style={styles.storyInput}
+                className="flex-1 min-h-[160px] font-regular text-[15px] text-primary leading-[22px] p-0"
                 value={p.story}
                 onChangeText={p.onStoryChange}
                 placeholder=" 200자 이내로 자유롭게 공유하고싶은 사연을 작성해주세요"
@@ -180,22 +184,26 @@ function ShareForm(p: FormProps) {
               />
             </View>
 
-            <AppText size={12} color="textFootnote" style={styles.counter}>
+            <AppText size={12} color="textFootnote" className="mt-sm text-left">
               {p.story.length}/{MAX_STORY}
             </AppText>
           </ScrollView>
         </Pressable>
 
-        <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
+        <View
+          className="px-[32px] pt-sm bg-main"
+          style={{ paddingBottom: Math.max(insets.bottom, spacing.md) }}
+        >
           <Pressable
-            style={[styles.shareButton, p.pending && styles.shareButtonDisabled]}
+            className="h-[56px] rounded-[28px] bg-primary items-center justify-center"
+            style={p.pending ? { opacity: 0.6 } : undefined}
             onPress={p.onSubmit}
             disabled={p.pending}
           >
             {p.pending ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <AppText weight="semiBold" style={styles.shareLabel}>
+              <AppText weight="semiBold" className="text-white text-[16px]">
                 share
               </AppText>
             )}
@@ -216,110 +224,14 @@ function ShareForm(p: FormProps) {
 /** 원본 ShareCompleteView — 1.5초 후 home 으로 자동 dismiss */
 function ShareCompleteView() {
   return (
-    <View style={styles.doneRoot}>
+    <View className="flex-1 items-center justify-center gap-md px-[32px] bg-main">
       <AppText size={18} weight="semiBold">
         나의 이야기 공유 완료!
       </AppText>
-      <AppText size={14} style={styles.doneBody}>
+      <AppText size={14} className="text-center leading-[22px]">
         이제 기다릴 시간이에요.{'\n'}친구들이 당신의 이야기에 어울리는 음악을 얹고
         있어요.{'\n'}다 완성되면, 세상에 단 하나뿐인 플레이리스트가 도착합니다.
       </AppText>
     </View>
   );
 }
-
-const CARD_BG = 'rgba(234,232,224,0.5)';
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.mainBackground },
-  flex: { flex: 1 },
-
-  topBar: {
-    height: 44,
-    paddingHorizontal: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  topBarButton: { padding: spacing.xs },
-  topBarIcon: { width: 24, height: 24, tintColor: colors.textPrimary },
-
-  scroll: {
-    paddingHorizontal: 24,
-    paddingTop: 4,
-    paddingBottom: spacing.lg,
-  },
-
-  musicRow: { alignItems: 'flex-end' },
-  musicCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.contentBackground,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'visible',
-  },
-  musicArtwork: { width: 64, height: 64, borderRadius: 32 },
-  plusBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: colors.accentPrimary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  plusText: { color: '#FFFFFF', lineHeight: 14 },
-
-  card: {
-    marginTop: 32,
-    padding: 20,
-    minHeight: 250,
-    borderRadius: 20,
-    backgroundColor: CARD_BG,
-    gap: 12,
-  },
-  titleInput: {
-    fontFamily: fonts.pretendard.semiBold,
-    fontSize: 20,
-    color: colors.textPrimary,
-    padding: 0,
-  },
-  storyInput: {
-    flex: 1,
-    minHeight: 160,
-    fontFamily: fonts.pretendard.regular,
-    fontSize: 15,
-    color: colors.textPrimary,
-    lineHeight: 22,
-    padding: 0,
-  },
-  counter: { marginTop: spacing.sm, textAlign: 'left' },
-
-  bottomBar: {
-    paddingHorizontal: 32,
-    paddingTop: spacing.sm,
-    backgroundColor: colors.mainBackground,
-  },
-  shareButton: {
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.textPrimary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  shareButtonDisabled: { opacity: 0.6 },
-  shareLabel: { color: '#FFFFFF', fontSize: 16 },
-
-  doneRoot: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.md,
-    paddingHorizontal: 32,
-    backgroundColor: colors.mainBackground,
-  },
-  doneBody: { textAlign: 'center', lineHeight: 22 },
-});

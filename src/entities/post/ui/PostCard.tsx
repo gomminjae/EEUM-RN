@@ -1,6 +1,6 @@
-import { View, Image, Pressable, StyleSheet } from 'react-native';
+import { View, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, colors, spacing } from '@/shared/ui';
+import { AppText, colors } from '@/shared/ui';
 import type { Post } from '../model/types';
 
 type PostCardProps = {
@@ -22,25 +22,30 @@ export function PostCard({
   onToggleLike,
 }: PostCardProps) {
   return (
-    <Pressable style={styles.card} onPress={onPress} disabled={!onPress}>
+    <Pressable
+      className="rounded-[20px] bg-main p-lg gap-md"
+      style={{ shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 }}
+      onPress={onPress}
+      disabled={!onPress}
+    >
       <AppText size={22} weight="bold" numberOfLines={2}>
         {post.title ?? '제목 없음'}
       </AppText>
 
       {post.content != null && (
-        <AppText size={15} color="textFootnote" numberOfLines={4} style={styles.content}>
+        <AppText size={15} color="textFootnote" numberOfLines={4} style={{ lineHeight: 21 }}>
           {post.content}
         </AppText>
       )}
 
-      <View style={styles.player}>
+      <View className="flex-row items-center gap-md p-md bg-content rounded-[12px]">
         {post.artworkUrl ? (
-          <Image source={{ uri: post.artworkUrl }} style={styles.artwork} />
+          <Image source={{ uri: post.artworkUrl }} className="w-[60px] h-[60px] rounded-[8px]" />
         ) : (
-          <View style={[styles.artwork, styles.artworkEmpty]} />
+          <View className="w-[60px] h-[60px] rounded-[8px] bg-black/10" />
         )}
 
-        <View style={styles.songInfo}>
+        <View className="flex-1 gap-xs">
           <AppText size={16} weight="semiBold" numberOfLines={1}>
             {post.songName ?? '음악 정보 없음'}
           </AppText>
@@ -49,7 +54,7 @@ export function PostCard({
           </AppText>
         </View>
 
-        <View style={styles.actions}>
+        <View className="flex-row items-center gap-lg">
           <Pressable onPress={onPlay} hitSlop={8} disabled={!onPlay}>
             <Ionicons
               name={isPlaying ? 'pause' : 'play'}
@@ -69,30 +74,3 @@ export function PostCard({
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.mainBackground,
-    borderRadius: 20,
-    padding: spacing.lg,
-    gap: spacing.md,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  },
-  content: { lineHeight: 21 },
-  player: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.md,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 12,
-  },
-  artwork: { width: 60, height: 60, borderRadius: 8 },
-  artworkEmpty: { backgroundColor: 'rgba(0,0,0,0.1)' },
-  songInfo: { flex: 1, gap: spacing.xs },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
-});

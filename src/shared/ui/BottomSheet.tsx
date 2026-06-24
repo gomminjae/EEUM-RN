@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import { Modal, View, Pressable, StyleSheet } from 'react-native';
+import { Modal, View, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, spacing } from './theme';
+import { spacing } from './theme';
 
 type BottomSheetProps = {
   visible: boolean;
@@ -14,31 +14,14 @@ export function BottomSheet({ visible, onClose, children }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose} />
-      <View style={[styles.sheet, { paddingBottom: insets.bottom + spacing.md }]}>
-        <View style={styles.handle} />
+      <Pressable className="flex-1 bg-black/[0.35]" onPress={onClose} />
+      <View
+        className="bg-main rounded-t-[20px] px-lg pt-sm gap-xs"
+        style={{ paddingBottom: insets.bottom + spacing.md }}
+      >
+        <View className="self-center w-[40px] h-[4px] rounded-[2px] bg-black/15 mb-sm" />
         {children}
       </View>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
-  sheet: {
-    backgroundColor: colors.mainBackground,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    gap: spacing.xs,
-  },
-  handle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(0,0,0,0.15)',
-    marginBottom: spacing.sm,
-  },
-});

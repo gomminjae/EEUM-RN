@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet } from 'react-native';
-import { AppText, BottomSheet, colors, spacing } from '@/shared/ui';
+import { Pressable } from 'react-native';
+import { AppText, BottomSheet } from '@/shared/ui';
 
 type PostActionSheetProps = {
   visible: boolean;
@@ -21,23 +21,19 @@ export function PostActionSheet({
 }: PostActionSheetProps) {
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-      <Pressable style={styles.option} onPress={onEdit}>
+      <Pressable className="py-md" onPress={onEdit}>
         <AppText size={16}>수정</AppText>
       </Pressable>
       {!isCompleted && (
-        <Pressable style={styles.option} onPress={onComplete}>
+        <Pressable className="py-md" onPress={onComplete}>
           <AppText size={16}>완료 처리</AppText>
         </Pressable>
       )}
-      <Pressable style={styles.option} onPress={onDelete}>
-        <AppText size={16} style={{ color: colors.accentPrimary }}>
+      <Pressable className="py-md" onPress={onDelete}>
+        <AppText size={16} color="accentPrimary">
           삭제
         </AppText>
       </Pressable>
     </BottomSheet>
   );
 }
-
-const styles = StyleSheet.create({
-  option: { paddingVertical: spacing.md },
-});

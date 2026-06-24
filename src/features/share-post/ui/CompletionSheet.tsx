@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { View, Pressable, StyleSheet } from 'react-native';
-import { AppText, BottomSheet, colors, spacing } from '@/shared/ui';
+import { View, Pressable } from 'react-native';
+import { AppText, BottomSheet, colors } from '@/shared/ui';
 import type { CompletionType } from '../api/createStory';
 
 const LIMIT_OPTIONS = [10, 20, 30, 50, 100];
@@ -21,21 +21,21 @@ export function CompletionSheet({ visible, pending, onClose, onConfirm }: Comple
 
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-      <AppText size={18} weight="bold" style={styles.heading}>
+      <AppText size={18} weight="bold" className="mb-md">
         완료 방식
       </AppText>
 
-      <View style={styles.typeRow}>
+      <View className="flex-row gap-sm">
         <TypeChip label="자동 완료" active={isAuto} onPress={() => setType('AUTO_COMPLETION')} />
         <TypeChip label="수동 완료" active={!isAuto} onPress={() => setType('MANUAL_COMPLETION')} />
       </View>
 
       {isAuto && (
         <>
-          <AppText size={14} color="textFootnote" style={styles.subhead}>
+          <AppText size={14} color="textFootnote" className="mt-md mb-sm">
             댓글 수 제한
           </AppText>
-          <View style={styles.limitRow}>
+          <View className="flex-row flex-wrap gap-sm">
             {LIMIT_OPTIONS.map((n) => (
               <TypeChip key={n} label={String(n)} active={limit === n} onPress={() => setLimit(n)} />
             ))}
@@ -44,7 +44,8 @@ export function CompletionSheet({ visible, pending, onClose, onConfirm }: Comple
       )}
 
       <Pressable
-        style={[styles.confirm, pending && styles.disabled]}
+        className="mt-lg items-center py-md bg-accent rounded-[12px]"
+        style={pending && { opacity: 0.5 }}
         disabled={pending}
         onPress={() => onConfirm(type, isAuto ? limit : 0)}
       >
@@ -58,7 +59,11 @@ export function CompletionSheet({ visible, pending, onClose, onConfirm }: Comple
 
 function TypeChip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
+    <Pressable
+      onPress={onPress}
+      className="px-md py-sm rounded-[999px] bg-content"
+      style={active && { backgroundColor: colors.accentPrimary }}
+    >
       <AppText
         size={14}
         weight={active ? 'semiBold' : 'regular'}
@@ -69,25 +74,3 @@ function TypeChip({ label, active, onPress }: { label: string; active: boolean; 
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  heading: { marginBottom: spacing.md },
-  subhead: { marginTop: spacing.md, marginBottom: spacing.sm },
-  typeRow: { flexDirection: 'row', gap: spacing.sm },
-  limitRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 999,
-    backgroundColor: colors.contentBackground,
-  },
-  chipActive: { backgroundColor: colors.accentPrimary },
-  confirm: {
-    marginTop: spacing.lg,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    backgroundColor: colors.accentPrimary,
-    borderRadius: 12,
-  },
-  disabled: { opacity: 0.5 },
-});

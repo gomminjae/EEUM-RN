@@ -1,10 +1,10 @@
 import { useCallback, useLayoutEffect, useState } from 'react';
-import { View, TextInput, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, TextInput, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, fonts, spacing } from '@/shared/ui';
+import { AppText, colors } from '@/shared/ui';
 import type { Music } from '@/entities/track';
 import { usePostDetail, type PostDetail } from '@/entities/post';
 import { useMusicPicker } from '@/features/music-search';
@@ -21,7 +21,7 @@ export function EditPostScreen({ route }: Props) {
 
   if (isLoading || !detail) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center bg-main">
         <ActivityIndicator color={colors.accentPrimary} />
       </View>
     );
@@ -87,11 +87,11 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
   }, [navigation, title, content, music, canSave]);
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-main p-lg gap-md">
       {music ? (
-        <View style={styles.musicPill}>
+        <View className="flex-row items-center gap-sm self-start px-md py-sm bg-content rounded-[999px] max-w-full">
           <Ionicons name="musical-note" size={14} color={colors.textPrimary} />
-          <AppText size={14} weight="medium" numberOfLines={1} style={styles.flex}>
+          <AppText size={14} weight="medium" numberOfLines={1} className="flex-1">
             {music.songName} {music.artistName}
           </AppText>
           <Pressable onPress={() => setMusic(null)} hitSlop={8}>
@@ -99,7 +99,10 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
           </Pressable>
         </View>
       ) : (
-        <Pressable style={styles.musicAdd} onPress={() => navigation.navigate('Search')}>
+        <Pressable
+          className="flex-row items-center gap-xs self-start px-md py-sm bg-content rounded-[999px]"
+          onPress={() => navigation.navigate('Search')}
+        >
           <Ionicons name="add" size={18} color={colors.accentPrimary} />
           <AppText size={14} color="accentPrimary">
             음악 선택
@@ -108,65 +111,24 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
       )}
 
       <TextInput
-        style={styles.title}
+        className="font-semibold text-[20px] text-primary py-sm"
         value={title}
         onChangeText={setTitle}
         placeholder="사연의 제목을 작성해 주세요"
         placeholderTextColor={colors.textFootnote}
       />
       <TextInput
-        style={styles.content}
+        className="min-h-[160px] font-regular text-[15px] text-primary leading-[22px]"
+        style={{ textAlignVertical: 'top' }}
         value={content}
         onChangeText={(t) => setContent(t.slice(0, MAX))}
         placeholder="자유롭게 사연을 작성해주세요"
         placeholderTextColor={colors.textFootnote}
         multiline
       />
-      <AppText size={12} color="textFootnote" style={styles.counter}>
+      <AppText size={12} color="textFootnote" className="text-right">
         {content.length}/{MAX}
       </AppText>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.mainBackground, padding: spacing.lg, gap: spacing.md },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.mainBackground },
-  flex: { flex: 1 },
-  musicPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    alignSelf: 'flex-start',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 999,
-    maxWidth: '100%',
-  },
-  musicAdd: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    alignSelf: 'flex-start',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 999,
-  },
-  title: {
-    fontFamily: fonts.pretendard.semiBold,
-    fontSize: 20,
-    color: colors.textPrimary,
-    paddingVertical: spacing.sm,
-  },
-  content: {
-    minHeight: 160,
-    textAlignVertical: 'top',
-    fontFamily: fonts.pretendard.regular,
-    fontSize: 15,
-    color: colors.textPrimary,
-    lineHeight: 22,
-  },
-  counter: { textAlign: 'right' },
-});

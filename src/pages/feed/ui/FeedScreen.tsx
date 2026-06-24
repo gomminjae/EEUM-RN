@@ -1,9 +1,9 @@
 import { useLayoutEffect, useState } from 'react';
-import { View, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, fonts, spacing } from '@/shared/ui';
+import { AppText, colors, fonts } from '@/shared/ui';
 import { type FeedKind, type Post } from '@/entities/post';
 import { usePlayerStore } from '@/features/play-track';
 import type { RootStackParamList } from '@/shared/config/navigation';
@@ -28,11 +28,20 @@ export function FeedScreen() {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Pressable onPress={() => navigation.navigate('PostsList')} hitSlop={8} style={styles.inboxButton}>
+        <Pressable
+          onPress={() => navigation.navigate('PostsList')}
+          hitSlop={8}
+          className="flex-row items-center gap-[2px] px-md py-[6px] bg-content rounded-[16px]"
+        >
           <AppText size={14} weight="medium">
             Inbox
           </AppText>
-          <Ionicons name="arrow-up" size={13} color={colors.textPrimary} style={styles.inboxArrow} />
+          <Ionicons
+            name="arrow-up"
+            size={13}
+            color={colors.textPrimary}
+            style={{ transform: [{ rotate: '45deg' }] }}
+          />
         </Pressable>
       ),
     });
@@ -45,13 +54,16 @@ export function FeedScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.tabBar}>
+    <View className="flex-1 bg-main">
+      <View className="flex-row gap-lg px-lg pt-md pb-sm">
         {TABS.map(({ key, label }) => (
           <Pressable key={key} onPress={() => setTab(key)} hitSlop={8}>
             <AppText
               size={28}
-              style={[styles.tabLabel, { color: tab === key ? colors.textPrimary : colors.textFootnote }]}
+              style={{
+                fontFamily: fonts.helvetica.bold,
+                color: tab === key ? colors.textPrimary : colors.textFootnote,
+              }}
             >
               {label}
             </AppText>
@@ -60,7 +72,7 @@ export function FeedScreen() {
       </View>
 
       {query.isLoading ? (
-        <View style={styles.center}>
+        <View className="flex-1 items-center justify-center gap-sm pt-[80px]">
           <ActivityIndicator color={colors.accentPrimary} />
         </View>
       ) : tab === 'ing' ? (
@@ -77,26 +89,3 @@ export function FeedScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.mainBackground },
-  tabBar: {
-    flexDirection: 'row',
-    gap: spacing.lg,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
-  },
-  tabLabel: { fontFamily: fonts.helvetica.bold },
-  inboxButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 16,
-  },
-  inboxArrow: { transform: [{ rotate: '45deg' }] },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingTop: 80 },
-});

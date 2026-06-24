@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
-import { View, ActivityIndicator, Pressable, StyleSheet } from 'react-native';
-import { AppText, colors, spacing } from '@/shared/ui';
+import { View, ActivityIndicator, Pressable } from 'react-native';
+import { AppText, colors } from '@/shared/ui';
 import { useAuthStore } from '../model/authStore';
 
 /** 앱 진입 게이트: 부트스트랩(토큰 확인 → 없으면 게스트 로그인) 후
@@ -18,15 +18,15 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   if (status === 'unauthenticated') {
     return (
-      <View style={styles.container}>
+      <View className="flex-1 items-center justify-center bg-main gap-md p-lg">
         <AppText size={22} weight="bold">
           이음
         </AppText>
-        <AppText size={14} color="textFootnote" style={styles.message}>
+        <AppText size={14} color="textFootnote" className="text-center">
           {error ?? '로그인에 실패했어요'}
         </AppText>
-        <Pressable style={styles.button} onPress={() => bootstrap()}>
-          <AppText size={15} weight="semiBold" style={styles.buttonLabel}>
+        <Pressable className="mt-sm py-sm px-lg bg-accent rounded-[12px]" onPress={() => bootstrap()}>
+          <AppText size={15} weight="semiBold" style={{ color: '#FFFFFF' }}>
             다시 시도
           </AppText>
         </Pressable>
@@ -36,28 +36,8 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   // idle | loading
   return (
-    <View style={styles.container}>
+    <View className="flex-1 items-center justify-center bg-main gap-md p-lg">
       <ActivityIndicator color={colors.accentPrimary} />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.mainBackground,
-    gap: spacing.md,
-    padding: spacing.lg,
-  },
-  message: { textAlign: 'center' },
-  button: {
-    marginTop: spacing.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.accentPrimary,
-    borderRadius: 12,
-  },
-  buttonLabel: { color: '#FFFFFF' },
-});

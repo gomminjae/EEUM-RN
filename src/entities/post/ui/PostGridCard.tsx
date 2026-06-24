@@ -1,6 +1,6 @@
-import { View, Image, Pressable, StyleSheet } from 'react-native';
+import { View, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, colors, spacing } from '@/shared/ui';
+import { AppText, colors } from '@/shared/ui';
 import type { Post } from '../model/types';
 
 type PostGridCardProps = {
@@ -14,40 +14,40 @@ type PostGridCardProps = {
 /** 원본 MyPostCard/DonePostCard 이식 — 2열 그리드용 정사각 썸네일 + 제목/곡 */
 export function PostGridCard({ post, showHeart = false, badge, onPress }: PostGridCardProps) {
   return (
-    <Pressable style={styles.card} onPress={onPress} disabled={!onPress}>
-      <View style={styles.artworkWrap}>
+    <Pressable className="flex-1 gap-sm" onPress={onPress} disabled={!onPress}>
+      <View className="aspect-square rounded-[12px] overflow-hidden">
         {post.artworkUrl ? (
-          <Image source={{ uri: post.artworkUrl }} style={styles.artwork} />
+          <Image source={{ uri: post.artworkUrl }} className="w-full h-full" />
         ) : (
-          <View style={[styles.artwork, styles.artworkEmpty]}>
+          <View className="w-full h-full bg-black/[0.08] items-center justify-center">
             <Ionicons name="musical-note" size={24} color={colors.textFootnote} />
           </View>
         )}
         {badge != null && (
-          <View style={styles.badge}>
-            <AppText size={11} weight="medium" style={{ color: '#FFFFFF' }}>
+          <View className="absolute right-[8px] bottom-[8px] px-[8px] py-[4px] rounded-[999px] bg-black/70">
+            <AppText size={11} weight="medium" className="text-white">
               {badge}
             </AppText>
           </View>
         )}
       </View>
 
-      <View style={styles.titleRow}>
-        <AppText size={13} weight="semiBold" numberOfLines={1} style={styles.flex}>
+      <View className="flex-row items-center gap-xs">
+        <AppText size={13} weight="semiBold" numberOfLines={1} className="flex-1">
           {post.title ?? '제목 없음'}
         </AppText>
         {showHeart && <Ionicons name="heart" size={12} color={colors.accentPrimary} />}
       </View>
 
       {(post.songName || post.artistName) && (
-        <View style={styles.songRow}>
+        <View className="flex-row items-center gap-xs">
           {!!post.songName && (
             <AppText size={11} weight="medium" numberOfLines={1}>
               {post.songName}
             </AppText>
           )}
           {!!post.artistName && (
-            <AppText size={11} color="textFootnote" numberOfLines={1} style={styles.flex}>
+            <AppText size={11} color="textFootnote" numberOfLines={1} className="flex-1">
               {post.artistName}
             </AppText>
           )}
@@ -56,22 +56,3 @@ export function PostGridCard({ post, showHeart = false, badge, onPress }: PostGr
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  card: { flex: 1, gap: spacing.sm },
-  artworkWrap: { aspectRatio: 1, borderRadius: 12, overflow: 'hidden' },
-  artwork: { width: '100%', height: '100%' },
-  badge: {
-    position: 'absolute',
-    right: 8,
-    bottom: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-  },
-  artworkEmpty: { backgroundColor: 'rgba(0,0,0,0.08)', alignItems: 'center', justifyContent: 'center' },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  songRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  flex: { flex: 1 },
-});

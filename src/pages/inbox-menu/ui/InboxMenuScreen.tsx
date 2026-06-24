@@ -1,7 +1,7 @@
-import { View, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors } from '@/shared/ui';
+import { AppText } from '@/shared/ui';
 import type { RootStackParamList } from '@/shared/config/navigation';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -17,12 +17,12 @@ export function InboxMenuScreen() {
   const navigation = useNavigation<Nav>();
 
   return (
-    <View style={styles.wrap}>
+    <View className="flex-1 bg-main px-[20px] pt-[20px]">
       {MENU.map((m) => (
         <Pressable
           key={m.label}
           onPress={() => navigation.navigate(m.route as 'PostsList' | 'CommentsList' | 'LikesList')}
-          style={styles.item}
+          className="py-[12px]"
           hitSlop={8}
         >
           <AppText size={28} weight="bold">
@@ -33,13 +33,3 @@ export function InboxMenuScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    flex: 1,
-    backgroundColor: colors.mainBackground,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  item: { paddingVertical: 12 },
-});

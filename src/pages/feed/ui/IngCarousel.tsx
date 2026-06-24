@@ -10,7 +10,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, colors, spacing } from '@/shared/ui';
+import { AppText, colors } from '@/shared/ui';
 import type { Post } from '@/entities/post';
 import type { useFeed } from '../model/useFeed';
 
@@ -42,7 +42,7 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
 
   if (posts.length === 0) {
     return (
-      <View style={styles.empty}>
+      <View className="flex-1 items-center justify-center gap-md">
         <Ionicons name="file-tray-outline" size={56} color={colors.textFootnote} />
         <AppText size={16} weight="medium" color="textFootnote">
           진행 중인 사연이 없습니다
@@ -54,7 +54,7 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
   const activePost = posts[Math.min(active, posts.length - 1)];
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 pt-md">
       <FlatList
         data={posts}
         horizontal
@@ -66,15 +66,18 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
         onMomentumScrollEnd={onScrollEnd}
         contentContainerStyle={{ paddingLeft: SIDE_PADDING, paddingRight: 56 }}
         renderItem={({ item }) => (
-          <View style={[styles.card, { width: cardWidth, height: cardWidth, marginRight: GAP }]}>
+          <View
+            className="rounded-[4px] overflow-hidden bg-content"
+            style={{ width: cardWidth, height: cardWidth, marginRight: GAP }}
+          >
             {item.artworkUrl ? (
               <Image source={{ uri: item.artworkUrl }} style={StyleSheet.absoluteFill} />
             ) : (
-              <View style={[StyleSheet.absoluteFill, styles.artworkEmpty]} />
+              <View className="bg-black/10" style={StyleSheet.absoluteFill} />
             )}
             {!!item.appleMusicUrl && (
               <Pressable
-                style={styles.playButton}
+                className="absolute left-[12px] bottom-[12px] w-[36px] h-[36px] rounded-[18px] bg-black/60 items-center justify-center"
                 onPress={() => onPlay(item.appleMusicUrl!)}
                 hitSlop={8}
               >
@@ -90,20 +93,23 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
       />
 
       {activePost && (
-        <View style={styles.meta}>
+        <View className="px-lg pt-md gap-xs">
           <AppText size={18} weight="bold" numberOfLines={1}>
             {activePost.title ?? '제목 없음'}
           </AppText>
           {activePost.content != null && (
-            <AppText size={14} color="textFootnote" numberOfLines={4} style={styles.content}>
+            <AppText size={14} color="textFootnote" numberOfLines={4} className="leading-[20px]">
               {activePost.content}
             </AppText>
           )}
         </View>
       )}
 
-      <View style={styles.footer}>
-        <Pressable style={styles.viewButton} onPress={() => activePost && onPressPost(activePost)}>
+      <View className="flex-1 justify-end px-lg pb-xl">
+        <Pressable
+          className="items-center py-[14px] bg-[#000000] rounded-[20px]"
+          onPress={() => activePost && onPressPost(activePost)}
+        >
           <AppText size={16} weight="semiBold" style={{ color: '#FFFFFF' }}>
             view
           </AppText>
@@ -112,30 +118,3 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: spacing.md },
-  card: { borderRadius: 4, overflow: 'hidden', backgroundColor: colors.contentBackground },
-  artworkEmpty: { backgroundColor: 'rgba(0,0,0,0.1)' },
-  playButton: {
-    position: 'absolute',
-    left: 12,
-    bottom: 12,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  meta: { paddingHorizontal: SIDE_PADDING, paddingTop: spacing.md, gap: spacing.xs },
-  content: { lineHeight: 20 },
-  footer: { flex: 1, justifyContent: 'flex-end', paddingHorizontal: SIDE_PADDING, paddingBottom: spacing.xl },
-  viewButton: {
-    alignItems: 'center',
-    paddingVertical: 14,
-    backgroundColor: '#000000',
-    borderRadius: 20,
-  },
-  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
-});

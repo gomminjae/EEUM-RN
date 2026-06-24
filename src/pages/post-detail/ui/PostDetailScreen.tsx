@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-  StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -81,7 +80,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center gap-sm bg-main">
         <ActivityIndicator color={colors.accentPrimary} />
       </View>
     );
@@ -89,9 +88,9 @@ export function PostDetailScreen({ route, navigation }: Props) {
 
   if (isError || !detail) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center gap-sm bg-main">
         <AppText color="textFootnote">불러오지 못했어요</AppText>
-        <Pressable onPress={() => refetch()} style={styles.retry}>
+        <Pressable onPress={() => refetch()} className="py-sm px-md">
           <AppText weight="semiBold" style={{ color: colors.accentPrimary }}>
             다시 시도
           </AppText>
@@ -102,28 +101,31 @@ export function PostDetailScreen({ route, navigation }: Props) {
 
   return (
     <KeyboardAvoidingView
-      style={styles.flex}
+      className="flex-1 bg-main"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
-      <ScrollView style={styles.flex} contentContainerStyle={styles.content}>
+      <ScrollView
+        className="flex-1 bg-main"
+        contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xl }}
+      >
         <AppText size={26} weight="bold">
           {detail.title}
         </AppText>
         <AppText size={13} color="textFootnote">
           {formatDate(detail.createdAt)}
         </AppText>
-        <AppText size={16} style={styles.body}>
+        <AppText size={16} className="leading-[24px] mt-sm">
           {detail.content}
         </AppText>
 
-        <View style={styles.player}>
+        <View className="flex-row items-center gap-md p-md mt-md bg-content rounded-[12px]">
           {detail.artworkUrl ? (
-            <Image source={{ uri: detail.artworkUrl }} style={styles.artwork} />
+            <Image source={{ uri: detail.artworkUrl }} className="w-[56px] h-[56px] rounded-[8px]" />
           ) : (
-            <View style={[styles.artwork, styles.artworkEmpty]} />
+            <View className="w-[56px] h-[56px] rounded-[8px] bg-black/10" />
           )}
-          <View style={styles.songInfo}>
+          <View className="flex-1 gap-xs">
             <AppText size={16} weight="semiBold" numberOfLines={1}>
               {detail.songName || '음악 정보 없음'}
             </AppText>
@@ -131,7 +133,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
               {detail.artistName}
             </AppText>
           </View>
-          <View style={styles.songActions}>
+          <View className="flex-row items-center gap-md">
             {!!detail.appleMusicUrl && (
               <Pressable onPress={() => togglePlay(detail.appleMusicUrl)} hitSlop={8}>
                 <Ionicons
@@ -155,7 +157,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
           </View>
         </View>
 
-        <AppText size={15} weight="semiBold" style={styles.commentsHeader}>
+        <AppText size={15} weight="semiBold" className="mt-lg">
           댓글 {detail.comments.length}
         </AppText>
         {detail.comments.map((c, i) => (
@@ -168,7 +170,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
           />
         ))}
         {detail.comments.length === 0 && (
-          <AppText color="textFootnote" style={styles.empty}>
+          <AppText color="textFootnote" className="mt-md">
             첫 댓글을 남겨보세요
           </AppText>
         )}
@@ -201,32 +203,3 @@ export function PostDetailScreen({ route, navigation }: Props) {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.mainBackground },
-  content: { padding: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xl },
-  body: { lineHeight: 24, marginTop: spacing.sm },
-  player: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.md,
-    marginTop: spacing.md,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 12,
-  },
-  artwork: { width: 56, height: 56, borderRadius: 8 },
-  artworkEmpty: { backgroundColor: 'rgba(0,0,0,0.1)' },
-  songInfo: { flex: 1, gap: spacing.xs },
-  songActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  commentsHeader: { marginTop: spacing.lg },
-  empty: { marginTop: spacing.md },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.mainBackground,
-  },
-  retry: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md },
-});

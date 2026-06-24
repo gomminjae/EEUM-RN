@@ -3,7 +3,9 @@ import { View, TextInput, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, fonts, spacing } from '@/shared/ui';
+import { AppText, colors } from '@/shared/ui';
+
+const hairline = StyleSheet.hairlineWidth;
 import type { Music } from '@/entities/track';
 import { useMusicPicker } from '@/features/music-search';
 import type { RootStackParamList } from '@/shared/config/navigation';
@@ -48,11 +50,11 @@ export function CommentInputBar({ postId }: { postId: string }) {
   };
 
   return (
-    <View style={styles.wrap}>
+    <View className="border-t border-t-black/10 bg-main" style={{ borderTopWidth: hairline }}>
       {music && (
-        <View style={styles.musicChip}>
+        <View className="flex-row items-center gap-sm mx-md mt-sm px-md py-sm bg-content rounded-[999px]">
           <Ionicons name="musical-note" size={13} color={colors.textPrimary} />
-          <AppText size={13} numberOfLines={1} style={styles.flex}>
+          <AppText size={13} numberOfLines={1} className="flex-1">
             {music.songName} · {music.artistName}
           </AppText>
           <Pressable onPress={() => setMusic(null)} hitSlop={8}>
@@ -60,12 +62,12 @@ export function CommentInputBar({ postId }: { postId: string }) {
           </Pressable>
         </View>
       )}
-      <View style={styles.bar}>
-        <Pressable onPress={() => navigation.navigate('Search')} hitSlop={8} style={styles.attach}>
+      <View className="flex-row items-end gap-sm px-md py-sm">
+        <Pressable onPress={() => navigation.navigate('Search')} hitSlop={8} className="pb-sm">
           <Ionicons name="musical-notes-outline" size={22} color={colors.textPrimary} />
         </Pressable>
         <TextInput
-          style={styles.input}
+          className="flex-1 max-h-[120px] min-h-[40px] px-md py-sm bg-content rounded-[20px] font-regular text-[15px] text-primary"
           value={text}
           onChangeText={setText}
           placeholder="댓글을 입력하세요"
@@ -74,7 +76,7 @@ export function CommentInputBar({ postId }: { postId: string }) {
           returnKeyType="send"
           onSubmitEditing={submit}
         />
-        <Pressable onPress={submit} disabled={!canSend} hitSlop={8} style={styles.send}>
+        <Pressable onPress={submit} disabled={!canSend} hitSlop={8} className="pb-xs">
           <Ionicons
             name="arrow-up-circle"
             size={32}
@@ -85,38 +87,3 @@ export function CommentInputBar({ postId }: { postId: string }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(0,0,0,0.1)',
-    backgroundColor: colors.mainBackground,
-  },
-  musicChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 999,
-  },
-  bar: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  attach: { paddingBottom: spacing.sm },
-  input: {
-    flex: 1,
-    maxHeight: 120,
-    minHeight: 40,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 20,
-    fontFamily: fonts.pretendard.regular,
-    fontSize: 15,
-    color: colors.textPrimary,
-  },
-  send: { paddingBottom: spacing.xs },
-  flex: { flex: 1 },
-});

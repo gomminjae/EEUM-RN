@@ -1,6 +1,6 @@
-import { View, Image, Pressable, StyleSheet } from 'react-native';
+import { View, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, colors, spacing } from '@/shared/ui';
+import { AppText, colors } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/date';
 import type { Comment } from '../model/types';
 
@@ -16,18 +16,18 @@ export function CommentItem({ comment, isPlaying = false, onPlay, onReport }: Co
   const hasMusic = !!comment.songName;
 
   return (
-    <View style={styles.row}>
-      <View style={styles.body}>
+    <View className="flex-row items-start py-md gap-sm">
+      <View className="flex-1 gap-xs">
         <AppText size={15}>{comment.content ?? ''}</AppText>
 
         {hasMusic && (
-          <View style={styles.music}>
+          <View className="flex-row items-center gap-sm p-sm mt-xs bg-content rounded-[10px]">
             {comment.artworkUrl ? (
-              <Image source={{ uri: comment.artworkUrl }} style={styles.artwork} />
+              <Image source={{ uri: comment.artworkUrl }} className="w-[36px] h-[36px] rounded-[6px]" />
             ) : (
-              <View style={[styles.artwork, styles.artworkEmpty]} />
+              <View className="w-[36px] h-[36px] rounded-[6px] bg-black/10" />
             )}
-            <View style={styles.musicInfo}>
+            <View className="flex-1">
               <AppText size={13} weight="semiBold" numberOfLines={1}>
                 {comment.songName}
               </AppText>
@@ -43,35 +43,16 @@ export function CommentItem({ comment, isPlaying = false, onPlay, onReport }: Co
           </View>
         )}
 
-        <AppText size={12} color="textFootnote" style={styles.date}>
+        <AppText size={12} color="textFootnote" className="mt-xs">
           {formatDate(comment.createdAt)}
         </AppText>
       </View>
 
       {onReport && (
-        <Pressable onPress={onReport} hitSlop={8} style={styles.report}>
+        <Pressable onPress={onReport} hitSlop={8} className="pt-xs">
           <Ionicons name="ellipsis-horizontal" size={18} color={colors.textFootnote} />
         </Pressable>
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'flex-start', paddingVertical: spacing.md, gap: spacing.sm },
-  body: { flex: 1, gap: spacing.xs },
-  music: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    padding: spacing.sm,
-    marginTop: spacing.xs,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 10,
-  },
-  artwork: { width: 36, height: 36, borderRadius: 6 },
-  artworkEmpty: { backgroundColor: 'rgba(0,0,0,0.1)' },
-  musicInfo: { flex: 1 },
-  date: { marginTop: spacing.xs },
-  report: { paddingTop: spacing.xs },
-});

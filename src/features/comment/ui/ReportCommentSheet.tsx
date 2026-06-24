@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { View, TextInput, Pressable, StyleSheet } from 'react-native';
-import { AppText, BottomSheet, colors, fonts, spacing } from '@/shared/ui';
+import { View, TextInput, Pressable } from 'react-native';
+import { AppText, BottomSheet, colors } from '@/shared/ui';
 
 const REASONS = [
   { code: 'VIOLENCE', label: '폭력 및 혐오 표현' },
@@ -48,25 +48,25 @@ export function ReportCommentSheet({ visible, onClose, onSubmit }: ReportComment
         onClose();
       }}
     >
-      <AppText size={18} weight="bold" style={styles.title}>
+      <AppText size={18} weight="bold" className="mb-sm">
         신고하기
       </AppText>
       {REASONS.map(({ code, label }) => (
-        <Pressable key={code} onPress={() => pick(code)} style={styles.option}>
+        <Pressable key={code} onPress={() => pick(code)} className="py-md">
           <AppText size={16}>{label}</AppText>
         </Pressable>
       ))}
       {showCustom && (
-        <View style={styles.customRow}>
+        <View className="flex-row items-center gap-sm mt-sm">
           <TextInput
-            style={styles.customInput}
+            className="flex-1 px-md py-sm bg-content rounded-[12px] font-regular text-[15px] text-primary"
             value={custom}
             onChangeText={setCustom}
             placeholder="신고 사유를 입력해주세요"
             placeholderTextColor={colors.textFootnote}
             autoFocus
           />
-          <Pressable onPress={submitCustom} style={styles.submit}>
+          <Pressable onPress={submitCustom} className="px-md py-sm bg-accent rounded-[12px]">
             <AppText weight="semiBold" style={{ color: '#FFFFFF' }}>
               제출
             </AppText>
@@ -76,25 +76,3 @@ export function ReportCommentSheet({ visible, onClose, onSubmit }: ReportComment
     </BottomSheet>
   );
 }
-
-const styles = StyleSheet.create({
-  title: { marginBottom: spacing.sm },
-  option: { paddingVertical: spacing.md },
-  customRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
-  customInput: {
-    flex: 1,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 12,
-    fontFamily: fonts.pretendard.regular,
-    fontSize: 15,
-    color: colors.textPrimary,
-  },
-  submit: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.accentPrimary,
-    borderRadius: 12,
-  },
-});

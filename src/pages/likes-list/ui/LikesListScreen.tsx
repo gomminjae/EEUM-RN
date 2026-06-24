@@ -1,4 +1,4 @@
-import { View, FlatList, Image, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, FlatList, Image, ActivityIndicator } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -21,11 +21,11 @@ export function LikesListScreen() {
 
   return (
     <FlatList
-      style={styles.container}
+      className="flex-1 bg-main"
       data={posts}
       numColumns={2}
       keyExtractor={(item, i) => item.postId || String(i)}
-      columnWrapperStyle={styles.column}
+      columnWrapperStyle={{ gap: 12, paddingHorizontal: 20, marginTop: 16 }}
       ListHeaderComponent={
         <InboxHeader
           title="Likes"
@@ -34,18 +34,18 @@ export function LikesListScreen() {
         />
       }
       renderItem={({ item }) => (
-        <View style={styles.gridItem}>
+        <View className="flex-1 max-w-[48%]">
           <PostGridCard post={item} showHeart onPress={() => openPost(item)} />
         </View>
       )}
       ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={{ paddingBottom: spacing.lg, flexGrow: 1 }}
       ListEmptyComponent={
         query.isLoading ? (
-          <ActivityIndicator color={colors.accentPrimary} style={styles.loader} />
+          <ActivityIndicator color={colors.accentPrimary} className="mt-[60px]" />
         ) : (
-          <View style={styles.empty}>
-            <Image source={images.nodata} style={styles.emptyImage} resizeMode="contain" />
+          <View className="items-center gap-md mt-[60px]">
+            <Image source={images.nodata} className="w-[120px] h-[120px] opacity-80" resizeMode="contain" />
             <AppText color="textFootnote">좋아요한 사연이 없습니다</AppText>
           </View>
         )
@@ -55,13 +55,3 @@ export function LikesListScreen() {
     />
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.mainBackground },
-  content: { paddingBottom: spacing.lg, flexGrow: 1 },
-  column: { gap: 12, paddingHorizontal: 20, marginTop: 16 },
-  gridItem: { flex: 1, maxWidth: '48%' },
-  loader: { marginTop: 60 },
-  empty: { alignItems: 'center', gap: spacing.md, marginTop: 60 },
-  emptyImage: { width: 120, height: 120, opacity: 0.8 },
-});

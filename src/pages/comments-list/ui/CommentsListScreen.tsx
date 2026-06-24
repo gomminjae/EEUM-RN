@@ -1,4 +1,4 @@
-import { View, FlatList, Image, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, FlatList, Image, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
@@ -22,7 +22,7 @@ export function CommentsListScreen() {
 
   return (
     <FlatList
-      style={styles.container}
+      className="flex-1 bg-main"
       data={posts}
       keyExtractor={(item, i) => item.postId || String(i)}
       ListHeaderComponent={
@@ -34,13 +34,13 @@ export function CommentsListScreen() {
       }
       renderItem={({ item }) => <CommentedPostRow post={item} onPress={() => openPost(item)} />}
       ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={{ paddingTop: 16, paddingHorizontal: 20, paddingBottom: spacing.lg, flexGrow: 1 }}
       ListEmptyComponent={
         query.isLoading ? (
-          <ActivityIndicator color={colors.accentPrimary} style={styles.loader} />
+          <ActivityIndicator color={colors.accentPrimary} className="mt-[60px]" />
         ) : (
-          <View style={styles.empty}>
-            <Image source={images.nodata} style={styles.emptyImage} resizeMode="contain" />
+          <View className="items-center gap-md mt-[60px]">
+            <Image source={images.nodata} className="w-[120px] h-[120px] opacity-80" resizeMode="contain" />
             <AppText color="textFootnote">댓글을 남긴 사연이 없습니다</AppText>
           </View>
         )
@@ -53,15 +53,15 @@ export function CommentsListScreen() {
 
 function CommentedPostRow({ post, onPress }: { post: Post; onPress: () => void }) {
   return (
-    <Pressable style={styles.row} onPress={onPress}>
+    <Pressable className="flex-row items-center gap-[12px]" onPress={onPress}>
       {post.artworkUrl ? (
-        <Image source={{ uri: post.artworkUrl }} style={styles.artwork} />
+        <Image source={{ uri: post.artworkUrl }} className="w-[56px] h-[56px] rounded-[10px]" />
       ) : (
-        <View style={[styles.artwork, styles.artworkEmpty]}>
+        <View className="w-[56px] h-[56px] rounded-[10px] bg-black/[0.08] items-center justify-center">
           <Ionicons name="musical-note" size={20} color={colors.textFootnote} />
         </View>
       )}
-      <View style={styles.text}>
+      <View className="flex-1 gap-xs">
         <AppText size={15} weight="semiBold" numberOfLines={1}>
           {post.title ?? '사연 제목'}
         </AppText>
@@ -74,15 +74,3 @@ function CommentedPostRow({ post, onPress }: { post: Post; onPress: () => void }
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.mainBackground },
-  content: { paddingTop: 16, paddingHorizontal: 20, paddingBottom: spacing.lg, flexGrow: 1 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  artwork: { width: 56, height: 56, borderRadius: 10 },
-  artworkEmpty: { backgroundColor: 'rgba(0,0,0,0.08)', alignItems: 'center', justifyContent: 'center' },
-  text: { flex: 1, gap: 4 },
-  loader: { marginTop: 60 },
-  empty: { alignItems: 'center', gap: spacing.md, marginTop: 60 },
-  emptyImage: { width: 120, height: 120, opacity: 0.8 },
-});

@@ -1,6 +1,6 @@
-import { View, Pressable, Linking, ScrollView, StyleSheet } from 'react-native';
+import { Pressable, Linking, ScrollView } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
-import { AppText, colors, spacing } from '@/shared/ui';
+import { AppText, spacing } from '@/shared/ui';
 
 /** 원본 SettingView 이식 — FAQ / Contacts us / Terms / Privacy */
 const NOTION_URL = 'https://www.notion.so/220a8ad06b41800886aedbe718fa6c3c';
@@ -14,9 +14,9 @@ const ROWS: { title: string; action: () => void }[] = [
 
 export function SettingsScreen() {
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView className="flex-1 bg-main" contentContainerStyle={{ paddingTop: spacing.md }}>
       {ROWS.map(({ title, action }) => (
-        <Pressable key={title} style={styles.row} onPress={action}>
+        <Pressable key={title} className="px-lg py-[18px]" onPress={action}>
           <AppText size={16} weight="medium">
             {title}
           </AppText>
@@ -25,9 +25,3 @@ export function SettingsScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.mainBackground },
-  content: { paddingTop: spacing.md },
-  row: { paddingHorizontal: spacing.lg, paddingVertical: 18 },
-});

@@ -1,5 +1,5 @@
-import { View, Image, Pressable, StyleSheet } from 'react-native';
-import { AppText, colors, spacing } from '@/shared/ui';
+import { View, Image, Pressable } from 'react-native';
+import { AppText } from '@/shared/ui';
 import type { Music } from '../model/types';
 
 type TrackRowProps = {
@@ -10,13 +10,17 @@ type TrackRowProps = {
 /** 원본 SearchResultRow 이식 — 앨범아트 + 곡/아티스트 */
 export function TrackRow({ music, onPress }: TrackRowProps) {
   return (
-    <Pressable style={styles.row} onPress={onPress} disabled={!onPress}>
+    <Pressable
+      className="flex-row items-center gap-md py-sm"
+      onPress={onPress}
+      disabled={!onPress}
+    >
       {music.artworkUrl ? (
-        <Image source={{ uri: music.artworkUrl }} style={styles.artwork} />
+        <Image source={{ uri: music.artworkUrl }} className="w-12 h-12 rounded-md" />
       ) : (
-        <View style={[styles.artwork, styles.artworkEmpty]} />
+        <View className="w-12 h-12 rounded-md bg-black/10" />
       )}
-      <View style={styles.info}>
+      <View className="flex-1">
         <AppText size={15} weight="semiBold" numberOfLines={1}>
           {music.songName}
         </AppText>
@@ -27,10 +31,3 @@ export function TrackRow({ music, onPress }: TrackRowProps) {
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm },
-  artwork: { width: 48, height: 48, borderRadius: 6 },
-  artworkEmpty: { backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: 6 },
-  info: { flex: 1 },
-});

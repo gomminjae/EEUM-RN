@@ -1,4 +1,4 @@
-import { View, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, colors, spacing } from '@/shared/ui';
@@ -17,7 +17,7 @@ export function DoneGrid({ query, posts, onPressPost }: DoneGridProps) {
 
   if (posts.length === 0) {
     return (
-      <View style={styles.empty}>
+      <View className="flex-1 items-center justify-center gap-md">
         <Ionicons name="checkmark-circle-outline" size={56} color={colors.textFootnote} />
         <AppText size={16} weight="medium" color="textFootnote">
           완료된 사연이 없습니다
@@ -30,15 +30,15 @@ export function DoneGrid({ query, posts, onPressPost }: DoneGridProps) {
     <FlatList
       data={posts}
       numColumns={2}
-      columnWrapperStyle={styles.column}
+      columnWrapperStyle={{ gap: spacing.md }}
       keyExtractor={(item, i) => item.postId ?? String(i)}
       renderItem={({ item, index }) => (
-        <View style={styles.cell}>
+        <View className="flex-1 max-w-[48%]">
           <PostGridCard post={item} badge={`${index + 1}/${posts.length}`} onPress={() => onPressPost(item)} />
         </View>
       )}
       ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.lg }]}
+      contentContainerStyle={{ padding: spacing.lg, paddingBottom: insets.bottom + spacing.lg }}
       onEndReachedThreshold={0.4}
       onEndReached={() => {
         if (query.hasNextPage && !query.isFetchingNextPage) query.fetchNextPage();
@@ -53,10 +53,3 @@ export function DoneGrid({ query, posts, onPressPost }: DoneGridProps) {
     />
   );
 }
-
-const styles = StyleSheet.create({
-  content: { padding: spacing.lg },
-  column: { gap: spacing.md },
-  cell: { flex: 1, maxWidth: '48%' },
-  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
-});

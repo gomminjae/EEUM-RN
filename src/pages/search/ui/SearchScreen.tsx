@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { View, TextInput, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { AppText, colors, fonts, spacing } from '@/shared/ui';
+import { AppText, colors, spacing } from '@/shared/ui';
 import { useDebounce } from '@/shared/lib/useDebounce';
 import { TrackRow, type Music } from '@/entities/track';
 import { useMusicSearch, useMusicPicker } from '@/features/music-search';
@@ -20,9 +20,9 @@ export function SearchScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-main">
       <TextInput
-        style={styles.input}
+        className="m-lg px-md py-sm bg-content rounded-[12px] font-regular text-[16px] text-primary"
         value={term}
         onChangeText={setTerm}
         placeholder="곡, 아티스트 검색"
@@ -32,7 +32,7 @@ export function SearchScreen() {
       />
 
       {query.isLoading && (
-        <View style={styles.center}>
+        <View className="items-center justify-center pt-[60px] gap-sm">
           <ActivityIndicator color={colors.accentPrimary} />
         </View>
       )}
@@ -41,11 +41,11 @@ export function SearchScreen() {
         data={query.data ?? []}
         keyExtractor={(m) => `${m.songName}-${m.artistName}-${m.albumName}`}
         renderItem={({ item }) => <TrackRow music={item} onPress={() => select(item)} />}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xl }}
         keyboardShouldPersistTaps="handled"
         ListEmptyComponent={
           !query.isLoading && debounced.trim().length > 0 ? (
-            <View style={styles.center}>
+            <View className="items-center justify-center pt-[60px] gap-sm">
               <AppText color="textFootnote">검색 결과가 없어요</AppText>
             </View>
           ) : null
@@ -54,19 +54,3 @@ export function SearchScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.mainBackground },
-  input: {
-    margin: spacing.lg,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.contentBackground,
-    borderRadius: 12,
-    fontFamily: fonts.pretendard.regular,
-    fontSize: 16,
-    color: colors.textPrimary,
-  },
-  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
-  center: { alignItems: 'center', justifyContent: 'center', paddingTop: 60, gap: spacing.sm },
-});
