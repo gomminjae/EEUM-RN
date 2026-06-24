@@ -47,15 +47,15 @@ export function RootNavigator() {
           ),
         })}
       />
-      <Stack.Screen name="Feed" component={FeedScreen} options={{ title: '피드' }} />
+      <Stack.Screen name="Feed" component={FeedScreen} options={{ title: '' }} />
       <Stack.Screen name="Share" component={ShareScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: '설정' }} />
-      <Stack.Screen name="PostDetail" component={PostDetailScreen} />
-      <Stack.Screen name="EditPost" component={EditPostScreen} options={{ title: '게시물 수정' }} />
+      <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
+      <Stack.Screen name="PostDetail" component={PostDetailScreen} options={{ title: '' }} />
+      <Stack.Screen name="EditPost" component={EditPostScreen} options={{ title: '' }} />
       <Stack.Screen
         name="Search"
         component={SearchScreen}
-        options={{ title: '음악 검색', presentation: 'modal' }}
+        options={{ title: '', presentation: 'modal' }}
       />
       <Stack.Screen name="PostsList" component={PostsListScreen} options={{ title: '' }} />
       <Stack.Screen name="InboxMenu" component={InboxMenuScreen} options={{ title: 'menu' }} />
