@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -34,6 +34,14 @@ export function PostDetailScreen({ route, navigation }: Props) {
 
   const [actionSheet, setActionSheet] = useState(false);
   const [reportTarget, setReportTarget] = useState<Comment | null>(null);
+
+  const handlePlay = useCallback(
+    (c: Comment) => {
+      if (c.appleMusicUrl) togglePlay(c.appleMusicUrl);
+    },
+    [togglePlay],
+  );
+  const handleReport = useCallback((c: Comment) => setReportTarget(c), []);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -164,8 +172,8 @@ export function PostDetailScreen({ route, navigation }: Props) {
             key={c.commentId ?? `comment-${i}`}
             comment={c}
             isPlaying={!!c.appleMusicUrl && playingUrl === c.appleMusicUrl}
-            onPlay={c.appleMusicUrl ? () => togglePlay(c.appleMusicUrl!) : undefined}
-            onReport={c.userId ? () => setReportTarget(c) : undefined}
+            onPlay={handlePlay}
+            onReport={handleReport}
           />
         ))}
         {detail.comments.length === 0 && (

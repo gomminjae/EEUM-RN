@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { View, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText, AppImage, colors } from '@/shared/ui';
@@ -8,13 +9,13 @@ type PostGridCardProps = {
   showHeart?: boolean;
   /** Done 그리드의 n/total 카운터 뱃지 */
   badge?: string;
-  onPress?: () => void;
+  onPress?: (post: Post) => void;
 };
 
 /** 원본 MyPostCard/DonePostCard 이식 — 2열 그리드용 정사각 썸네일 + 제목/곡 */
-export function PostGridCard({ post, showHeart = false, badge, onPress }: PostGridCardProps) {
+export const PostGridCard = memo(function PostGridCard({ post, showHeart = false, badge, onPress }: PostGridCardProps) {
   return (
-    <Pressable className="flex-1 gap-sm" onPress={onPress} disabled={!onPress}>
+    <Pressable className="flex-1 gap-sm" onPress={onPress ? () => onPress(post) : undefined} disabled={!onPress}>
       <View className="aspect-square rounded-[12px] overflow-hidden">
         {post.artworkUrl ? (
           <AppImage source={{ uri: post.artworkUrl }} recyclingKey={post.artworkUrl} className="w-full h-full" />
@@ -55,4 +56,4 @@ export function PostGridCard({ post, showHeart = false, badge, onPress }: PostGr
       )}
     </Pressable>
   );
-}
+});

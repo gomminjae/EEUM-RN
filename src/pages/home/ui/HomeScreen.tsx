@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, Image, Pressable, Alert } from 'react-native';
+import { View, Text, Pressable, Alert } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, fonts, images } from '@/shared/ui';
+import { AppText, AppImage, fonts, images } from '@/shared/ui';
 import { useShake } from '@/shared/lib/useShake';
 import { getRandomPost, type Post } from '@/entities/post';
 import { HomeBottomNav } from '@/widgets/home-bottom-nav';
@@ -62,10 +62,10 @@ function ShakePrompt({ onTrigger }: { onTrigger: () => void }) {
           >
             Shake
           </Text>
-          <Image
+          <AppImage
             source={images.logo}
             className="w-[40px] h-[40px] mb-[12px]"
-            resizeMode="contain"
+            contentFit="contain"
           />
         </View>
         <Text

@@ -1,6 +1,6 @@
-import { Image, Pressable } from 'react-native';
+import { Pressable } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { colors, fonts, images, spacing } from '@/shared/ui';
+import { AppImage, colors, fonts, images, spacing } from '@/shared/ui';
 import { HomeScreen } from '@/pages/home';
 import { FeedScreen } from '@/pages/feed';
 import { ShareScreen } from '@/pages/share';
@@ -38,9 +38,10 @@ export function RootNavigator() {
               hitSlop={8}
               style={{ paddingHorizontal: spacing.xs }}
             >
-              <Image
+              <AppImage
                 source={images.gear}
-                style={{ width: 24, height: 24, tintColor: colors.textPrimary }}
+                tintColor={colors.textPrimary}
+                style={{ width: 24, height: 24 }}
               />
             </Pressable>
           ),

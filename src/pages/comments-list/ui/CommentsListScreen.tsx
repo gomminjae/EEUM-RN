@@ -1,4 +1,5 @@
-import { View, FlatList, Image, Pressable, ActivityIndicator } from 'react-native';
+import { memo, useCallback } from 'react';
+import { View, FlatList, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
@@ -16,9 +17,12 @@ export function CommentsListScreen() {
   const query = useQuery({ queryKey: ['inbox', 'comments'], queryFn: getCommentedPosts });
   const posts = query.data ?? [];
 
-  const openPost = (post: Post) => {
-    if (post.postId) navigation.navigate('PostDetail', { postId: post.postId });
-  };
+  const openPost = useCallback(
+    (post: Post) => {
+      if (post.postId) navigation.navigate('PostDetail', { postId: post.postId });
+    },
+    [navigation],
+  );
 
   return (
     <FlatList
@@ -32,7 +36,7 @@ export function CommentsListScreen() {
           description="참여한 사연과 플레이리스트입니다."
         />
       }
-      renderItem={({ item }) => <CommentedPostRow post={item} onPress={() => openPost(item)} />}
+      renderItem={({ item }) => <CommentedPostRow post={item} onPress={openPost} />}
       ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
       contentContainerStyle={{ paddingTop: 16, paddingHorizontal: 20, paddingBottom: spacing.lg, flexGrow: 1 }}
       ListEmptyComponent={
@@ -40,7 +44,7 @@ export function CommentsListScreen() {
           <ActivityIndicator color={colors.accentPrimary} className="mt-[60px]" />
         ) : (
           <View className="items-center gap-md mt-[60px]">
-            <Image source={images.nodata} className="w-[120px] h-[120px] opacity-80" resizeMode="contain" />
+            <AppImage source={images.nodata} className="w-[120px] h-[120px] opacity-80" contentFit="contain" />
             <AppText color="textFootnote">댓글을 남긴 사연이 없습니다</AppText>
           </View>
         )
@@ -51,9 +55,15 @@ export function CommentsListScreen() {
   );
 }
 
-function CommentedPostRow({ post, onPress }: { post: Post; onPress: () => void }) {
+const CommentedPostRow = memo(function CommentedPostRow({
+  post,
+  onPress,
+}: {
+  post: Post;
+  onPress: (post: Post) => void;
+}) {
   return (
-    <Pressable className="flex-row items-center gap-[12px]" onPress={onPress}>
+    <Pressable className="flex-row items-center gap-[12px]" onPress={() => onPress(post)}>
       {post.artworkUrl ? (
         <AppImage source={{ uri: post.artworkUrl }} recyclingKey={post.artworkUrl} className="w-[56px] h-[56px] rounded-[10px]" />
       ) : (
@@ -73,4 +83,4 @@ function CommentedPostRow({ post, onPress }: { post: Post; onPress: () => void }
       </View>
     </Pressable>
   );
-}
+});

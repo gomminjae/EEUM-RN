@@ -1,10 +1,10 @@
-import { useLayoutEffect } from 'react';
-import { View, FlatList, Pressable, Image, ActivityIndicator } from 'react-native';
+import { useCallback, useLayoutEffect } from 'react';
+import { View, FlatList, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, spacing, images } from '@/shared/ui';
+import { AppText, AppImage, colors, spacing, images } from '@/shared/ui';
 import { getMyPosts, PostGridCard, type Post } from '@/entities/post';
 import { InboxHeader } from '@/widgets/inbox-header';
 import type { RootStackParamList } from '@/shared/config/navigation';
@@ -29,9 +29,12 @@ export function PostsListScreen() {
     });
   }, [navigation]);
 
-  const openPost = (post: Post) => {
-    if (post.postId) navigation.navigate('PostDetail', { postId: post.postId });
-  };
+  const openPost = useCallback(
+    (post: Post) => {
+      if (post.postId) navigation.navigate('PostDetail', { postId: post.postId });
+    },
+    [navigation],
+  );
 
   return (
     <FlatList
@@ -49,7 +52,7 @@ export function PostsListScreen() {
       }
       renderItem={({ item }) => (
         <View className="flex-1 max-w-[48%]">
-          <PostGridCard post={item} onPress={() => openPost(item)} />
+          <PostGridCard post={item} onPress={openPost} />
         </View>
       )}
       ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
@@ -59,7 +62,7 @@ export function PostsListScreen() {
           <ActivityIndicator color={colors.accentPrimary} className="mt-[60px]" />
         ) : (
           <View className="items-center gap-md mt-[60px]">
-            <Image source={images.nodata} className="w-[120px] h-[120px] opacity-80" resizeMode="contain" />
+            <AppImage source={images.nodata} className="w-[120px] h-[120px] opacity-80" contentFit="contain" />
             <AppText color="textFootnote">작성한 사연이 없습니다</AppText>
           </View>
         )

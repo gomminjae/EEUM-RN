@@ -1,18 +1,19 @@
+import { memo } from 'react';
 import { View, Pressable } from 'react-native';
 import { AppText, AppImage } from '@/shared/ui';
 import type { Music } from '../model/types';
 
 type TrackRowProps = {
   music: Music;
-  onPress?: () => void;
+  onPress?: (music: Music) => void;
 };
 
 /** 원본 SearchResultRow 이식 — 앨범아트 + 곡/아티스트 */
-export function TrackRow({ music, onPress }: TrackRowProps) {
+export const TrackRow = memo(function TrackRow({ music, onPress }: TrackRowProps) {
   return (
     <Pressable
       className="flex-row items-center gap-md py-sm"
-      onPress={onPress}
+      onPress={onPress ? () => onPress(music) : undefined}
       disabled={!onPress}
     >
       {music.artworkUrl ? (
@@ -30,4 +31,4 @@ export function TrackRow({ music, onPress }: TrackRowProps) {
       </View>
     </Pressable>
   );
-}
+});

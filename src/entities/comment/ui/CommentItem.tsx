@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { View, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText, AppImage, colors } from '@/shared/ui';
@@ -7,12 +8,12 @@ import type { Comment } from '../model/types';
 type CommentItemProps = {
   comment: Comment;
   isPlaying?: boolean;
-  onPlay?: () => void;
-  onReport?: () => void;
+  onPlay?: (comment: Comment) => void;
+  onReport?: (comment: Comment) => void;
 };
 
 /** 원본 PostDetailCommentsView 의 댓글 셀 — 본문 + (첨부 음악) + 신고 */
-export function CommentItem({ comment, isPlaying = false, onPlay, onReport }: CommentItemProps) {
+export const CommentItem = memo(function CommentItem({ comment, isPlaying = false, onPlay, onReport }: CommentItemProps) {
   const hasMusic = !!comment.songName;
 
   return (
@@ -36,7 +37,7 @@ export function CommentItem({ comment, isPlaying = false, onPlay, onReport }: Co
               </AppText>
             </View>
             {!!comment.appleMusicUrl && (
-              <Pressable onPress={onPlay} hitSlop={8} disabled={!onPlay}>
+              <Pressable onPress={() => onPlay?.(comment)} hitSlop={8} disabled={!onPlay}>
                 <Ionicons name={isPlaying ? 'pause' : 'play'} size={20} color={colors.textPrimary} />
               </Pressable>
             )}
@@ -48,11 +49,11 @@ export function CommentItem({ comment, isPlaying = false, onPlay, onReport }: Co
         </AppText>
       </View>
 
-      {onReport && (
-        <Pressable onPress={onReport} hitSlop={8} className="pt-xs">
+      {!!comment.userId && onReport && (
+        <Pressable onPress={() => onReport(comment)} hitSlop={8} className="pt-xs">
           <Ionicons name="ellipsis-horizontal" size={18} color={colors.textFootnote} />
         </Pressable>
       )}
     </View>
   );
-}
+});

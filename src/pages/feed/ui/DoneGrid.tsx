@@ -34,7 +34,7 @@ export function DoneGrid({ query, posts, onPressPost }: DoneGridProps) {
       keyExtractor={(item, i) => item.postId ?? String(i)}
       renderItem={({ item, index }) => (
         <View className="flex-1 max-w-[48%]">
-          <PostGridCard post={item} badge={`${index + 1}/${posts.length}`} onPress={() => onPressPost(item)} />
+          <PostGridCard post={item} badge={`${index + 1}/${posts.length}`} onPress={onPressPost} />
         </View>
       )}
       ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}

@@ -4,7 +4,6 @@ import {
   ScrollView,
   TextInput,
   Pressable,
-  Image,
   KeyboardAvoidingView,
   Keyboard,
   Platform,
@@ -129,11 +128,11 @@ function ShareForm(p: FormProps) {
     <SafeAreaView className="flex-1 bg-main" edges={['top']}>
       <View className="h-[44px] px-md flex-row items-center">
         <Pressable onPress={p.onBack} hitSlop={8} className="p-xs">
-          <Image
+          <AppImage
             source={images.home}
             className="w-[24px] h-[24px]"
-            style={{ tintColor: colors.textPrimary }}
-            resizeMode="contain"
+            tintColor={colors.textPrimary}
+            contentFit="contain"
           />
         </Pressable>
       </View>

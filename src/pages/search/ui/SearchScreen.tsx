@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { View, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AppText, colors, spacing } from '@/shared/ui';
@@ -14,10 +14,13 @@ export function SearchScreen() {
   const query = useMusicSearch(debounced);
   const pick = useMusicPicker((s) => s.pick);
 
-  const select = (music: Music) => {
-    pick(music);
-    navigation.goBack();
-  };
+  const select = useCallback(
+    (music: Music) => {
+      pick(music);
+      navigation.goBack();
+    },
+    [pick, navigation],
+  );
 
   return (
     <View className="flex-1 bg-main">
@@ -40,7 +43,7 @@ export function SearchScreen() {
       <FlatList
         data={query.data ?? []}
         keyExtractor={(m) => `${m.songName}-${m.artistName}-${m.albumName}`}
-        renderItem={({ item }) => <TrackRow music={item} onPress={() => select(item)} />}
+        renderItem={({ item }) => <TrackRow music={item} onPress={select} />}
         contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xl }}
         keyboardShouldPersistTaps="handled"
         ListEmptyComponent={

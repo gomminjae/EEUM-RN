@@ -1,8 +1,8 @@
-import { View, Pressable, Image, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, images } from '@/shared/ui';
+import { AppText, AppImage, colors, images } from '@/shared/ui';
 
 const hairline = StyleSheet.hairlineWidth;
 import type { RootStackParamList } from '@/shared/config/navigation';
@@ -26,11 +26,11 @@ export function HomeBottomNav() {
           onPress={() => navigation.navigate('Feed')}
           hitSlop={8}
         >
-          <Image
+          <AppImage
             source={images.folder}
             className="w-[24px] h-[24px]"
-            style={{ tintColor: colors.textPrimary }}
-            resizeMode="contain"
+            tintColor={colors.textPrimary}
+            contentFit="contain"
           />
           <AppText size={12}>feed</AppText>
         </Pressable>
@@ -40,11 +40,11 @@ export function HomeBottomNav() {
           onPress={() => navigation.navigate('Share')}
           hitSlop={8}
         >
-          <Image
+          <AppImage
             source={images.headphone}
             className="w-[24px] h-[24px]"
-            style={{ tintColor: colors.textPrimary }}
-            resizeMode="contain"
+            tintColor={colors.textPrimary}
+            contentFit="contain"
           />
           <AppText size={12}>share</AppText>
         </Pressable>

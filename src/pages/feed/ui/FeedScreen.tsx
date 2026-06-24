@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import { View, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -49,9 +49,12 @@ export function FeedScreen() {
 
   const posts = query.data?.pages.flat() ?? [];
 
-  const openPost = (post: Post) => {
-    if (post.postId) navigation.navigate('PostDetail', { postId: post.postId });
-  };
+  const openPost = useCallback(
+    (post: Post) => {
+      if (post.postId) navigation.navigate('PostDetail', { postId: post.postId });
+    },
+    [navigation],
+  );
 
   return (
     <View className="flex-1 bg-main">
