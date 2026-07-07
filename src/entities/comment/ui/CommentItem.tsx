@@ -1,8 +1,7 @@
 import { memo } from 'react';
 import { View, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, AppImage, colors } from '@/shared/ui';
-import { formatDate } from '@/shared/lib/date';
+import { AppText, colors } from '@/shared/ui';
 import type { Comment } from '../model/types';
 
 type CommentItemProps = {
@@ -12,48 +11,37 @@ type CommentItemProps = {
   onReport?: (comment: Comment) => void;
 };
 
-/** 원본 PostDetailCommentsView 의 댓글 셀 — 본문 + (첨부 음악) + 신고 */
+/** 원본 CommentListItem 이식 — ♪ + 캡슐(곡 14 bold / 아티스트 13 gray / 재생 12) + 본문 14.
+ *  롱프레스 → 신고 (원본 contextMenu). */
 export const CommentItem = memo(function CommentItem({ comment, isPlaying = false, onPlay, onReport }: CommentItemProps) {
-  const hasMusic = !!comment.songName;
-
   return (
-    <View className="flex-row items-start py-md gap-sm">
-      <View className="flex-1 gap-xs">
-        <AppText size={15}>{comment.content ?? ''}</AppText>
-
-        {hasMusic && (
-          <View className="flex-row items-center gap-sm p-sm mt-xs bg-content rounded-[10px]">
-            {comment.artworkUrl ? (
-              <AppImage source={{ uri: comment.artworkUrl }} recyclingKey={comment.artworkUrl} className="w-[36px] h-[36px] rounded-[6px]" />
-            ) : (
-              <View className="w-[36px] h-[36px] rounded-[6px] bg-black/10" />
-            )}
-            <View className="flex-1">
-              <AppText size={13} weight="semiBold" numberOfLines={1}>
-                {comment.songName}
-              </AppText>
-              <AppText size={12} color="textFootnote" numberOfLines={1}>
-                {comment.artistName ?? ''}
-              </AppText>
-            </View>
-            {!!comment.appleMusicUrl && (
-              <Pressable onPress={() => onPlay?.(comment)} hitSlop={8} disabled={!onPlay}>
-                <Ionicons name={isPlaying ? 'pause' : 'play'} size={20} color={colors.textPrimary} />
-              </Pressable>
-            )}
-          </View>
-        )}
-
-        <AppText size={12} color="textFootnote" className="mt-xs">
-          {formatDate(comment.createdAt)}
-        </AppText>
+    <Pressable
+      className="py-sm gap-[10px]"
+      onLongPress={onReport ? () => onReport(comment) : undefined}
+      delayLongPress={300}
+    >
+      <View className="flex-row items-center gap-sm">
+        <Ionicons name="musical-note" size={14} color={colors.textPrimary} />
+        <View className="flex-row items-center gap-sm self-start px-[16px] py-[10px] bg-content rounded-[999px]">
+          <AppText size={14} weight="bold" numberOfLines={1}>
+            {comment.songName ?? '제목 없음'}
+          </AppText>
+          <AppText size={13} color="textFootnote" numberOfLines={1}>
+            {comment.artistName || '아티스트 미상'}
+          </AppText>
+          {!!comment.appleMusicUrl && (
+            <Pressable onPress={() => onPlay?.(comment)} hitSlop={8}>
+              <Ionicons name={isPlaying ? 'pause' : 'play'} size={12} color={colors.textPrimary} />
+            </Pressable>
+          )}
+        </View>
       </View>
 
-      {!!comment.userId && onReport && (
-        <Pressable onPress={() => onReport(comment)} hitSlop={8} className="pt-xs">
-          <Ionicons name="ellipsis-horizontal" size={18} color={colors.textFootnote} />
-        </Pressable>
+      {!!comment.content && (
+        <AppText size={14} className="leading-[19px]">
+          {comment.content}
+        </AppText>
       )}
-    </View>
+    </Pressable>
   );
 });

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   FlatList,
@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { AppText, AppImage, colors } from '@/shared/ui';
 import type { Post } from '@/entities/post';
+import { usePlayerStore } from '@/features/play-track';
 import type { useFeed } from '../model/useFeed';
 
 const GAP = 12;
@@ -30,10 +31,20 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
   const cardWidth = width - 80;
   const snap = cardWidth + GAP;
   const [active, setActive] = useState(0);
+  const stopPlayback = usePlayerStore((s) => s.stop);
+
+  // 원본 onDisappear: 화면 이탈 시 재생 정지
+  useEffect(() => () => stopPlayback(), [stopPlayback]);
 
   const onScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / snap);
-    setActive(index);
+    if (index !== active) {
+      setActive(index);
+      // 원본 IngPagerView.onChange(activePostId): 이전 곡 정지 후 새 카드 곡 자동재생
+      const nextPost = posts[Math.min(index, posts.length - 1)];
+      if (nextPost?.appleMusicUrl) onPlay(nextPost.appleMusicUrl);
+      else stopPlayback();
+    }
     if (index >= posts.length - 2 && query.hasNextPage && !query.isFetchingNextPage) {
       query.fetchNextPage();
     }
@@ -41,9 +52,9 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
 
   if (posts.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center gap-md">
-        <Ionicons name="file-tray-outline" size={56} color={colors.textFootnote} />
-        <AppText size={16} weight="medium" color="textFootnote">
+      <View className="flex-1 items-center justify-center gap-[20px]">
+        <Ionicons name="file-tray-outline" size={60} color="rgba(142,142,147,0.5)" />
+        <AppText size={18} weight="medium" color="textFootnote">
           진행 중인 사연이 없습니다
         </AppText>
       </View>
@@ -66,14 +77,12 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
         contentContainerStyle={{ paddingLeft: SIDE_PADDING, paddingRight: 56 }}
         renderItem={({ item }) => (
           <View
-            className="rounded-[4px] overflow-hidden bg-content"
-            style={{ width: cardWidth, height: cardWidth, marginRight: GAP }}
+            className="rounded-[14px] overflow-hidden"
+            style={{ width: cardWidth, height: cardWidth, marginRight: GAP, backgroundColor: 'rgba(142,142,147,0.3)' }}
           >
             {item.artworkUrl ? (
               <AppImage source={{ uri: item.artworkUrl }} recyclingKey={item.artworkUrl} style={StyleSheet.absoluteFill} />
-            ) : (
-              <View className="bg-black/10" style={StyleSheet.absoluteFill} />
-            )}
+            ) : null}
             {!!item.appleMusicUrl && (
               <Pressable
                 className="absolute left-[12px] bottom-[12px] w-[36px] h-[36px] rounded-[18px] bg-black/60 items-center justify-center"
@@ -82,7 +91,7 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
               >
                 <Ionicons
                   name={playingUrl === item.appleMusicUrl ? 'pause' : 'play'}
-                  size={16}
+                  size={14}
                   color="#FFFFFF"
                 />
               </Pressable>
@@ -92,7 +101,7 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
       />
 
       {activePost && (
-        <View className="px-lg pt-md gap-xs">
+        <View className="px-lg pt-md gap-sm">
           <AppText size={18} weight="bold" numberOfLines={1}>
             {activePost.title ?? '제목 없음'}
           </AppText>
@@ -104,7 +113,7 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
         </View>
       )}
 
-      <View className="flex-1 justify-end px-lg pb-xl">
+      <View className="flex-1 justify-end px-lg pb-[39px]">
         <Pressable
           className="items-center py-[14px] bg-[#000000] rounded-[20px]"
           onPress={() => activePost && onPressPost(activePost)}

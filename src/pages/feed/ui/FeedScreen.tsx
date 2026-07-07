@@ -3,7 +3,7 @@ import { View, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppText, colors, fonts } from '@/shared/ui';
+import { AppText, AppImage, colors, fonts, images } from '@/shared/ui';
 import { type FeedKind, type Post } from '@/entities/post';
 import { usePlayerStore } from '@/features/play-track';
 import type { RootStackParamList } from '@/shared/config/navigation';
@@ -27,13 +27,24 @@ export function FeedScreen() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
+      headerBackVisible: false,
+      headerLeft: () => (
+        <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+          <AppImage
+            source={images.home}
+            style={{ width: 20, height: 20 }}
+            tintColor={colors.textPrimary}
+            contentFit="contain"
+          />
+        </Pressable>
+      ),
       headerRight: () => (
         <Pressable
           onPress={() => navigation.navigate('PostsList')}
           hitSlop={8}
-          className="flex-row items-center gap-[2px] px-md py-[6px] bg-content rounded-[16px]"
+          className="flex-row items-center gap-[4px] px-md py-[8px] bg-content rounded-[20px]"
         >
-          <AppText size={14} weight="medium">
+          <AppText size={15} weight="medium">
             Inbox
           </AppText>
           <Ionicons
@@ -58,7 +69,7 @@ export function FeedScreen() {
 
   return (
     <View className="flex-1 bg-main">
-      <View className="flex-row gap-lg px-lg pt-md pb-sm">
+      <View className="flex-row gap-[20px] px-[20px] pt-[20px] pb-sm">
         {TABS.map(({ key, label }) => (
           <Pressable key={key} onPress={() => setTab(key)} hitSlop={8}>
             <AppText

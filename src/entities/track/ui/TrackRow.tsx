@@ -8,24 +8,24 @@ type TrackRowProps = {
   onPress?: (music: Music) => void;
 };
 
-/** 원본 SearchResultRow 이식 — 앨범아트 + 곡/아티스트 */
+/** 원본 MusicRow 이식 — 앨범아트 60×60 + 곡(17 medium)/아티스트(15 secondary) */
 export const TrackRow = memo(function TrackRow({ music, onPress }: TrackRowProps) {
   return (
     <Pressable
-      className="flex-row items-center gap-md py-sm"
+      className="flex-row items-center gap-[12px] px-[16px] py-[12px]"
       onPress={onPress ? () => onPress(music) : undefined}
       disabled={!onPress}
     >
       {music.artworkUrl ? (
-        <AppImage source={{ uri: music.artworkUrl }} recyclingKey={music.artworkUrl} className="w-12 h-12 rounded-md" />
+        <AppImage source={{ uri: music.artworkUrl }} recyclingKey={music.artworkUrl} className="w-[60px] h-[60px] rounded-[8px]" />
       ) : (
-        <View className="w-12 h-12 rounded-md bg-black/10" />
+        <View className="w-[60px] h-[60px] rounded-[8px] bg-black/[0.08]" />
       )}
-      <View className="flex-1">
-        <AppText size={15} weight="semiBold" numberOfLines={1}>
+      <View className="flex-1 gap-xs">
+        <AppText size={17} weight="medium" numberOfLines={1}>
           {music.songName}
         </AppText>
-        <AppText size={13} color="textFootnote" numberOfLines={1}>
+        <AppText size={15} color="textFootnote" numberOfLines={1}>
           {music.artistName}
         </AppText>
       </View>

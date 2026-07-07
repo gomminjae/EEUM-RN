@@ -48,9 +48,9 @@ export function LikesListScreen() {
         query.isLoading ? (
           <ActivityIndicator color={colors.accentPrimary} className="mt-[60px]" />
         ) : (
-          <View className="items-center gap-md mt-[60px]">
-            <AppImage source={images.nodata} className="w-[120px] h-[120px] opacity-80" contentFit="contain" />
-            <AppText color="textFootnote">좋아요한 사연이 없습니다</AppText>
+          <View className="items-center gap-md mt-[60px] px-[20px]">
+            <AppImage source={images.nodata} className="w-full" style={{ aspectRatio: 750 / 137 }} contentFit="contain" />
+            <AppText size={14} style={{ color: '#8E8E93' }}>좋아요한 사연이 없습니다</AppText>
           </View>
         )
       }

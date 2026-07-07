@@ -1,5 +1,8 @@
-import { Pressable } from 'react-native';
-import { AppText, BottomSheet } from '@/shared/ui';
+import { View, Pressable, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AppText, BottomSheet, colors } from '@/shared/ui';
+
+const hairline = StyleSheet.hairlineWidth;
 
 type PostActionSheetProps = {
   visible: boolean;
@@ -10,7 +13,7 @@ type PostActionSheetProps = {
   onDelete: () => void;
 };
 
-/** 원본 PostActionSheetView 이식 — 내 글: 수정 / 완료 / 삭제 */
+/** 원본 PostActionSheetView 이식 — 수정 / 완료 처리 / 삭제(빨강), 아이콘 포함 */
 export function PostActionSheet({
   visible,
   onClose,
@@ -21,19 +24,37 @@ export function PostActionSheet({
 }: PostActionSheetProps) {
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-      <Pressable className="py-md" onPress={onEdit}>
-        <AppText size={16}>수정</AppText>
-      </Pressable>
+      <Row icon="pencil" label="수정" onPress={onEdit} />
       {!isCompleted && (
-        <Pressable className="py-md" onPress={onComplete}>
-          <AppText size={16}>완료 처리</AppText>
-        </Pressable>
+        <>
+          <View className="bg-black/10" style={{ height: hairline }} />
+          <Row icon="checkmark-circle-outline" label="완료 처리" onPress={onComplete} />
+        </>
       )}
-      <Pressable className="py-md" onPress={onDelete}>
-        <AppText size={16} color="accentPrimary">
-          삭제
-        </AppText>
-      </Pressable>
+      <View className="bg-black/10" style={{ height: hairline }} />
+      <Row icon="trash-outline" label="삭제" destructive onPress={onDelete} />
     </BottomSheet>
+  );
+}
+
+function Row({
+  icon,
+  label,
+  destructive,
+  onPress,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  destructive?: boolean;
+  onPress: () => void;
+}) {
+  const color = destructive ? '#FF3B30' : colors.textPrimary;
+  return (
+    <Pressable className="flex-row items-center gap-[12px] px-md py-md" onPress={onPress}>
+      <Ionicons name={icon} size={18} color={color} />
+      <AppText size={16} weight="medium" style={{ color }}>
+        {label}
+      </AppText>
+    </Pressable>
   );
 }

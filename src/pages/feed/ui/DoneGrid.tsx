@@ -17,9 +17,9 @@ export function DoneGrid({ query, posts, onPressPost }: DoneGridProps) {
 
   if (posts.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center gap-md">
-        <Ionicons name="checkmark-circle-outline" size={56} color={colors.textFootnote} />
-        <AppText size={16} weight="medium" color="textFootnote">
+      <View className="flex-1 items-center justify-center gap-[20px]">
+        <Ionicons name="checkmark-circle-outline" size={60} color="rgba(142,142,147,0.5)" />
+        <AppText size={18} weight="medium" color="textFootnote">
           완료된 사연이 없습니다
         </AppText>
       </View>
@@ -30,15 +30,15 @@ export function DoneGrid({ query, posts, onPressPost }: DoneGridProps) {
     <FlatList
       data={posts}
       numColumns={2}
-      columnWrapperStyle={{ gap: spacing.md }}
+      columnWrapperStyle={{ gap: 12 }}
       keyExtractor={(item, i) => item.postId ?? String(i)}
       renderItem={({ item, index }) => (
         <View className="flex-1 max-w-[48%]">
-          <PostGridCard post={item} badge={`${index + 1}/${posts.length}`} onPress={onPressPost} />
+          <PostGridCard post={item} variant="done" badge={`${index + 1}/${posts.length}`} onPress={onPressPost} />
         </View>
       )}
-      ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-      contentContainerStyle={{ padding: spacing.lg, paddingBottom: insets.bottom + spacing.lg }}
+      ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+      contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: insets.bottom + 20 }}
       onEndReachedThreshold={0.4}
       onEndReached={() => {
         if (query.hasNextPage && !query.isFetchingNextPage) query.fetchNextPage();

@@ -63,24 +63,24 @@ const CommentedPostRow = memo(function CommentedPostRow({
   onPress: (post: Post) => void;
 }) {
   return (
-    <Pressable className="flex-row items-center gap-[12px]" onPress={() => onPress(post)}>
+    <Pressable
+      className="flex-row items-center gap-[12px] p-[16px] bg-content rounded-[16px]"
+      onPress={() => onPress(post)}
+    >
       {post.artworkUrl ? (
         <AppImage source={{ uri: post.artworkUrl }} recyclingKey={post.artworkUrl} className="w-[56px] h-[56px] rounded-[10px]" />
       ) : (
-        <View className="w-[56px] h-[56px] rounded-[10px] bg-black/[0.08] items-center justify-center">
-          <Ionicons name="musical-note" size={20} color={colors.textFootnote} />
-        </View>
+        <View className="w-[56px] h-[56px] rounded-[10px] bg-black/[0.15]" />
       )}
       <View className="flex-1 gap-xs">
         <AppText size={15} weight="semiBold" numberOfLines={1}>
           {post.title ?? '사연 제목'}
         </AppText>
-        {(post.songName || post.artistName) && (
-          <AppText size={12} color="textFootnote" numberOfLines={1}>
-            {[post.songName, post.artistName].filter(Boolean).join(' · ')}
-          </AppText>
-        )}
+        <AppText size={12} color="textFootnote" numberOfLines={1}>
+          참여한 사연과 플레이리스트입니다.
+        </AppText>
       </View>
+      <Ionicons name="chevron-forward" size={12} color={colors.textFootnote} />
     </Pressable>
   );
 });

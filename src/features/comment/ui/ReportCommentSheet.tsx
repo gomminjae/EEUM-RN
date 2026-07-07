@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import { View, TextInput, Pressable } from 'react-native';
-import { AppText, BottomSheet, colors } from '@/shared/ui';
+import { Modal, View, TextInput, Pressable, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppText, colors } from '@/shared/ui';
+
+const hairline = StyleSheet.hairlineWidth;
 
 const REASONS = [
   { code: 'VIOLENCE', label: '폭력 및 혐오 표현' },
@@ -15,14 +19,16 @@ type ReportCommentSheetProps = {
   onSubmit: (reason: string) => void;
 };
 
-/** 원본 ReportReasonView 이식 — 사유 선택, OTHER 는 직접 입력 */
+/** 원본 ReportReasonView 이식 — 풀스크린. 헤더(뒤로 + "신고하기") + 질문 + 사유 목록.
+ *  OTHER 는 직접 입력 후 "신고하기". */
 export function ReportCommentSheet({ visible, onClose, onSubmit }: ReportCommentSheetProps) {
   const [custom, setCustom] = useState('');
   const [showCustom, setShowCustom] = useState(false);
 
-  const reset = () => {
+  const close = () => {
     setCustom('');
     setShowCustom(false);
+    onClose();
   };
 
   const pick = (code: string) => {
@@ -31,48 +37,82 @@ export function ReportCommentSheet({ visible, onClose, onSubmit }: ReportComment
       return;
     }
     onSubmit(code);
-    reset();
+    setCustom('');
+    setShowCustom(false);
   };
 
   const submitCustom = () => {
-    const reason = custom.trim() || 'OTHER';
-    onSubmit(reason);
-    reset();
+    if (!custom.trim()) return;
+    onSubmit(custom.trim());
+    setCustom('');
+    setShowCustom(false);
   };
 
   return (
-    <BottomSheet
-      visible={visible}
-      onClose={() => {
-        reset();
-        onClose();
-      }}
-    >
-      <AppText size={18} weight="bold" className="mb-sm">
-        신고하기
-      </AppText>
-      {REASONS.map(({ code, label }) => (
-        <Pressable key={code} onPress={() => pick(code)} className="py-md">
-          <AppText size={16}>{label}</AppText>
-        </Pressable>
-      ))}
-      {showCustom && (
-        <View className="flex-row items-center gap-sm mt-sm">
-          <TextInput
-            className="flex-1 px-md py-sm bg-content rounded-[12px] font-regular text-[15px] text-primary"
-            value={custom}
-            onChangeText={setCustom}
-            placeholder="신고 사유를 입력해주세요"
-            placeholderTextColor={colors.textFootnote}
-            autoFocus
-          />
-          <Pressable onPress={submitCustom} className="px-md py-sm bg-accent rounded-[12px]">
-            <AppText weight="semiBold" style={{ color: '#FFFFFF' }}>
-              제출
-            </AppText>
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={close}>
+      <SafeAreaView className="flex-1 bg-main" edges={['top']}>
+        {/* 헤더 */}
+        <View className="flex-row items-center px-[20px] py-md">
+          <Pressable onPress={close} hitSlop={8}>
+            <Ionicons name="chevron-back" size={18} color="#000000" />
           </Pressable>
+          <View className="flex-1 items-center">
+            <AppText size={17} weight="semiBold">
+              신고하기
+            </AppText>
+          </View>
+          <View style={{ width: 18 }} />
         </View>
-      )}
-    </BottomSheet>
+
+        {/* 질문 */}
+        <AppText size={16} weight="semiBold" className="px-[20px] pt-lg">
+          이 게시물을 신고하는 이유가 무엇인가요?
+        </AppText>
+
+        {/* 사유 목록 */}
+        <View className="mt-lg">
+          {REASONS.map(({ code, label }, i) => (
+            <View key={code}>
+              <Pressable className="px-[20px] py-md" onPress={() => pick(code)}>
+                {code === 'OTHER' ? (
+                  <AppText size={15}>
+                    기타: <AppText size={15} color="textFootnote">입력해주세요</AppText>
+                  </AppText>
+                ) : (
+                  <AppText size={15}>{label}</AppText>
+                )}
+              </Pressable>
+              {i < REASONS.length - 1 && (
+                <View className="mx-[20px] bg-black/10" style={{ height: hairline }} />
+              )}
+            </View>
+          ))}
+        </View>
+
+        {/* 기타 입력 */}
+        {showCustom && (
+          <View className="px-[20px] pt-lg gap-md">
+            <TextInput
+              className="px-md py-md bg-black/[0.06] rounded-[8px] font-regular text-[15px] text-primary"
+              value={custom}
+              onChangeText={setCustom}
+              placeholder="신고 사유를 입력해주세요"
+              placeholderTextColor={colors.textFootnote}
+              autoFocus
+            />
+            <Pressable
+              className="items-center py-[14px] rounded-[8px]"
+              style={{ backgroundColor: custom.trim() ? '#000000' : '#9E9E9E' }}
+              disabled={!custom.trim()}
+              onPress={submitCustom}
+            >
+              <AppText size={16} weight="semiBold" style={{ color: '#FFFFFF' }}>
+                신고하기
+              </AppText>
+            </Pressable>
+          </View>
+        )}
+      </SafeAreaView>
+    </Modal>
   );
 }

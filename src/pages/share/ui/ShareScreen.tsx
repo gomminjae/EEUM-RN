@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppText, AppImage, colors, images, spacing } from '@/shared/ui';
@@ -153,7 +153,7 @@ function ShareForm(p: FormProps) {
                   {p.music?.artworkUrl ? (
                     <AppImage source={{ uri: p.music.artworkUrl }} recyclingKey={p.music.artworkUrl} className="w-[64px] h-[64px] rounded-[32px]" />
                   ) : (
-                    <Ionicons name="pulse" size={24} color={colors.textPrimary} />
+                    <MaterialCommunityIcons name="waveform" size={20} color={colors.textPrimary} />
                   )}
                   <View className="absolute top-[-5px] right-[-5px] w-[20px] h-[20px] rounded-[10px] bg-accent items-center justify-center">
                     <AppText size={12} weight="bold" className="text-white leading-[14px]">
@@ -202,7 +202,7 @@ function ShareForm(p: FormProps) {
             {p.pending ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <AppText weight="semiBold" className="text-white text-[16px]">
+              <AppText weight="semiBold" className="text-white text-[17px]">
                 share
               </AppText>
             )}
