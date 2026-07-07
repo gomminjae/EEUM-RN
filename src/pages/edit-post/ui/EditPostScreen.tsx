@@ -1,5 +1,5 @@
 import { useCallback, useLayoutEffect, useState } from 'react';
-import { View, TextInput, Pressable, ActivityIndicator } from 'react-native';
+import { View, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -89,7 +89,11 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
   }, [navigation]);
 
   return (
-    <View className="flex-1 bg-main">
+    <KeyboardAvoidingView
+      className="flex-1 bg-main"
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    >
       {/* 음악 섹션 */}
       <View className="flex-row px-lg pt-[20px]">
         {music ? (
@@ -169,6 +173,6 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
           </Pressable>
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

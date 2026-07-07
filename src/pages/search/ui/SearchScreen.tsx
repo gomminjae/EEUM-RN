@@ -1,8 +1,9 @@
 import { useCallback, useLayoutEffect, useState } from 'react';
 import { View, TextInput, FlatList, ActivityIndicator, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/shared/ui';
+import { AppText, colors } from '@/shared/ui';
 import { TrackRow, type Music } from '@/entities/track';
 import { useMusicSearch, useMusicPicker } from '@/features/music-search';
 
@@ -33,7 +34,7 @@ export function SearchScreen() {
   }, [term]);
 
   return (
-    <View className="flex-1 bg-main">
+    <SafeAreaView className="flex-1 bg-main" edges={['top']}>
       <View className="flex-row items-center gap-[12px] p-[16px] bg-content">
         <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
           <Ionicons name="chevron-back" size={20} color={colors.textPrimary} />
@@ -60,8 +61,15 @@ export function SearchScreen() {
           renderItem={({ item }) => <TrackRow music={item} onPress={select} />}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
+          ListEmptyComponent={
+            submitted.trim().length > 0 ? (
+              <View className="items-center pt-[60px]">
+                <AppText color="textFootnote">검색 결과가 없어요</AppText>
+              </View>
+            ) : null
+          }
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }

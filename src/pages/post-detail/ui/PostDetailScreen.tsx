@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, ActivityIndicator, Alert, useWindowDimensions, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -53,16 +53,26 @@ export function PostDetailScreen({ route, navigation }: Props) {
     },
     [togglePlay],
   );
+  // iOS 네이티브 모달은 dismiss 중 다른 모달 present 시 실패 → 시트가 열려있으면 닫고 나서 오픈
+  const sheetOpenRef = useRef(false);
+  useEffect(() => {
+    sheetOpenRef.current = showCommentSheet;
+  }, [showCommentSheet]);
   const handleReport = useCallback((c: Comment) => {
-    setShowCommentSheet(false);
-    setReportTarget(c);
+    if (sheetOpenRef.current) {
+      setShowCommentSheet(false);
+      setTimeout(() => setReportTarget(c), 350);
+    } else {
+      setReportTarget(c);
+    }
   }, []);
 
   const isLiked = detail?.isLiked ?? false;
+  const hasDetail = !!detail;
   useLayoutEffect(() => {
     navigation.setOptions({
       title: '',
-      headerRight: !detail
+      headerRight: !hasDetail
         ? undefined
         : isMyPost
           ? () => (
@@ -84,7 +94,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
               </Pressable>
             ),
     });
-  }, [navigation, isMyPost, isLiked, detail, toggleLike, manage.remove.isPending]);
+  }, [navigation, isMyPost, isLiked, hasDetail, toggleLike, manage.remove.isPending]);
 
   const confirmDelete = () => {
     setActionSheet(false);

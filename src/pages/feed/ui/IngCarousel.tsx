@@ -37,11 +37,12 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
   useEffect(() => () => stopPlayback(), [stopPlayback]);
 
   const onScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const index = Math.round(e.nativeEvent.contentOffset.x / snap);
+    // 러버밴드 오버스크롤 시 음수/초과 인덱스 방지
+    const index = Math.max(0, Math.min(Math.round(e.nativeEvent.contentOffset.x / snap), posts.length - 1));
     if (index !== active) {
       setActive(index);
       // 원본 IngPagerView.onChange(activePostId): 이전 곡 정지 후 새 카드 곡 자동재생
-      const nextPost = posts[Math.min(index, posts.length - 1)];
+      const nextPost = posts[index];
       if (nextPost?.appleMusicUrl) onPlay(nextPost.appleMusicUrl);
       else stopPlayback();
     }

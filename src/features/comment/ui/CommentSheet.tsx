@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Modal,
   View,
@@ -46,7 +46,17 @@ export function CommentSheet({
 }: CommentSheetProps) {
   const insets = useSafeAreaInsets();
   const [text, setText] = useState('');
+  const inputRef = useRef<TextInput>(null);
   const createComment = useCreateComment(postId);
+
+  // 시트가 열릴 때마다 포커스(autoFocus 는 최초 1회만 동작), 닫히면 초안 초기화
+  useEffect(() => {
+    if (visible) {
+      const t = setTimeout(() => inputRef.current?.focus(), 300);
+      return () => clearTimeout(t);
+    }
+    setText('');
+  }, [visible]);
 
   const canSend = (text.trim().length > 0 || !!selectedMusic) && !createComment.isPending;
 
@@ -118,12 +128,12 @@ export function CommentSheet({
               <Ionicons name="add-circle" size={28} color={colors.textPrimary} />
             </Pressable>
             <TextInput
+              ref={inputRef}
               className="flex-1 max-h-[120px] min-h-[40px] px-md py-sm bg-content rounded-[20px] font-regular text-[15px] text-primary"
               value={text}
               onChangeText={setText}
               placeholder="사연과 관련된 노래와 글을 추가해보세요."
               placeholderTextColor={colors.textFootnote}
-              autoFocus
               multiline
               returnKeyType="send"
               onSubmitEditing={submit}

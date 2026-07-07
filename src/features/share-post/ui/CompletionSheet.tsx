@@ -15,7 +15,7 @@ type CompletionSheetProps = {
 
 /** 원본 SharePopupView 이식 — 중앙 드래그 모달(설정 팝업)
  *  라디오 원 + 자동/수동 완료 섹션 + 최대 댓글 갯수 pill 드롭다운 + 취소|공유 분할바 */
-export function CompletionSheet({ visible, onClose, onConfirm }: CompletionSheetProps) {
+export function CompletionSheet({ visible, pending, onClose, onConfirm }: CompletionSheetProps) {
   const [type, setType] = useState<CompletionType>('AUTO_COMPLETION');
   const [limit, setLimit] = useState(20);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -149,7 +149,11 @@ export function CompletionSheet({ visible, onClose, onConfirm }: CompletionSheet
               {/* Bottom bar */}
               <View className="h-[1px] bg-black/[0.15]" />
               <View className="flex-row items-center">
-                <Pressable className="flex-1 py-[20px] items-center" onPress={onClose}>
+                <Pressable
+                  className="flex-1 py-[20px] items-center"
+                  onPress={onClose}
+                  disabled={pending}
+                >
                   <AppText size={17} weight="semiBold">
                     취소
                   </AppText>
@@ -157,7 +161,9 @@ export function CompletionSheet({ visible, onClose, onConfirm }: CompletionSheet
                 <View className="w-[1px] h-[24px] bg-black/[0.15]" />
                 <Pressable
                   className="flex-1 py-[20px] items-center"
-                  onPress={() => onConfirm(type, isAuto ? limit : 0)}
+                  style={pending ? { opacity: 0.5 } : undefined}
+                  disabled={pending}
+                  onPress={() => !pending && onConfirm(type, isAuto ? limit : 0)}
                 >
                   <AppText size={17} weight="semiBold">
                     공유
