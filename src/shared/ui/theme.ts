@@ -5,6 +5,14 @@ export const colors = {
   accentPrimary: '#C33D32',
   textPrimary: '#1D1D1D',
   textFootnote: '#8A8A8A',
+
+  // iOS 시스템 색 (라이트 고정) — 원본이 커스텀이 아닌 시스템 색을 쓰는 곳 대응
+  black: '#000000', // .black / .primary(label)
+  white: '#FFFFFF', // .white
+  systemGray: '#8E8E93', // .gray
+  systemGray5: '#E5E5EA', // Color(.systemGray5)
+  secondaryLabel: 'rgba(60,60,67,0.6)', // .secondary
+  systemRed: '#FF3B30', // .red
 } as const;
 
 /** 원본 DesignSystemFonts.swift 의 Pretendard / Helvetica 패밀리 (useFonts 키와 일치) */

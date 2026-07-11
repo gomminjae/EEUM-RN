@@ -109,7 +109,7 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
         ) : (
           <Pressable onPress={() => navigation.navigate('Search')} hitSlop={8}>
             <View className="w-[64px] h-[64px] rounded-[32px] bg-content items-center justify-center overflow-visible">
-              <MaterialCommunityIcons name="waveform" size={20} color={colors.textPrimary} />
+              <MaterialCommunityIcons name="waveform" size={20} color={colors.black} />
               <View className="absolute top-[-5px] right-[-5px] w-[20px] h-[20px] rounded-[10px] bg-accent items-center justify-center">
                 <AppText size={12} weight="bold" className="text-white leading-[14px]">
                   +
@@ -127,7 +127,7 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
           value={title}
           onChangeText={setTitle}
           placeholder="사연의 제목을 작성해 주세요"
-          placeholderTextColor={colors.textFootnote}
+          placeholderTextColor={colors.secondaryLabel}
         />
         <TextInput
           className="flex-1 font-regular text-[14px] text-primary leading-[21px] p-0"
@@ -135,7 +135,7 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
           value={content}
           onChangeText={(t) => setContent(t.slice(0, MAX))}
           placeholder="자유롭게 사연을 작성해주세요"
-          placeholderTextColor={colors.textFootnote}
+          placeholderTextColor={colors.secondaryLabel}
           multiline
         />
       </View>
@@ -143,14 +143,14 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
       {/* 하단: 글자수(좌측) + done 캡슐 */}
       <View className="gap-sm" style={{ paddingBottom: Math.max(insets.bottom, spacing.md) }}>
         <View className="px-lg">
-          <AppText size={12} color="textFootnote">
+          <AppText size={12} color="secondaryLabel">
             {content.length}/{MAX}
           </AppText>
         </View>
 
         {update.isError && (
           <View className="px-lg">
-            <AppText size={12} style={{ color: colors.accentPrimary }}>
+            <AppText size={12} style={{ color: colors.systemRed }}>
               게시글을 수정하지 못했습니다. 다시 시도해주세요.
             </AppText>
           </View>

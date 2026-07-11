@@ -43,12 +43,12 @@ export const CommentCard = memo(function CommentCard({ comment, isPlaying = fals
 
       <View className="gap-[4px]">
         {!!comment.songName && (
-          <AppText size={13} weight="semiBold" numberOfLines={1}>
+          <AppText size={13} weight="semiBold" style={{ color: colors.black }} numberOfLines={1}>
             {comment.songName}
           </AppText>
         )}
         {!!comment.artistName && (
-          <AppText size={11} color="textFootnote" numberOfLines={1}>
+          <AppText size={11} style={{ color: colors.systemGray }} numberOfLines={1}>
             {comment.artistName}
           </AppText>
         )}

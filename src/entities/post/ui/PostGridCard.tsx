@@ -42,7 +42,7 @@ export const PostGridCard = memo(function PostGridCard({
         {post.artworkUrl ? (
           <AppImage source={{ uri: post.artworkUrl }} recyclingKey={post.artworkUrl} className="w-full h-full" />
         ) : (
-          <Ionicons name="musical-note" size={24} color={colors.textFootnote} />
+          <Ionicons name="musical-note" size={24} color={colors.systemGray} />
         )}
         {badge != null && (
           <View className="absolute right-[8px] bottom-[8px] px-[8px] py-[4px] rounded-[999px] bg-black/70">
@@ -63,7 +63,7 @@ export const PostGridCard = memo(function PostGridCard({
       {(post.songName || post.artistName) && (
         <View className="flex-row items-center gap-[4px]" style={{ marginTop: isDone ? 0 : 8 }}>
           {!!post.songName && (
-            <AppText size={metaSize} weight={songWeight} numberOfLines={1}>
+            <AppText size={metaSize} weight={songWeight} numberOfLines={1} color={isDone ? 'textPrimary' : 'black'}>
               {post.songName}
             </AppText>
           )}

@@ -19,13 +19,13 @@ export const TrackRow = memo(function TrackRow({ music, onPress }: TrackRowProps
       {music.artworkUrl ? (
         <AppImage source={{ uri: music.artworkUrl }} recyclingKey={music.artworkUrl} className="w-[60px] h-[60px] rounded-[8px]" />
       ) : (
-        <View className="w-[60px] h-[60px] rounded-[8px] bg-black/[0.08]" />
+        <View className="w-[60px] h-[60px] rounded-[8px] bg-system-gray-5" />
       )}
       <View className="flex-1 gap-xs">
-        <AppText size={17} weight="medium" numberOfLines={1}>
+        <AppText size={17} weight="medium" color="black" numberOfLines={1}>
           {music.songName}
         </AppText>
-        <AppText size={15} color="textFootnote" numberOfLines={1}>
+        <AppText size={15} color="secondaryLabel" numberOfLines={1}>
           {music.artistName}
         </AppText>
       </View>

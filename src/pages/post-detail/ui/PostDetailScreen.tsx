@@ -178,7 +178,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
           <AppText size={20} weight="semiBold" style={{ color: colors.accentPrimary }} numberOfLines={1} className="flex-1">
             {detail.songName}
           </AppText>
-          <AppText size={12} numberOfLines={1}>
+          <AppText size={12} style={{ color: colors.black }} numberOfLines={1}>
             {detail.artistName}
           </AppText>
         </View>
@@ -199,7 +199,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
           onPress={() => setShowCommentsList((v) => !v)}
         >
           <Ionicons name={showCommentsList ? 'grid-outline' : 'list'} size={20} color="#000000" />
-          <AppText size={16} weight="medium">
+          <AppText size={16} weight="medium" style={{ color: colors.black }}>
             {showCommentsList ? '커버보기' : '글보기'}
           </AppText>
         </Pressable>

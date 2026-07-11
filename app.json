@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.EEUM-RN-tmp"
+      "bundleIdentifier": "com.eeum.app"
     },
     "android": {
       "adaptiveIcon": {

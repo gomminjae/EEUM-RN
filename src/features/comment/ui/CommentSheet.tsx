@@ -125,7 +125,7 @@ export function CommentSheet({
           )}
           <View className="flex-row items-end gap-sm px-md py-sm">
             <Pressable onPress={onAddMusic} hitSlop={8} className="pb-xs">
-              <Ionicons name="add-circle" size={28} color={colors.textPrimary} />
+              <Ionicons name="add-circle" size={28} color={colors.black} />
             </Pressable>
             <TextInput
               ref={inputRef}

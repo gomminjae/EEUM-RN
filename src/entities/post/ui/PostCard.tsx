@@ -42,7 +42,7 @@ export function PostCard({
         {post.artworkUrl ? (
           <AppImage source={{ uri: post.artworkUrl }} recyclingKey={post.artworkUrl} className="w-[60px] h-[60px] rounded-[8px]" />
         ) : (
-          <View className="w-[60px] h-[60px] rounded-[8px] bg-black/10" />
+          <View className="w-[60px] h-[60px] rounded-[8px]" style={{ backgroundColor: 'rgba(142,142,147,0.3)' }} />
         )}
 
         <View className="flex-1 gap-xs">

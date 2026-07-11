@@ -29,10 +29,10 @@ export function HomeBottomNav() {
           <AppImage
             source={images.folder}
             className="w-[24px] h-[24px]"
-            tintColor={colors.textPrimary}
+            tintColor={colors.black}
             contentFit="contain"
           />
-          <AppText size={12}>feed</AppText>
+          <AppText size={12} color="black">feed</AppText>
         </Pressable>
 
         <Pressable
@@ -43,10 +43,10 @@ export function HomeBottomNav() {
           <AppImage
             source={images.headphone}
             className="w-[24px] h-[24px]"
-            tintColor={colors.textPrimary}
+            tintColor={colors.black}
             contentFit="contain"
           />
-          <AppText size={12}>share</AppText>
+          <AppText size={12} color="black">share</AppText>
         </Pressable>
       </View>
     </View>

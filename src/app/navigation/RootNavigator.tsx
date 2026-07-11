@@ -40,7 +40,7 @@ export function RootNavigator() {
             >
               <AppImage
                 source={images.gear}
-                tintColor={colors.textPrimary}
+                tintColor={colors.black}
                 style={{ width: 24, height: 24 }}
               />
             </Pressable>
@@ -55,7 +55,7 @@ export function RootNavigator() {
       <Stack.Screen
         name="Search"
         component={SearchScreen}
-        options={{ title: '', presentation: 'modal' }}
+        options={{ title: '', headerShown: false }}
       />
       <Stack.Screen name="PostsList" component={PostsListScreen} options={{ title: '' }} />
       <Stack.Screen name="InboxMenu" component={InboxMenuScreen} options={{ title: 'menu' }} />

@@ -57,7 +57,7 @@ export function ReportCommentSheet({ visible, onClose, onSubmit }: ReportComment
             <Ionicons name="chevron-back" size={18} color="#000000" />
           </Pressable>
           <View className="flex-1 items-center">
-            <AppText size={17} weight="semiBold">
+            <AppText size={17} weight="semiBold" style={{ color: colors.black }}>
               신고하기
             </AppText>
           </View>
@@ -65,7 +65,7 @@ export function ReportCommentSheet({ visible, onClose, onSubmit }: ReportComment
         </View>
 
         {/* 질문 */}
-        <AppText size={16} weight="semiBold" className="px-[20px] pt-lg">
+        <AppText size={16} weight="semiBold" style={{ color: colors.black }} className="px-[20px] pt-lg">
           이 게시물을 신고하는 이유가 무엇인가요?
         </AppText>
 
@@ -75,11 +75,11 @@ export function ReportCommentSheet({ visible, onClose, onSubmit }: ReportComment
             <View key={code}>
               <Pressable className="px-[20px] py-md" onPress={() => pick(code)}>
                 {code === 'OTHER' ? (
-                  <AppText size={15}>
-                    기타: <AppText size={15} color="textFootnote">입력해주세요</AppText>
+                  <AppText size={15} style={{ color: colors.black }}>
+                    기타: <AppText size={15} style={{ color: colors.systemGray }}>입력해주세요</AppText>
                   </AppText>
                 ) : (
-                  <AppText size={15}>{label}</AppText>
+                  <AppText size={15} style={{ color: colors.black }}>{label}</AppText>
                 )}
               </Pressable>
               {i < REASONS.length - 1 && (
@@ -102,7 +102,7 @@ export function ReportCommentSheet({ visible, onClose, onSubmit }: ReportComment
             />
             <Pressable
               className="items-center py-[14px] rounded-[8px]"
-              style={{ backgroundColor: custom.trim() ? '#000000' : '#9E9E9E' }}
+              style={{ backgroundColor: custom.trim() ? '#000000' : colors.systemGray }}
               disabled={!custom.trim()}
               onPress={submitCustom}
             >

@@ -131,7 +131,7 @@ function ShareForm(p: FormProps) {
           <AppImage
             source={images.home}
             className="w-[24px] h-[24px]"
-            tintColor={colors.textPrimary}
+            tintColor={colors.black}
             contentFit="contain"
           />
         </Pressable>
@@ -153,7 +153,7 @@ function ShareForm(p: FormProps) {
                   {p.music?.artworkUrl ? (
                     <AppImage source={{ uri: p.music.artworkUrl }} recyclingKey={p.music.artworkUrl} className="w-[64px] h-[64px] rounded-[32px]" />
                   ) : (
-                    <MaterialCommunityIcons name="waveform" size={20} color={colors.textPrimary} />
+                    <MaterialCommunityIcons name="waveform" size={20} color={colors.black} />
                   )}
                   <View className="absolute top-[-5px] right-[-5px] w-[20px] h-[20px] rounded-[10px] bg-accent items-center justify-center">
                     <AppText size={12} weight="bold" className="text-white leading-[14px]">
@@ -170,20 +170,20 @@ function ShareForm(p: FormProps) {
                 value={p.title}
                 onChangeText={p.onTitleChange}
                 placeholder="사연의 제목을 작성해 주세요"
-                placeholderTextColor={colors.textFootnote}
+                placeholderTextColor={colors.secondaryLabel}
               />
               <TextInput
                 className="flex-1 min-h-[160px] font-regular text-[15px] text-primary leading-[22px] p-0"
                 value={p.story}
                 onChangeText={p.onStoryChange}
                 placeholder=" 200자 이내로 자유롭게 공유하고싶은 사연을 작성해주세요"
-                placeholderTextColor={colors.textFootnote}
+                placeholderTextColor={colors.secondaryLabel}
                 multiline
                 textAlignVertical="top"
               />
             </View>
 
-            <AppText size={12} color="textFootnote" className="mt-sm text-left">
+            <AppText size={12} color="secondaryLabel" className="mt-sm text-left">
               {p.story.length}/{MAX_STORY}
             </AppText>
           </ScrollView>

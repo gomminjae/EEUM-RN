@@ -57,7 +57,7 @@ function ShakePrompt({ onTrigger }: { onTrigger: () => void }) {
       <View className="px-lg gap-sm">
         <View className="flex-row items-end gap-sm">
           <Text
-            className="text-primary"
+            className="text-black"
             style={{ fontFamily: fonts.helvetica.bold, fontSize: 96 }}
           >
             Shake
@@ -69,7 +69,7 @@ function ShakePrompt({ onTrigger }: { onTrigger: () => void }) {
           />
         </View>
         <Text
-          className="text-primary leading-[24px]"
+          className="text-black leading-[24px]"
           style={{ fontFamily: fonts.helvetica.regular, fontSize: 18 }}
         >
           {'to receive someone’s letter\nanswer with music'}
@@ -113,7 +113,7 @@ function RandomPostCard({ post }: { post: Post }) {
 
   return (
     <View className="flex-1 bg-main pt-lg">
-      <AppText size={18} color="textFootnote" className="text-center leading-[24px]">
+      <AppText size={18} color="systemGray" className="text-center leading-[24px]">
         {'Shake to receive someone’s letter\nanswer with music'}
       </AppText>
 
@@ -121,10 +121,10 @@ function RandomPostCard({ post }: { post: Post }) {
         className="mx-[42px] mt-[32px] p-lg min-h-[380px] rounded-[20px] bg-[#EAE8E0]/50 gap-md"
         style={cardStyle}
       >
-        <AppText size={18} weight="bold">
+        <AppText size={18} weight="bold" color="black">
           {post.title ?? '제목 없음'}
         </AppText>
-        <AppText size={14} color="textFootnote" numberOfLines={8} className="leading-[20px]">
+        <AppText size={14} color="systemGray" numberOfLines={8} className="leading-[20px]">
           {post.content ?? ''}
         </AppText>
       </Animated.View>

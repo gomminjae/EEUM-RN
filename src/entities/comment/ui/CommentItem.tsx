@@ -23,22 +23,22 @@ export const CommentItem = memo(function CommentItem({ comment, isPlaying = fals
       <View className="flex-row items-center gap-sm">
         <Ionicons name="musical-note" size={14} color={colors.textPrimary} />
         <View className="flex-row items-center gap-sm self-start px-[16px] py-[10px] bg-content rounded-[999px]">
-          <AppText size={14} weight="bold" numberOfLines={1}>
+          <AppText size={14} weight="bold" style={{ color: colors.black }} numberOfLines={1}>
             {comment.songName ?? '제목 없음'}
           </AppText>
-          <AppText size={13} color="textFootnote" numberOfLines={1}>
+          <AppText size={13} style={{ color: colors.systemGray }} numberOfLines={1}>
             {comment.artistName || '아티스트 미상'}
           </AppText>
           {!!comment.appleMusicUrl && (
             <Pressable onPress={() => onPlay?.(comment)} hitSlop={8}>
-              <Ionicons name={isPlaying ? 'pause' : 'play'} size={12} color={colors.textPrimary} />
+              <Ionicons name={isPlaying ? 'pause' : 'play'} size={12} color={colors.black} />
             </Pressable>
           )}
         </View>
       </View>
 
       {!!comment.content && (
-        <AppText size={14} className="leading-[19px]">
+        <AppText size={14} style={{ color: colors.black }} className="leading-[19px]">
           {comment.content}
         </AppText>
       )}

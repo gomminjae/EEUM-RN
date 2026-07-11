@@ -10,6 +10,11 @@ module.exports = {
         accent: '#C33D32',
         primary: '#1D1D1D',
         footnote: '#8A8A8A',
+        // iOS 시스템 색 (라이트 고정) — 원본이 시스템 색을 쓰는 곳 대응
+        'system-gray': '#8E8E93', // .gray
+        'system-gray-5': '#E5E5EA', // Color(.systemGray5)
+        'secondary-label': 'rgba(60,60,67,0.6)', // .secondary
+        'system-red': '#FF3B30', // .red
       },
       spacing: {
         xs: 4,

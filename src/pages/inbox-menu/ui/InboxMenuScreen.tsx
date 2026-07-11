@@ -33,7 +33,7 @@ export function InboxMenuScreen() {
           className="py-[12px]"
           hitSlop={8}
         >
-          <AppText size={28} weight="bold">
+          <AppText size={28} weight="bold" color="black">
             {m.label}
           </AppText>
         </Pressable>

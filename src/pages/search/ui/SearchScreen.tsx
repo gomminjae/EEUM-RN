@@ -37,7 +37,7 @@ export function SearchScreen() {
     <SafeAreaView className="flex-1 bg-main" edges={['top']}>
       <View className="flex-row items-center gap-[12px] p-[16px] bg-content">
         <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
-          <Ionicons name="chevron-back" size={20} color={colors.textPrimary} />
+          <Ionicons name="chevron-back" size={20} color={colors.black} />
         </Pressable>
         <TextInput
           className="flex-1 font-regular text-[17px] text-primary"

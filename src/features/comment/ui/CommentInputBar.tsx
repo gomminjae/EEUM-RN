@@ -30,11 +30,11 @@ export function CommentInputBar({ selectedMusic, onTapInput, onTapAddMusic, onRe
       )}
       <View className="flex-row items-center gap-sm px-md py-sm">
         <Pressable onPress={onTapAddMusic} hitSlop={8}>
-          <Ionicons name="add-circle" size={28} color={colors.textPrimary} />
+          <Ionicons name="add-circle" size={28} color={colors.black} />
         </Pressable>
         <Pressable className="flex-1" onPress={onTapInput}>
           <View className="px-md py-[10px] bg-content rounded-[20px]">
-            <AppText size={15} color="textFootnote" numberOfLines={1}>
+            <AppText size={15} style={{ color: colors.systemGray }} numberOfLines={1}>
               사연과 관련된 노래와 글을 추가해보세요.
             </AppText>
           </View>

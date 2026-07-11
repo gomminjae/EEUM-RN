@@ -56,7 +56,7 @@ export function CompletionSheet({ visible, pending, onClose, onConfirm }: Comple
                   설정
                 </AppText>
               </View>
-              <View className="h-[1px] bg-black/[0.15]" />
+              <View className="h-[1px] bg-system-gray/15" />
 
               {/* Content */}
               <View className="px-[24px] pt-[24px] pb-[28px] gap-[28px]">
@@ -147,7 +147,7 @@ export function CompletionSheet({ visible, pending, onClose, onConfirm }: Comple
               <View className="flex-1" />
 
               {/* Bottom bar */}
-              <View className="h-[1px] bg-black/[0.15]" />
+              <View className="h-[1px] bg-system-gray/15" />
               <View className="flex-row items-center">
                 <Pressable
                   className="flex-1 py-[20px] items-center"
@@ -158,7 +158,7 @@ export function CompletionSheet({ visible, pending, onClose, onConfirm }: Comple
                     취소
                   </AppText>
                 </Pressable>
-                <View className="w-[1px] h-[24px] bg-black/[0.15]" />
+                <View className="w-[1px] h-[24px] bg-system-gray/15" />
                 <Pressable
                   className="flex-1 py-[20px] items-center"
                   style={pending ? { opacity: 0.5 } : undefined}
@@ -183,7 +183,7 @@ function RadioCircle({ selected }: { selected: boolean }) {
   return (
     <View
       className="w-[22px] h-[22px] rounded-[11px] items-center justify-center border-2"
-      style={{ borderColor: selected ? '#000000' : 'rgba(0,0,0,0.35)' }}
+      style={{ borderColor: selected ? '#000000' : 'rgba(142,142,147,0.35)' }}
     >
       {selected && <View className="w-[12px] h-[12px] rounded-[6px] bg-black" />}
     </View>

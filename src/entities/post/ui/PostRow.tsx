@@ -16,7 +16,7 @@ export function PostRow({ post, subtitle = '참여한 사연과 플레이리스�
       {post.artworkUrl ? (
         <AppImage source={{ uri: post.artworkUrl }} recyclingKey={post.artworkUrl} className="w-[56px] h-[56px] rounded-[10px]" />
       ) : (
-        <View className="w-[56px] h-[56px] rounded-[10px] bg-black/10" />
+        <View className="w-[56px] h-[56px] rounded-[10px]" style={{ backgroundColor: 'rgba(142,142,147,0.15)' }} />
       )}
       <View className="flex-1 gap-xs">
         <AppText size={15} weight="semiBold" numberOfLines={1}>
