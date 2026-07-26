@@ -1,5 +1,5 @@
 import { useLayoutEffect } from 'react';
-import { Pressable, Linking, ScrollView } from 'react-native';
+import { Pressable, Linking, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import * as WebBrowser from 'expo-web-browser';
@@ -10,7 +10,14 @@ const NOTION_URL = 'https://www.notion.so/220a8ad06b41800886aedbe718fa6c3c';
 
 const ROWS: { title: string; action: () => void }[] = [
   { title: 'FAQ', action: () => WebBrowser.openBrowserAsync(NOTION_URL) },
-  { title: 'Contacts us', action: () => Linking.openURL('mailto:eeum.app@gmail.com') },
+  {
+    title: 'Contacts us',
+    // 메일 앱이 없으면(시뮬레이터 등) openURL 이 reject — 주소 안내로 폴백
+    action: () =>
+      Linking.openURL('mailto:eeum.app@gmail.com').catch(() =>
+        Alert.alert('문의', 'eeum.app@gmail.com 으로 문의해주세요.'),
+      ),
+  },
   { title: 'Terms of services', action: () => WebBrowser.openBrowserAsync(NOTION_URL) },
   { title: 'Privacy Policy', action: () => WebBrowser.openBrowserAsync(NOTION_URL) },
 ];
