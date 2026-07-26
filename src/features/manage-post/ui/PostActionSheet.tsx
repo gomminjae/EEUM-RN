@@ -1,5 +1,5 @@
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { AppText, BottomSheet, colors } from '@/shared/ui';
 
 const hairline = StyleSheet.hairlineWidth;
@@ -28,7 +28,7 @@ export function PostActionSheet({
       {!isCompleted && (
         <>
           <View className="bg-black/10" style={{ height: hairline }} />
-          <Row icon="checkmark-circle-outline" label="완료 처리" onPress={onComplete} />
+          <Row icon="check-decagram-outline" mci label="완료 처리" onPress={onComplete} />
         </>
       )}
       <View className="bg-black/10" style={{ height: hairline }} />
@@ -39,19 +39,22 @@ export function PostActionSheet({
 
 function Row({
   icon,
+  mci,
   label,
   destructive,
   onPress,
 }: {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: string;
+  mci?: boolean;
   label: string;
   destructive?: boolean;
   onPress: () => void;
 }) {
   const color = destructive ? '#FF3B30' : colors.textPrimary;
+  const Icon = mci ? MaterialCommunityIcons : Ionicons;
   return (
     <Pressable className="flex-row items-center gap-[12px] px-md py-md" onPress={onPress}>
-      <Ionicons name={icon} size={18} color={color} />
+      <Icon name={icon as never} size={18} color={color} />
       <AppText size={16} weight="medium" style={{ color }}>
         {label}
       </AppText>

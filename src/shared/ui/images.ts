@@ -6,4 +6,8 @@ export const images = {
   headphone: require('../../../assets/images/headphone.png'),
   gear: require('../../../assets/images/gear.png'),
   home: require('../../../assets/images/home.png'),
+  musicbox: require('../../../assets/images/musicbox.png'),
+  list: require('../../../assets/images/list.png'),
+  musicnote: require('../../../assets/images/musicnote.png'),
+  send: require('../../../assets/images/send.png'),
 } as const;

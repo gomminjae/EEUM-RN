@@ -9,9 +9,8 @@ export function useToggleLike(postId: string) {
 
   return useMutation({
     mutationFn: async (currentlyLiked: boolean) => {
-      const id = Number(postId);
-      if (currentlyLiked) await unlikePost(id);
-      else await likePost(id);
+      if (currentlyLiked) await unlikePost(postId);
+      else await likePost(postId);
       return !currentlyLiked;
     },
     onMutate: async (currentlyLiked) => {

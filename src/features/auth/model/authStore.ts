@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { setOnUnauthorized } from '@/shared/api';
 import { tokenStorage } from '@/shared/lib/storage';
 import type { UserData } from '@/entities/user';
 import { getDeviceId } from '../lib/deviceId';
@@ -46,3 +47,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ status: 'unauthenticated', user: null });
   },
 }));
+
+/** 토큰 만료(401) → 저장된 토큰 폐기 후 deviceId 게스트 재로그인.
+ *  status 가 loading 으로 바뀌면 AuthGate 가 네비게이터를 갈아끼우므로
+ *  재로그인 완료 시 자동으로 Home 초기 화면으로 돌아간다.
+ *  ponytail: 재로그인 직후 뒤늦게 도착한 401이 한 번 더 태울 수 있음 — 게스트 로그인이라 무해 */
+setOnUnauthorized(() => {
+  if (useAuthStore.getState().status !== 'authenticated') return;
+  void tokenStorage.clear().then(() => useAuthStore.getState().bootstrap());
+});

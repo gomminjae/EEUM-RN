@@ -111,7 +111,7 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
             <View className="w-[64px] h-[64px] rounded-[32px] bg-content items-center justify-center overflow-visible">
               <MaterialCommunityIcons name="waveform" size={20} color={colors.black} />
               <View className="absolute top-[-5px] right-[-5px] w-[20px] h-[20px] rounded-[10px] bg-accent items-center justify-center">
-                <AppText size={12} weight="bold" className="text-white leading-[14px]">
+                <AppText size={12} weight="bold" color="white" style={{ lineHeight: 14 }}>
                   +
                 </AppText>
               </View>
@@ -166,7 +166,7 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
             {update.isPending ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <AppText weight="semiBold" className="text-white text-[16px]">
+              <AppText size={16} weight="semiBold" color="white">
                 done
               </AppText>
             )}

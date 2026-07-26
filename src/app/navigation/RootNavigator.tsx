@@ -24,6 +24,7 @@ export function RootNavigator() {
         headerTitleStyle: { fontFamily: fonts.pretendard.bold, color: colors.textPrimary },
         headerTintColor: colors.textPrimary,
         headerShadowVisible: false,
+        headerBackButtonDisplayMode: 'minimal', // 원본: chevron 만, 라벨 없음
         contentStyle: { backgroundColor: colors.mainBackground },
       }}
     >

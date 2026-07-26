@@ -40,6 +40,16 @@ export function HomeScreen() {
 
   useShake(load);
 
+  const navigation = useNavigation<Nav>();
+  // 원본: 카드 표시 중 toolbar principal 에 로고
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: post
+        ? () => <AppImage source={images.logo} style={{ width: 28, height: 28 }} contentFit="contain" />
+        : undefined,
+    });
+  }, [navigation, post]);
+
   return (
     <View className="flex-1 bg-main">
       <View className="flex-1">
@@ -50,10 +60,10 @@ export function HomeScreen() {
   );
 }
 
-/** 대기 화면 — 큰 "Shake" + 안내 (시뮬레이터/탭 폴백으로 누르면 로드) */
+/** 대기 화면 — 큰 "Shake" + 안내 (원본처럼 탭 폴백은 개발 환경 한정) */
 function ShakePrompt({ onTrigger }: { onTrigger: () => void }) {
   return (
-    <Pressable className="flex-1 bg-main justify-center" onPress={onTrigger}>
+    <Pressable className="flex-1 bg-main justify-center" onPress={__DEV__ ? onTrigger : undefined}>
       <View className="px-lg gap-sm">
         <View className="flex-row items-end gap-sm">
           <Text
@@ -112,13 +122,13 @@ function RandomPostCard({ post }: { post: Post }) {
   const fadeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   return (
-    <View className="flex-1 bg-main pt-lg">
+    <View className="flex-1 bg-main pt-[12px]">
       <AppText size={18} color="systemGray" className="text-center leading-[24px]">
         {'Shake to receive someone’s letter\nanswer with music'}
       </AppText>
 
       <Animated.View
-        className="mx-[42px] mt-[32px] p-lg min-h-[380px] rounded-[20px] bg-[#EAE8E0]/50 gap-md"
+        className="mx-[42px] mt-[32px] p-lg min-h-[380px] rounded-[20px] bg-[#EAE8E0]/50 gap-[12px]"
         style={cardStyle}
       >
         <AppText size={18} weight="bold" color="black">

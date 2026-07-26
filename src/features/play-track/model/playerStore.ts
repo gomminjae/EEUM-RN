@@ -7,6 +7,8 @@ type PlayerState = {
   currentUrl: string | null;
   isPlaying: boolean;
   toggle: (url: string) => void;
+  /** 항상 처음부터 재생 (원본 stop→play) — 카드 전환 자동재생용, 같은 url 토글 방지 */
+  play: (url: string) => void;
   stop: () => void;
 };
 
@@ -48,6 +50,14 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       return;
     }
 
+    p.replace(url);
+    p.play();
+    set({ currentUrl: url, isPlaying: true });
+  },
+
+  play: (url) => {
+    if (!url) return;
+    const p = ensurePlayer(set);
     p.replace(url);
     p.play();
     set({ currentUrl: url, isPlaying: true });

@@ -46,7 +46,7 @@ export const PostGridCard = memo(function PostGridCard({
         )}
         {badge != null && (
           <View className="absolute right-[8px] bottom-[8px] px-[8px] py-[4px] rounded-[999px] bg-black/70">
-            <AppText size={11} weight="medium" className="text-white">
+            <AppText size={11} weight="medium" color="white">
               {badge}
             </AppText>
           </View>

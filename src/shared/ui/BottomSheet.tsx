@@ -19,7 +19,7 @@ export function BottomSheet({ visible, onClose, children }: BottomSheetProps) {
         className="bg-main rounded-t-[20px] px-lg pt-sm gap-xs"
         style={{ paddingBottom: insets.bottom + spacing.md }}
       >
-        <View className="self-center w-[40px] h-[4px] rounded-[2px] bg-black/15 mb-sm" />
+        <View className="self-center w-[48px] h-[4px] rounded-[2px] bg-footnote/40 mb-sm" />
         {children}
       </View>
     </Modal>

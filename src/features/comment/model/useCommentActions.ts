@@ -7,7 +7,7 @@ export function useCreateComment(postId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (draft: Omit<CommentDraft, 'postId'>) =>
-      createComment({ ...draft, postId: Number(postId) }),
+      createComment({ ...draft, postId }),
     onSuccess: () => qc.invalidateQueries({ queryKey: postKeys.detail(postId) }),
   });
 }

@@ -6,6 +6,6 @@ import { postKeys } from './queryKeys';
 export function usePostDetail(postId: string) {
   return useQuery({
     queryKey: postKeys.detail(postId),
-    queryFn: () => getPostDetail(Number(postId)),
+    queryFn: () => getPostDetail(postId),
   });
 }

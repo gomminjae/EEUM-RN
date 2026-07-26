@@ -3,6 +3,9 @@ import { api, parseData, parseList } from '@/shared/api';
 import { commentSchema } from '@/entities/comment/@x/post';
 import type { Post, FeedKind, PostDetail } from '../model/types';
 
+/** 서버 Long id — client 가 정밀도 보존을 위해 문자열로 줄 수 있어 둘 다 허용 */
+const idSchema = z.union([z.number(), z.string()]);
+
 /** Post 엔티티 기본값 채우기 (DTO → Post 변환 보조) */
 function makePost(p: Partial<Post> & { postId: string }): Post {
   return {
@@ -22,7 +25,7 @@ function makePost(p: Partial<Post> & { postId: string }): Post {
 /** 원본 InfiniteScrollPostDTO → Post (Ing/Done 무한스크롤) */
 const infiniteScrollPostSchema = z
   .object({
-    postId: z.number(),
+    postId: idSchema,
     title: z.string(),
     content: z.string(),
     songName: z.string().nullish(),
@@ -56,7 +59,7 @@ const FEED_PATH: Record<FeedKind, string> = {
 export async function getFeedPosts(
   kind: FeedKind,
   pageSize: number,
-  lastPostId?: number,
+  lastPostId?: string,
 ): Promise<Post[]> {
   const json = await api.get<unknown>(FEED_PATH[kind], { query: { pageSize, lastPostId } });
   return parseList(infiniteScrollPostSchema, json);
@@ -65,7 +68,7 @@ export async function getFeedPosts(
 /** 원본 PostDetailDTO → PostDetail (detail + comments + isLiked) */
 const postDetailSchema = z
   .object({
-    postId: z.number(),
+    postId: idSchema,
     title: z.string().nullish(),
     content: z.string().nullish(),
     songName: z.string().nullish(),
@@ -92,7 +95,7 @@ const postDetailSchema = z
   );
 
 /** 게시물 상세 (원본 PostAPI.getPostDetail) — GET /posts/{id} */
-export async function getPostDetail(postId: number): Promise<PostDetail> {
+export async function getPostDetail(postId: string): Promise<PostDetail> {
   const json = await api.get<unknown>(`/posts/${postId}`);
   return parseData(postDetailSchema, json);
 }
@@ -100,8 +103,8 @@ export async function getPostDetail(postId: number): Promise<PostDetail> {
 /** 랜덤 사연 1건 (원본 PostAPI.getRandomPosts) — Home "흔들기" */
 const randomPostSchema = z
   .object({
-    postId: z.number(),
-    writerId: z.number().nullish(),
+    postId: idSchema,
+    writerId: idSchema.nullish(),
     title: z.string(),
     content: z.string(),
   })
@@ -132,7 +135,7 @@ export async function getRandomPost(): Promise<Post | null> {
 /** 내 게시물 id 목록 (원본 PostAPI.getMyPosts) — 소유 여부 판별용 */
 const myPostsSchema = z.object({
   postCount: z.number().nullish(),
-  getMyPostResponses: z.array(z.object({ postId: z.number().nullish() })).nullish(),
+  getMyPostResponses: z.array(z.object({ postId: idSchema.nullish() })).nullish(),
 });
 export async function getMyPostIds(): Promise<string[]> {
   const json = await api.get<unknown>('/posts/my');
@@ -149,8 +152,8 @@ const s = (v: string | null | undefined) => v ?? null;
 /** 원본 PostModelDTO → Post (내 사연) */
 const postModelSchema = z
   .object({
-    postId: z.number().nullish(),
-    writerId: z.number().nullish(),
+    postId: idSchema.nullish(),
+    writerId: idSchema.nullish(),
     title: z.string().nullish(),
     content: z.string().nullish(),
     songName: z.string().nullish(),
@@ -188,7 +191,7 @@ export async function getMyPosts(): Promise<Post[]> {
 /** 원본 LikedPostDTO → Post */
 const likedPostSchema = z
   .object({
-    postId: z.number(),
+    postId: idSchema,
     artworkUrl: z.string().nullish(),
     title: z.string().nullish(),
     content: z.string().nullish(),
@@ -223,7 +226,7 @@ export async function getLikedPosts(): Promise<Post[]> {
 /** 원본 CommentedPostDTO → Post */
 const commentedPostSchema = z
   .object({
-    postId: z.number(),
+    postId: idSchema,
     artworkUrl: z.string().nullish(),
     title: z.string().nullish(),
     createdAt: z.string().nullish(),

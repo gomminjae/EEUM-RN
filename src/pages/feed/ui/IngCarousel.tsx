@@ -32,6 +32,7 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
   const snap = cardWidth + GAP;
   const [active, setActive] = useState(0);
   const stopPlayback = usePlayerStore((s) => s.stop);
+  const playTrack = usePlayerStore((s) => s.play);
 
   // 원본 onDisappear: 화면 이탈 시 재생 정지
   useEffect(() => () => stopPlayback(), [stopPlayback]);
@@ -41,10 +42,12 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
     const index = Math.max(0, Math.min(Math.round(e.nativeEvent.contentOffset.x / snap), posts.length - 1));
     if (index !== active) {
       setActive(index);
-      // 원본 IngPagerView.onChange(activePostId): 이전 곡 정지 후 새 카드 곡 자동재생
+      // 카드 전환 시 재생 중일 때만 다음 곡 자동재생 — 일시정지 상태면 그대로 유지
       const nextPost = posts[index];
-      if (nextPost?.appleMusicUrl) onPlay(nextPost.appleMusicUrl);
-      else stopPlayback();
+      if (playingUrl != null) {
+        if (nextPost?.appleMusicUrl) playTrack(nextPost.appleMusicUrl);
+        else stopPlayback();
+      }
     }
     if (index >= posts.length - 2 && query.hasNextPage && !query.isFetchingNextPage) {
       query.fetchNextPage();
@@ -67,6 +70,8 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
   return (
     <View className="flex-1 pt-md">
       <FlatList
+        // ScrollView 기본 flexGrow:1 이 세로로 늘어나 텍스트를 밀어냄 — 원본처럼 카드 높이만 차지
+        style={{ flexGrow: 0 }}
         data={posts}
         horizontal
         keyExtractor={(item, i) => item.postId ?? String(i)}

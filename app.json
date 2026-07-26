@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "EEUM-RN-tmp",
+    "name": "이음",
     "slug": "EEUM-RN-tmp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,7 +8,8 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.eeum.app"
+      "bundleIdentifier": "com.eeum.app",
+      "buildNumber": "3"
     },
     "android": {
       "adaptiveIcon": {

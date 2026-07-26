@@ -2,14 +2,17 @@ import { z } from 'zod';
 import { api, parseList } from '@/shared/api';
 import type { Comment } from '../model/types';
 
-const idToString = (v: number | null | undefined) => (v == null ? null : String(v));
+/** 서버 Long id — client 가 정밀도 보존을 위해 문자열로 줄 수 있어 둘 다 허용 */
+const idSchema = z.union([z.number(), z.string()]);
+
+const idToString = (v: number | string | null | undefined) => (v == null ? null : String(v));
 
 /** 원본 CommentModelDTO → Comment 매핑을 zod 스키마 + transform 으로 통합 */
 export const commentSchema = z
   .object({
-    commentId: z.number().nullish(),
-    postId: z.number().nullish(),
-    userId: z.number().nullish(),
+    commentId: idSchema.nullish(),
+    postId: idSchema.nullish(),
+    userId: idSchema.nullish(),
     content: z.string().nullish(),
     createdAt: z.string().nullish(),
     albumName: z.string().nullish(),
@@ -38,7 +41,7 @@ export const commentSchema = z
   );
 
 /** 댓글 목록 (원본 CommentAPI.getComments) — 상세 새로고침용 */
-export async function getComments(postId: number): Promise<Comment[]> {
+export async function getComments(postId: string): Promise<Comment[]> {
   const json = await api.get<unknown>(`/comments/${postId}`);
   return parseList(commentSchema, json);
 }

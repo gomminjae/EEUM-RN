@@ -8,10 +8,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppText, colors } from '@/shared/ui';
+import { AppText, AppImage, colors, images } from '@/shared/ui';
 import { CommentItem, type Comment } from '@/entities/comment';
 import type { Music } from '@/entities/track';
 import { useCreateComment } from '../model/useCommentActions';
@@ -58,7 +59,7 @@ export function CommentSheet({
     setText('');
   }, [visible]);
 
-  const canSend = (text.trim().length > 0 || !!selectedMusic) && !createComment.isPending;
+  const canSend = text.trim().length > 0 && !createComment.isPending; // 원본: 텍스트 없으면 전송 불가
 
   const submit = () => {
     if (!canSend) return;
@@ -76,6 +77,7 @@ export function CommentSheet({
           setText('');
           onRemoveMusic();
         },
+        onError: () => Alert.alert('오류', '댓글을 등록하지 못했어요. 잠시 후 다시 시도해주세요.'),
       },
     );
   };
@@ -93,7 +95,7 @@ export function CommentSheet({
 
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 24, gap: 16 }}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 40, paddingBottom: 24, gap: 16 }}
           keyboardDismissMode="interactive"
           keyboardShouldPersistTaps="handled"
         >
@@ -112,38 +114,47 @@ export function CommentSheet({
           className="border-t border-t-black/10 bg-main"
           style={{ borderTopWidth: hairline, paddingBottom: Math.max(insets.bottom, 8) }}
         >
-          {selectedMusic && (
-            <View className="flex-row items-center gap-sm mx-md mt-sm self-start px-md py-sm bg-content rounded-[999px]">
-              <Ionicons name="musical-note" size={13} color={colors.textPrimary} />
-              <AppText size={13} numberOfLines={1}>
-                {selectedMusic.songName} · {selectedMusic.artistName}
-              </AppText>
-              <Pressable onPress={onRemoveMusic} hitSlop={8}>
-                <Ionicons name="close" size={14} color={colors.textFootnote} />
-              </Pressable>
-            </View>
-          )}
-          <View className="flex-row items-end gap-sm px-md py-sm">
+          {/* 원본 SheetCommentInputBar: 음악 태그가 입력 캡슐 내부 상단에 붙는다 */}
+          <View className="flex-row items-end gap-sm px-[12px] py-[10px]">
             <Pressable onPress={onAddMusic} hitSlop={8} className="pb-xs">
               <Ionicons name="add-circle" size={28} color={colors.black} />
             </Pressable>
-            <TextInput
-              ref={inputRef}
-              className="flex-1 max-h-[120px] min-h-[40px] px-md py-sm bg-content rounded-[20px] font-regular text-[15px] text-primary"
-              value={text}
-              onChangeText={setText}
-              placeholder="사연과 관련된 노래와 글을 추가해보세요."
-              placeholderTextColor={colors.textFootnote}
-              multiline
-              returnKeyType="send"
-              onSubmitEditing={submit}
-            />
-            <Pressable onPress={submit} disabled={!canSend} hitSlop={8} className="pb-xs">
-              <Ionicons
-                name="arrow-up-circle"
-                size={32}
-                color={canSend ? colors.accentPrimary : colors.textFootnote}
+            <View className="flex-1 px-[14px] py-[10px] bg-content rounded-[20px] gap-[6px]">
+              {selectedMusic && (
+                <View className="flex-row items-center gap-[6px] self-start px-[10px] py-[6px] bg-main rounded-[999px]">
+                  <AppText size={13} weight="bold" numberOfLines={1}>
+                    {selectedMusic.songName}
+                  </AppText>
+                  {!!selectedMusic.artistName && (
+                    <AppText size={13} color="textFootnote" numberOfLines={1}>
+                      {selectedMusic.artistName}
+                    </AppText>
+                  )}
+                  <Pressable onPress={onRemoveMusic} hitSlop={8}>
+                    <Ionicons name="close" size={12} color={colors.textFootnote} />
+                  </Pressable>
+                </View>
+              )}
+              <TextInput
+                ref={inputRef}
+                className="max-h-[110px] font-regular text-[13px] text-primary p-0"
+                value={text}
+                onChangeText={setText}
+                placeholder="사연과 관련된 노래와 글을 추가해보세요."
+                placeholderTextColor={colors.textFootnote}
+                multiline
+                returnKeyType="send"
+                onSubmitEditing={submit}
               />
+            </View>
+            <Pressable
+              onPress={submit}
+              disabled={!canSend}
+              hitSlop={8}
+              className="pb-xs"
+              style={!canSend ? { opacity: 0.4 } : undefined}
+            >
+              <AppImage source={images.send} style={{ width: 32, height: 32 }} contentFit="contain" />
             </Pressable>
           </View>
         </View>

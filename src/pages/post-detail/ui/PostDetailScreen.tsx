@@ -3,7 +3,7 @@ import { View, ScrollView, Pressable, ActivityIndicator, Alert, useWindowDimensi
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AppText, AppImage, colors } from '@/shared/ui';
+import { AppText, AppImage, colors, images } from '@/shared/ui';
 import { CommentItem, CommentCard, type Comment } from '@/entities/comment';
 import { useToggleLike } from '@/features/like-post';
 import { usePlayerStore } from '@/features/play-track';
@@ -88,7 +88,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
               >
                 <Ionicons
                   name={isLiked ? 'heart' : 'heart-outline'}
-                  size={22}
+                  size={20}
                   color={isLiked ? '#FF3B30' : '#000000'}
                 />
               </Pressable>
@@ -114,8 +114,8 @@ export function PostDetailScreen({ route, navigation }: Props) {
     if (!target?.commentId || !target.userId) return;
     report.mutate(
       {
-        commentId: Number(target.commentId),
-        reportedUserId: Number(target.userId),
+        commentId: target.commentId,
+        reportedUserId: target.userId,
         reportReason: reason,
       },
       {
@@ -193,12 +193,16 @@ export function PostDetailScreen({ route, navigation }: Props) {
           {detail.content}
         </AppText>
 
-        {/* 글보기 / 커버보기 토글 */}
+        {/* 글보기 / 커버보기 토글 — 원본 커스텀 에셋 musicbox/list */}
         <Pressable
-          className="flex-row items-center gap-sm px-[24px] pt-[20px] py-[12px]"
+          className="flex-row items-center gap-sm px-[24px] mt-[20px] py-[12px]"
           onPress={() => setShowCommentsList((v) => !v)}
         >
-          <Ionicons name={showCommentsList ? 'grid-outline' : 'list'} size={20} color="#000000" />
+          <AppImage
+            source={showCommentsList ? images.musicbox : images.list}
+            style={{ width: 20, height: 20 }}
+            contentFit="contain"
+          />
           <AppText size={16} weight="medium" style={{ color: colors.black }}>
             {showCommentsList ? '커버보기' : '글보기'}
           </AppText>

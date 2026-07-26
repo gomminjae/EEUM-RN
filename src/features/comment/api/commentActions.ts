@@ -1,7 +1,7 @@
 import { api } from '@/shared/api';
 
 export type CommentDraft = {
-  postId: number;
+  postId: string;
   content: string;
   /** 첨부 음악 (M4 Search 연동) — 없으면 빈 문자열로 전송 */
   albumName?: string;
@@ -25,7 +25,7 @@ export const createComment = (draft: CommentDraft) =>
 
 /** 원본 CommentAPI.reportComment — POST /report/comment */
 export const reportComment = (params: {
-  commentId: number;
-  reportedUserId: number;
+  commentId: string;
+  reportedUserId: string;
   reportReason: string;
 }) => api.post('/report/comment', params);

@@ -156,7 +156,7 @@ function ShareForm(p: FormProps) {
                     <MaterialCommunityIcons name="waveform" size={20} color={colors.black} />
                   )}
                   <View className="absolute top-[-5px] right-[-5px] w-[20px] h-[20px] rounded-[10px] bg-accent items-center justify-center">
-                    <AppText size={12} weight="bold" className="text-white leading-[14px]">
+                    <AppText size={12} weight="bold" color="white" style={{ lineHeight: 14 }}>
                       +
                     </AppText>
                   </View>
@@ -202,7 +202,7 @@ function ShareForm(p: FormProps) {
             {p.pending ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <AppText weight="semiBold" className="text-white text-[17px]">
+              <AppText size={17} weight="semiBold" color="white">
                 share
               </AppText>
             )}

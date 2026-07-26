@@ -15,6 +15,12 @@ export class ApiError extends Error {
 
 type Query = Record<string, string | number | boolean | undefined | null>;
 
+/** 401(토큰 만료) 시 호출될 핸들러 — features/auth 가 등록 (레이어 역전 방지) */
+let onUnauthorized: (() => void) | null = null;
+export function setOnUnauthorized(fn: () => void) {
+  onUnauthorized = fn;
+}
+
 type RequestOptions = {
   method?: string;
   body?: unknown;
@@ -57,9 +63,20 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   });
 
   const text = await res.text();
-  const data = text ? JSON.parse(text) : undefined;
+  // 서버 Long id(2^53 초과)가 JSON.parse 에서 정밀도를 잃지 않도록 값 위치의 16자리+ 정수를 문자열로 감싼다
+  // ponytail: 문자열 내용에 `: <16자리수>,` 꼴이 있으면 오탐 가능 — 실데이터엔 없어 허용
+  // 서버가 401 등에서 JSON 이 아닌 평문("Invalid access token!")을 주는 경우가 있어 파싱 가드
+  let data: unknown;
+  try {
+    data = text
+      ? JSON.parse(text.replace(/(:\s*)(-?\d{16,})(?=\s*[,}\]])/g, '$1"$2"'))
+      : undefined;
+  } catch {
+    data = text;
+  }
 
   if (!res.ok) {
+    if (res.status === 401 && auth) onUnauthorized?.();
     throw new ApiError(res.status, `Request failed (${res.status})`, data);
   }
   return data as T;

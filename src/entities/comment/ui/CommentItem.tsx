@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { View, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, colors } from '@/shared/ui';
+import { AppImage, AppText, colors, images } from '@/shared/ui';
 import type { Comment } from '../model/types';
 
 type CommentItemProps = {
@@ -21,7 +21,7 @@ export const CommentItem = memo(function CommentItem({ comment, isPlaying = fals
       delayLongPress={300}
     >
       <View className="flex-row items-center gap-sm">
-        <Ionicons name="musical-note" size={14} color={colors.textPrimary} />
+        <AppImage source={images.musicnote} style={{ width: 14, height: 14 }} contentFit="contain" />
         <View className="flex-row items-center gap-sm self-start px-[16px] py-[10px] bg-content rounded-[999px]">
           <AppText size={14} weight="bold" style={{ color: colors.black }} numberOfLines={1}>
             {comment.songName ?? '제목 없음'}
