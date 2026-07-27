@@ -9,7 +9,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.eeum.app",
-      "buildNumber": "3"
+      "buildNumber": "9"
     },
     "android": {
       "adaptiveIcon": {
