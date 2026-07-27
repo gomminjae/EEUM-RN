@@ -6,10 +6,12 @@ import * as WebBrowser from 'expo-web-browser';
 import { AppText, colors } from '@/shared/ui';
 
 /** 원본 SettingView 이식 — FAQ / Contacts us / Terms / Privacy */
-const NOTION_URL = 'https://www.notion.so/220a8ad06b41800886aedbe718fa6c3c';
+const FAQ_URL = 'https://app.notion.com/p/2a8a8ad06b418047b091c1b287432637';
+const TERMS_URL = 'https://app.notion.com/p/EEUM-2a8a8ad06b4180cda342f1917395f176';
+const PRIVACY_URL = 'https://app.notion.com/p/EEUM-2a8a8ad06b4180c293caff349a054c1e';
 
 const ROWS: { title: string; action: () => void }[] = [
-  { title: 'FAQ', action: () => WebBrowser.openBrowserAsync(NOTION_URL) },
+  { title: 'FAQ', action: () => WebBrowser.openBrowserAsync(FAQ_URL) },
   {
     title: 'Contacts us',
     // 메일 앱이 없으면(시뮬레이터 등) openURL 이 reject — 주소 안내로 폴백
@@ -18,8 +20,8 @@ const ROWS: { title: string; action: () => void }[] = [
         Alert.alert('문의', 'eeum.app@gmail.com 으로 문의해주세요.'),
       ),
   },
-  { title: 'Terms of services', action: () => WebBrowser.openBrowserAsync(NOTION_URL) },
-  { title: 'Privacy Policy', action: () => WebBrowser.openBrowserAsync(NOTION_URL) },
+  { title: 'Terms of services', action: () => WebBrowser.openBrowserAsync(TERMS_URL) },
+  { title: 'Privacy Policy', action: () => WebBrowser.openBrowserAsync(PRIVACY_URL) },
 ];
 
 export function SettingsScreen() {
