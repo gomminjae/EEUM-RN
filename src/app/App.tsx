@@ -13,7 +13,8 @@ const navTheme = {
 };
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
+  // Helvetica/Helvetica-Bold 는 iOS 내장 폰트라 로드하지 않는다 (동일 이름 등록이 실패해 부팅을 막았음)
+  const [fontsLoaded, fontError] = useFonts({
     'Pretendard-Thin': require('../../assets/fonts/Pretendard-Thin.otf'),
     'Pretendard-ExtraLight': require('../../assets/fonts/Pretendard-ExtraLight.otf'),
     'Pretendard-Light': require('../../assets/fonts/Pretendard-Light.otf'),
@@ -23,11 +24,10 @@ export default function App() {
     'Pretendard-Bold': require('../../assets/fonts/Pretendard-Bold.otf'),
     'Pretendard-ExtraBold': require('../../assets/fonts/Pretendard-ExtraBold.otf'),
     'Pretendard-Black': require('../../assets/fonts/Pretendard-Black.otf'),
-    Helvetica: require('../../assets/fonts/Helvetica.ttf'),
-    'Helvetica-Bold': require('../../assets/fonts/Helvetica-Bold.ttf'),
   });
 
-  if (!fontsLoaded) {
+  // 로드 실패 시 시스템 폰트로라도 진행 — 어떤 경우에도 빈 화면에 갇히지 않는다
+  if (!fontsLoaded && !fontError) {
     return <View style={{ flex: 1, backgroundColor: colors.mainBackground }} />;
   }
 
