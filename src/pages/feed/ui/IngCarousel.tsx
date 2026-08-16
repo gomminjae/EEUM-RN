@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   FlatList,
@@ -31,17 +31,27 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
   const cardWidth = width - 80;
   const snap = cardWidth + GAP;
   const [active, setActive] = useState(0);
+  const settledActive = useRef(0);
   const stopPlayback = usePlayerStore((s) => s.stop);
   const playTrack = usePlayerStore((s) => s.play);
 
   // 원본 onDisappear: 화면 이탈 시 재생 정지
   useEffect(() => () => stopPlayback(), [stopPlayback]);
 
+  const getIndex = (offsetX: number) =>
+    Math.max(0, Math.min(Math.round(offsetX / snap), posts.length - 1));
+
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const index = getIndex(e.nativeEvent.contentOffset.x);
+    setActive((current) => (current === index ? current : index));
+  };
+
   const onScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     // 러버밴드 오버스크롤 시 음수/초과 인덱스 방지
-    const index = Math.max(0, Math.min(Math.round(e.nativeEvent.contentOffset.x / snap), posts.length - 1));
-    if (index !== active) {
-      setActive(index);
+    const index = getIndex(e.nativeEvent.contentOffset.x);
+    setActive(index);
+    if (index !== settledActive.current) {
+      settledActive.current = index;
       // 카드 전환 시 재생 중일 때만 다음 곡 자동재생 — 일시정지 상태면 그대로 유지
       const nextPost = posts[index];
       if (playingUrl != null) {
@@ -79,6 +89,8 @@ export function IngCarousel({ query, posts, onPressPost, playingUrl, onPlay }: I
         snapToInterval={snap}
         decelerationRate="fast"
         disableIntervalMomentum
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         onMomentumScrollEnd={onScrollEnd}
         contentContainerStyle={{ paddingLeft: SIDE_PADDING, paddingRight: 56 }}
         renderItem={({ item }) => (

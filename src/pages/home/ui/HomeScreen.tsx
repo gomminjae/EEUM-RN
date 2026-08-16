@@ -4,9 +4,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSpring,
   withSequence,
-  withDelay,
 } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -89,35 +87,39 @@ function ShakePrompt({ onTrigger }: { onTrigger: () => void }) {
   );
 }
 
-/** 원본 RandomPostCard — 슬라이드 등장 + 살짝 흔들리는 애니메이션 */
+/** 원본 RandomPostCard — 짧고 가벼운 흔들림으로 등장 */
 function RandomPostCard({ post }: { post: Post }) {
   const navigation = useNavigation<Nav>();
 
-  const translateY = useSharedValue(300);
+  const translateY = useSharedValue(12);
+  const translateX = useSharedValue(0);
   const opacity = useSharedValue(0);
-  const rotate = useSharedValue(0);
+  const scale = useSharedValue(0.98);
 
   useEffect(() => {
     // 새 사연마다 재생 (원본 .id(post.postId) + onAppear)
-    translateY.value = 300;
+    translateY.value = 12;
+    translateX.value = 0;
     opacity.value = 0;
-    rotate.value = 0;
-    translateY.value = withSpring(0, { damping: 12, stiffness: 100 });
-    opacity.value = withTiming(1, { duration: 400 });
-    // gentle single shake: -4 → 3 → 0
-    rotate.value = withDelay(
-      200,
-      withSequence(
-        withTiming(-4, { duration: 150 }),
-        withTiming(3, { duration: 150 }),
-        withTiming(0, { duration: 200 }),
-      ),
+    scale.value = 0.98;
+    translateY.value = withTiming(0, { duration: 160 });
+    opacity.value = withTiming(1, { duration: 120 });
+    scale.value = withTiming(1, { duration: 160 });
+    translateX.value = withSequence(
+      withTiming(-6, { duration: 45 }),
+      withTiming(6, { duration: 60 }),
+      withTiming(-3, { duration: 50 }),
+      withTiming(0, { duration: 45 }),
     );
   }, [post.postId]);
 
   const cardStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [{ translateY: translateY.value }, { rotate: `${rotate.value}deg` }],
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { scale: scale.value },
+    ],
   }));
   const fadeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
