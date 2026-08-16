@@ -1,4 +1,6 @@
-import { api } from '@/shared/api';
+import { z } from 'zod';
+import { commentSchema, type Comment } from '@/entities/comment';
+import { api, parseData } from '@/shared/api';
 
 export type CommentDraft = {
   postId: string;
@@ -12,9 +14,33 @@ export type CommentDraft = {
 };
 
 /** 원본 CommentAPI.postComment — POST /comments */
-export const createComment = (draft: CommentDraft) =>
-  api.post('/comments', {
-    postId: draft.postId,
+/** OpenAPI 는 int64지만 앱은 정밀도 보존을 위해 ID를 문자열로 관리한다.
+ *  안전한 범위의 ID는 JSON number로 보내고, 그보다 크면 손실 없는 숫자 문자열을 유지한다. */
+const requestId = (id: string): number | string => {
+  const value = Number(id);
+  return Number.isSafeInteger(value) ? value : id;
+};
+
+const responseId = z.union([z.number(), z.string()]);
+const commentReportSchema = z
+  .object({
+    reporterUserId: responseId.nullish(),
+    reportedUserId: responseId.nullish(),
+    reportedCommentId: responseId.nullish(),
+    reportReason: z.string().nullish(),
+    reportTime: z.string().nullish(),
+  })
+  .transform((data) => ({
+    reporterUserId: data.reporterUserId == null ? null : String(data.reporterUserId),
+    reportedUserId: data.reportedUserId == null ? null : String(data.reportedUserId),
+    reportedCommentId: data.reportedCommentId == null ? null : String(data.reportedCommentId),
+    reportReason: data.reportReason ?? null,
+    reportTime: data.reportTime ?? null,
+  }));
+
+export async function createComment(draft: CommentDraft): Promise<Comment> {
+  const json = await api.post<unknown>('/comments', {
+    postId: requestId(draft.postId),
     content: draft.content,
     albumName: draft.albumName ?? '',
     songName: draft.songName ?? '',
@@ -22,10 +48,25 @@ export const createComment = (draft: CommentDraft) =>
     artworkUrl: draft.artworkUrl ?? '',
     appleMusicUrl: draft.appleMusicUrl ?? '',
   });
+  return parseData(commentSchema, json);
+}
 
 /** 원본 CommentAPI.reportComment — POST /report/comment */
-export const reportComment = (params: {
+export async function reportComment(params: {
   commentId: string;
   reportedUserId: string;
   reportReason: string;
-}) => api.post('/report/comment', params);
+}): Promise<z.infer<typeof commentReportSchema>> {
+  const json = await api.post<unknown>('/report/comment', {
+    commentId: requestId(params.commentId),
+    reportedUserId: requestId(params.reportedUserId),
+    reportReason: params.reportReason,
+  });
+  return parseData(commentReportSchema, json);
+}
+
+/** OpenAPI: DELETE /comments/{commentId} */
+export async function deleteComment(commentId: string): Promise<string> {
+  const json = await api.delete<unknown>(`/comments/${encodeURIComponent(commentId)}`);
+  return parseData(z.string(), json);
+}

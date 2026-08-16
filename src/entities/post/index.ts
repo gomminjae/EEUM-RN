@@ -1,4 +1,4 @@
-export type { Post, FeedKind, PostDetail } from './model/types';
+export type { Post, FeedKind, PostDetail, CommentedPosts } from './model/types';
 export { postKeys } from './model/queryKeys';
 export { usePostDetail } from './model/queries';
 export {

@@ -15,7 +15,8 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export function CommentsListScreen() {
   const navigation = useNavigation<Nav>();
   const query = useQuery({ queryKey: ['inbox', 'comments'], queryFn: getCommentedPosts });
-  const posts = query.data ?? [];
+  const posts = query.data?.posts ?? [];
+  const count = query.data?.count ?? posts.length;
 
   const openPost = useCallback(
     (post: Post) => {
@@ -32,7 +33,7 @@ export function CommentsListScreen() {
       ListHeaderComponent={
         <InboxHeader
           title="Comments"
-          count={posts.length}
+          count={count}
           description="참여한 사연과 플레이리스트입니다."
         />
       }
@@ -42,6 +43,15 @@ export function CommentsListScreen() {
       ListEmptyComponent={
         query.isLoading ? (
           <ActivityIndicator color={colors.accentPrimary} className="mt-[60px]" />
+        ) : query.isError ? (
+          <View className="items-center gap-sm mt-[60px]">
+            <AppText color="textFootnote">댓글 목록을 불러오지 못했어요</AppText>
+            <Pressable className="px-md py-sm" onPress={() => query.refetch()}>
+              <AppText weight="semiBold" style={{ color: colors.accentPrimary }}>
+                다시 시도
+              </AppText>
+            </Pressable>
+          </View>
         ) : (
           <View className="items-center gap-md mt-[60px]">
             <AppImage source={images.nodata} className="w-[120px] h-[120px] opacity-80" contentFit="contain" />

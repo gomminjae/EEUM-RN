@@ -3,6 +3,7 @@ export type Comment = {
   commentId: string | null;
   postId: string | null;
   userId: string | null;
+  username: string | null;
   content: string | null;
   createdAt: string | null;
   albumName: string | null;

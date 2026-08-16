@@ -66,7 +66,7 @@ export function ReportCommentSheet({ visible, onClose, onSubmit }: ReportComment
 
         {/* 질문 */}
         <AppText size={16} weight="semiBold" style={{ color: colors.black }} className="px-[20px] pt-lg">
-          이 게시물을 신고하는 이유가 무엇인가요?
+          이 댓글을 신고하는 이유가 무엇인가요?
         </AppText>
 
         {/* 사유 목록 */}

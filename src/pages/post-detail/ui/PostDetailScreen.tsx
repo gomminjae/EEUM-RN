@@ -8,7 +8,13 @@ import { CommentItem, CommentCard, type Comment } from '@/entities/comment';
 import { useToggleLike } from '@/features/like-post';
 import { usePlayerStore } from '@/features/play-track';
 import { useMusicPicker } from '@/features/music-search';
-import { CommentInputBar, CommentSheet, ReportCommentSheet, useReportComment } from '@/features/comment';
+import {
+  CommentInputBar,
+  CommentSheet,
+  ReportCommentSheet,
+  useDeleteComment,
+  useReportComment,
+} from '@/features/comment';
 import { PostActionSheet, useManagePost } from '@/features/manage-post';
 import type { Music } from '@/entities/track';
 import type { RootStackParamList } from '@/shared/config/navigation';
@@ -25,7 +31,8 @@ export function PostDetailScreen({ route, navigation }: Props) {
   const isMyPost = useIsMyPost(postId);
   const toggleLike = useToggleLike(postId);
   const manage = useManagePost(postId);
-  const report = useReportComment();
+  const report = useReportComment(postId);
+  const deleteComment = useDeleteComment(postId);
   const togglePlay = usePlayerStore((s) => s.toggle);
   const playingUrl = usePlayerStore((s) => (s.isPlaying ? s.currentUrl : null));
   const consumePicked = useMusicPicker((s) => s.consume);
@@ -66,6 +73,35 @@ export function PostDetailScreen({ route, navigation }: Props) {
       setReportTarget(c);
     }
   }, []);
+
+  const handleDeleteComment = useCallback(
+    (comment: Comment) => {
+      if (!comment.commentId || deleteComment.isPending) return;
+      Alert.alert('댓글을 삭제하시겠습니까?', '본인이 작성한 댓글만 삭제할 수 있습니다.', [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: () =>
+            deleteComment.mutate(comment.commentId!, {
+              onError: () => Alert.alert('삭제 실패', '댓글을 삭제할 수 없거나 잠시 문제가 발생했습니다.'),
+            }),
+        },
+      ]);
+    },
+    [deleteComment],
+  );
+
+  const handleCommentAction = useCallback(
+    (comment: Comment) => {
+      Alert.alert('댓글 관리', undefined, [
+        { text: '취소', style: 'cancel' },
+        { text: '신고하기', onPress: () => handleReport(comment) },
+        { text: '내 댓글 삭제', style: 'destructive', onPress: () => handleDeleteComment(comment) },
+      ]);
+    },
+    [handleDeleteComment, handleReport],
+  );
 
   const isLiked = detail?.isLiked ?? false;
   const hasDetail = !!detail;
@@ -219,7 +255,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
                     comment={c}
                     isPlaying={!!c.appleMusicUrl && playingUrl === c.appleMusicUrl}
                     onPlay={handlePlayComment}
-                    onReport={handleReport}
+                    onAction={handleCommentAction}
                   />
                 ))}
               </View>
@@ -231,7 +267,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
                       comment={c}
                       isPlaying={!!c.appleMusicUrl && playingUrl === c.appleMusicUrl}
                       onPlay={handlePlayComment}
-                      onReport={handleReport}
+                      onAction={handleCommentAction}
                     />
                   </View>
                 ))}
@@ -260,7 +296,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
           selectedMusic={selectedMusic}
           playingUrl={playingUrl}
           onPlay={handlePlayComment}
-          onReport={handleReport}
+          onCommentAction={handleCommentAction}
           onAddMusic={() => {
             setShowCommentSheet(false);
             navigation.navigate('Search');

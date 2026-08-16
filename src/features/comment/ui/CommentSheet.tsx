@@ -27,7 +27,7 @@ type CommentSheetProps = {
   selectedMusic: Music | null;
   playingUrl: string | null;
   onPlay: (comment: Comment) => void;
-  onReport: (comment: Comment) => void;
+  onCommentAction: (comment: Comment) => void;
   onAddMusic: () => void;
   onRemoveMusic: () => void;
 };
@@ -41,7 +41,7 @@ export function CommentSheet({
   selectedMusic,
   playingUrl,
   onPlay,
-  onReport,
+  onCommentAction,
   onAddMusic,
   onRemoveMusic,
 }: CommentSheetProps) {
@@ -105,7 +105,7 @@ export function CommentSheet({
               comment={c}
               isPlaying={!!c.appleMusicUrl && playingUrl === c.appleMusicUrl}
               onPlay={onPlay}
-              onReport={onReport}
+              onAction={onCommentAction}
             />
           ))}
         </ScrollView>

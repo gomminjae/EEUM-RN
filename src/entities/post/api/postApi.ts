@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { api, parseData, parseList } from '@/shared/api';
 import { commentSchema } from '@/entities/comment/@x/post';
-import type { Post, FeedKind, PostDetail } from '../model/types';
+import type { Post, FeedKind, PostDetail, CommentedPosts } from '../model/types';
 
 /** 서버 Long id — client 가 정밀도 보존을 위해 문자열로 줄 수 있어 둘 다 허용 */
 const idSchema = z.union([z.number(), z.string()]);
@@ -230,13 +230,30 @@ const commentedPostSchema = z
     artworkUrl: z.string().nullish(),
     title: z.string().nullish(),
     createdAt: z.string().nullish(),
+    updatedAt: z.string().nullish(),
   })
   .transform((d) =>
-    makePost({ postId: String(d.postId), title: s(d.title), artworkUrl: s(d.artworkUrl), createdAt: s(d.createdAt) }),
+    makePost({
+      postId: String(d.postId),
+      title: s(d.title),
+      artworkUrl: s(d.artworkUrl),
+      createdAt: s(d.createdAt),
+      updatedAt: s(d.updatedAt),
+    }),
   );
 
+const commentedPostsFullSchema = z
+  .object({
+    CommentedPostsCount: z.number().nullish(),
+    getCommentedPostsResponses: z.array(commentedPostSchema).nullish(),
+  })
+  .transform((d): CommentedPosts => {
+    const posts = d.getCommentedPostsResponses ?? [];
+    return { count: d.CommentedPostsCount ?? posts.length, posts };
+  });
+
 /** 댓글 단 사연 (원본 PostAPI.getCommentedPosts) — GET /posts/commented */
-export async function getCommentedPosts(): Promise<Post[]> {
+export async function getCommentedPosts(): Promise<CommentedPosts> {
   const json = await api.get<unknown>('/posts/commented');
-  return parseList(commentedPostSchema, json);
+  return parseData(commentedPostsFullSchema, json);
 }

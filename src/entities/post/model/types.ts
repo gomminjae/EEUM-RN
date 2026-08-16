@@ -11,7 +11,13 @@ export type Post = {
   artworkUrl: string | null;
   appleMusicUrl: string | null;
   createdAt: string | null;
+  updatedAt?: string | null;
   isCompleted: boolean | null;
+};
+
+export type CommentedPosts = {
+  count: number;
+  posts: Post[];
 };
 
 export type FeedKind = 'ing' | 'done';

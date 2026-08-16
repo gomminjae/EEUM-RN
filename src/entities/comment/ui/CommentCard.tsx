@@ -11,16 +11,16 @@ type CommentCardProps = {
   comment: Comment;
   isPlaying?: boolean;
   onPlay?: (comment: Comment) => void;
-  onReport?: (comment: Comment) => void;
+  onAction?: (comment: Comment) => void;
 };
 
 /** 원본 CommentCard 이식 — 커버 150h + 중앙 재생(50x50) + 곡 13 semiBold / 아티스트 11 gray.
- *  롱프레스 → 신고. */
-export const CommentCard = memo(function CommentCard({ comment, isPlaying = false, onPlay, onReport }: CommentCardProps) {
+ *  롱프레스 → 댓글 관리. */
+export const CommentCard = memo(function CommentCard({ comment, isPlaying = false, onPlay, onAction }: CommentCardProps) {
   return (
     <Pressable
       className="flex-1 gap-sm"
-      onLongPress={onReport ? () => onReport(comment) : undefined}
+      onLongPress={onAction ? () => onAction(comment) : undefined}
       delayLongPress={300}
     >
       <View

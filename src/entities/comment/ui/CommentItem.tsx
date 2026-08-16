@@ -8,16 +8,16 @@ type CommentItemProps = {
   comment: Comment;
   isPlaying?: boolean;
   onPlay?: (comment: Comment) => void;
-  onReport?: (comment: Comment) => void;
+  onAction?: (comment: Comment) => void;
 };
 
 /** 원본 CommentListItem 이식 — ♪ + 캡슐(곡 14 bold / 아티스트 13 gray / 재생 12) + 본문 14.
- *  롱프레스 → 신고 (원본 contextMenu). */
-export const CommentItem = memo(function CommentItem({ comment, isPlaying = false, onPlay, onReport }: CommentItemProps) {
+ *  롱프레스 → 댓글 관리 (원본 contextMenu). */
+export const CommentItem = memo(function CommentItem({ comment, isPlaying = false, onPlay, onAction }: CommentItemProps) {
   return (
     <Pressable
       className="py-sm gap-[10px]"
-      onLongPress={onReport ? () => onReport(comment) : undefined}
+      onLongPress={onAction ? () => onAction(comment) : undefined}
       delayLongPress={300}
     >
       <View className="flex-row items-center gap-sm">
