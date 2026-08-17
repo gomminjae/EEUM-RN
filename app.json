@@ -10,7 +10,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.eeum.app",
       "appleTeamId": "AU24ZRJ649",
-      "buildNumber": "10"
+      "buildNumber": "11"
     },
     "android": {
       "adaptiveIcon": {
@@ -31,6 +31,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "./plugins/with-ios-scheme-name",
       "expo-secure-store",
       "expo-font",
       "expo-audio",
