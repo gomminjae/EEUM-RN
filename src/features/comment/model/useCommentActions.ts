@@ -1,6 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { postKeys } from '@/entities/post';
-import { createComment, deleteComment, reportComment, type CommentDraft } from '../api/commentActions';
+import { postKeys, type PostDetail } from '@/entities/post';
+import {
+  blockUserAndReportComment,
+  createComment,
+  deleteComment,
+  reportComment,
+  type CommentDraft,
+} from '../api/commentActions';
 
 const invalidateCommentQueries = (qc: ReturnType<typeof useQueryClient>, postId: string) =>
   Promise.all([
@@ -23,6 +29,42 @@ export function useReportComment(postId: string) {
   return useMutation({
     mutationFn: reportComment,
     onSuccess: () => invalidateCommentQueries(qc, postId),
+  });
+}
+
+export function useBlockCommentAuthor(postId: string) {
+  const qc = useQueryClient();
+  const detailKey = postKeys.detail(postId);
+
+  return useMutation({
+    mutationFn: blockUserAndReportComment,
+    onMutate: async ({ blockedUserId }) => {
+      await qc.cancelQueries({ queryKey: detailKey });
+      const previous = qc.getQueryData<PostDetail>(detailKey);
+
+      // 네트워크 응답을 기다리지 않고 차단 사용자의 댓글을 현재 화면에서 제거한다.
+      qc.setQueryData<PostDetail>(detailKey, (current) =>
+        current
+          ? {
+              ...current,
+              comments: current.comments.filter(
+                (comment) => comment.userId !== blockedUserId,
+              ),
+            }
+          : current,
+      );
+
+      return { previous };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previous) qc.setQueryData(detailKey, context.previous);
+    },
+    onSettled: () =>
+      Promise.all([
+        qc.invalidateQueries({ queryKey: detailKey }),
+        qc.invalidateQueries({ queryKey: ['feed'] }),
+        qc.invalidateQueries({ queryKey: ['inbox'] }),
+      ]),
   });
 }
 

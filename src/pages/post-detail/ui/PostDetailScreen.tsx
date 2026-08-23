@@ -12,6 +12,7 @@ import {
   CommentInputBar,
   CommentSheet,
   ReportCommentSheet,
+  useBlockCommentAuthor,
   useDeleteComment,
   useReportComment,
 } from '@/features/comment';
@@ -32,6 +33,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
   const toggleLike = useToggleLike(postId);
   const manage = useManagePost(postId);
   const report = useReportComment(postId);
+  const blockCommentAuthor = useBlockCommentAuthor(postId);
   const deleteComment = useDeleteComment(postId);
   const togglePlay = usePlayerStore((s) => s.toggle);
   const playingUrl = usePlayerStore((s) => (s.isPlaying ? s.currentUrl : null));
@@ -92,15 +94,58 @@ export function PostDetailScreen({ route, navigation }: Props) {
     [deleteComment],
   );
 
+  const handleBlockCommentAuthor = useCallback(
+    (comment: Comment) => {
+      if (
+        !comment.commentId ||
+        !comment.userId ||
+        blockCommentAuthor.isPending
+      ) {
+        return;
+      }
+
+      Alert.alert(
+        '이 사용자를 차단할까요?',
+        '해당 사용자의 게시글과 댓글이 즉시 숨겨지며, 관련 내용이 운영팀에 전달됩니다.',
+        [
+          { text: '취소', style: 'cancel' },
+          {
+            text: '차단',
+            style: 'destructive',
+            onPress: () =>
+              blockCommentAuthor.mutate(
+                {
+                  commentId: comment.commentId!,
+                  blockedUserId: comment.userId!,
+                },
+                {
+                  onSuccess: () =>
+                    Alert.alert('차단 완료', '사용자와 관련 콘텐츠를 숨겼어요.'),
+                  onError: () =>
+                    Alert.alert('차단 실패', '잠시 후 다시 시도해주세요.'),
+                },
+              ),
+          },
+        ],
+      );
+    },
+    [blockCommentAuthor],
+  );
+
   const handleCommentAction = useCallback(
     (comment: Comment) => {
       Alert.alert('댓글 관리', undefined, [
         { text: '취소', style: 'cancel' },
         { text: '신고하기', onPress: () => handleReport(comment) },
+        {
+          text: '이 사용자 차단',
+          style: 'destructive',
+          onPress: () => handleBlockCommentAuthor(comment),
+        },
         { text: '내 댓글 삭제', style: 'destructive', onPress: () => handleDeleteComment(comment) },
       ]);
     },
-    [handleDeleteComment, handleReport],
+    [handleBlockCommentAuthor, handleDeleteComment, handleReport],
   );
 
   const isLiked = detail?.isLiked ?? false;

@@ -10,7 +10,8 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.eeum.app",
       "appleTeamId": "AU24ZRJ649",
-      "buildNumber": "11"
+      "buildNumber": "12",
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
@@ -20,10 +21,12 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": [
-        "android.permission.MODIFY_AUDIO_SETTINGS",
-        "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      "permissions": ["android.permission.MODIFY_AUDIO_SETTINGS"],
+      "blockedPermissions": [
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.VIBRATE"
       ]
     },
     "web": {
@@ -31,18 +34,25 @@
     },
     "plugins": [
       "./plugins/with-ios-scheme-name",
-      "expo-secure-store",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": false
+        }
+      ],
       "expo-font",
       [
         "expo-audio",
         {
           "microphonePermission": false,
-          "recordAudioAndroid": false
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false
         }
       ],
       "expo-web-browser",
       "expo-asset",
-      "expo-image"
+      "expo-image",
+      "expo-apple-authentication"
     ]
   }
 }

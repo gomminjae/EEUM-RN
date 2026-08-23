@@ -26,6 +26,24 @@ export function FeedScreen() {
   const playingUrl = usePlayerStore((s) => (s.isPlaying ? s.currentUrl : null));
 
   useLayoutEffect(() => {
+    const renderInboxButton = () => (
+      <Pressable
+        onPress={() => navigation.navigate('PostsList')}
+        hitSlop={8}
+        className="flex-row items-center gap-[4px] px-md py-[8px] bg-content rounded-[20px]"
+      >
+        <AppText size={15} weight="medium">
+          Inbox
+        </AppText>
+        <Ionicons
+          name="arrow-up"
+          size={13}
+          color={colors.textPrimary}
+          style={{ transform: [{ rotate: '45deg' }] }}
+        />
+      </Pressable>
+    );
+
     navigation.setOptions({
       headerBackVisible: false,
       headerLeft: () => (
@@ -38,23 +56,14 @@ export function FeedScreen() {
           />
         </Pressable>
       ),
-      headerRight: () => (
-        <Pressable
-          onPress={() => navigation.navigate('PostsList')}
-          hitSlop={8}
-          className="flex-row items-center gap-[4px] px-md py-[8px] bg-content rounded-[20px]"
-        >
-          <AppText size={15} weight="medium">
-            Inbox
-          </AppText>
-          <Ionicons
-            name="arrow-up"
-            size={13}
-            color={colors.textPrimary}
-            style={{ transform: [{ rotate: '45deg' }] }}
-          />
-        </Pressable>
-      ),
+      headerRight: renderInboxButton,
+      unstable_headerRightItems: () => [
+        {
+          type: 'custom',
+          element: renderInboxButton(),
+          hidesSharedBackground: true,
+        },
+      ],
     });
   }, [navigation]);
 

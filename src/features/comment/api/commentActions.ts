@@ -65,6 +65,24 @@ export async function reportComment(params: {
   return parseData(commentReportSchema, json);
 }
 
+/** 사용자 차단과 해당 댓글 신고를 함께 전송한다.
+ * Apple Guideline 1.2: 차단 시 운영자에게 관련 부적절 콘텐츠도 전달되어야 한다. */
+export async function blockUserAndReportComment(params: {
+  commentId: string;
+  blockedUserId: string;
+}): Promise<void> {
+  await Promise.all([
+    api.post<unknown>('/user/block', {
+      blockedUserId: requestId(params.blockedUserId),
+    }),
+    reportComment({
+      commentId: params.commentId,
+      reportedUserId: params.blockedUserId,
+      reportReason: '사용자 차단',
+    }),
+  ]);
+}
+
 /** OpenAPI: DELETE /comments/{commentId} */
 export async function deleteComment(commentId: string): Promise<string> {
   const json = await api.delete<unknown>(`/comments/${encodeURIComponent(commentId)}`);
