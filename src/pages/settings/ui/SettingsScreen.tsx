@@ -2,6 +2,7 @@ import { useLayoutEffect, useState } from "react";
 import { Pressable, Linking, ScrollView, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { useQueryClient } from "@tanstack/react-query";
 import * as WebBrowser from "expo-web-browser";
 import { AppText, colors } from "@/shared/ui";
 import { FAQ_URL, PRIVACY_URL, TERMS_URL } from "@/shared/config/links";
@@ -30,6 +31,7 @@ const ROWS: { title: string; action: () => void }[] = [
 
 export function SettingsScreen() {
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
   const closeAccount = useAuthStore((state) => state.closeAccount);
   const signOut = useAuthStore((state) => state.signOut);
   const [isClosingAccount, setIsClosingAccount] = useState(false);
@@ -66,7 +68,9 @@ export function SettingsScreen() {
             {
               text: "로그아웃",
               style: "destructive",
-              onPress: () => void signOut(),
+              onPress: () => {
+                void signOut().then(() => queryClient.clear());
+              },
             },
           ])
         }
@@ -90,13 +94,15 @@ export function SettingsScreen() {
                 style: "destructive",
                 onPress: () => {
                   setIsClosingAccount(true);
-                  void closeAccount().catch(() => {
-                    setIsClosingAccount(false);
-                    Alert.alert(
-                      "탈퇴 실패",
-                      "계정을 삭제하지 못했어요. 잠시 후 다시 시도해주세요.",
-                    );
-                  });
+                  void closeAccount()
+                    .then(() => queryClient.clear())
+                    .catch(() => {
+                      setIsClosingAccount(false);
+                      Alert.alert(
+                        "탈퇴 실패",
+                        "계정을 삭제하지 못했어요. 잠시 후 다시 시도해주세요.",
+                      );
+                    });
                 },
               },
             ],

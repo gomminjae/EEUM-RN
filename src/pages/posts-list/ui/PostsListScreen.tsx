@@ -1,11 +1,11 @@
 import { useCallback, useLayoutEffect } from 'react';
 import { View, FlatList, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppText, AppImage, colors, spacing, images } from '@/shared/ui';
-import { getMyPosts, PostGridCard, type Post } from '@/entities/post';
+import { getMyPosts, PostGridCard, primePostDetail, type Post } from '@/entities/post';
 import { InboxHeader } from '@/widgets/inbox-header';
 import type { RootStackParamList } from '@/shared/config/navigation';
 
@@ -15,6 +15,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
  *  우상단 햄버거 → InboxMenu push. */
 export function PostsListScreen() {
   const navigation = useNavigation<Nav>();
+  const queryClient = useQueryClient();
   const query = useQuery({ queryKey: ['inbox', 'posts'], queryFn: getMyPosts });
   const posts = query.data ?? [];
 
@@ -31,9 +32,12 @@ export function PostsListScreen() {
 
   const openPost = useCallback(
     (post: Post) => {
-      if (post.postId) navigation.navigate('PostDetail', { postId: post.postId });
+      if (post.postId) {
+        primePostDetail(queryClient, post);
+        navigation.navigate('PostDetail', { postId: post.postId });
+      }
     },
-    [navigation],
+    [navigation, queryClient],
   );
 
   return (

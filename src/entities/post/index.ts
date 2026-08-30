@@ -1,6 +1,6 @@
 export type { Post, FeedKind, PostDetail, CommentedPosts } from './model/types';
 export { postKeys } from './model/queryKeys';
-export { usePostDetail } from './model/queries';
+export { primePostDetail, usePostDetail } from './model/queries';
 export {
   getFeedPosts,
   getPostDetail,

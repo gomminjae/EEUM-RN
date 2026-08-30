@@ -28,7 +28,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
   const { width } = useWindowDimensions();
   const heroSize = width - 48;
 
-  const { data: detail, isLoading, isError, refetch } = usePostDetail(postId);
+  const { data: detail, isLoading, isError, isFetching, refetch } = usePostDetail(postId);
   const isMyPost = useIsMyPost(postId);
   const toggleLike = useToggleLike(postId);
   const manage = useManagePost(postId);
@@ -41,6 +41,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
 
   const [actionSheet, setActionSheet] = useState(false);
   const [reportTarget, setReportTarget] = useState<Comment | null>(null);
+  const [showPostReport, setShowPostReport] = useState(false);
   const [showCommentsList, setShowCommentsList] = useState(false);
   const [showCommentSheet, setShowCommentSheet] = useState(false);
   const [selectedMusic, setSelectedMusic] = useState<Music | null>(null);
@@ -162,17 +163,29 @@ export function PostDetailScreen({ route, navigation }: Props) {
               </Pressable>
             )
           : () => (
-              <Pressable
-                onPress={() => toggleLike.mutate(isLiked)}
-                disabled={toggleLike.isPending}
-                hitSlop={8}
-              >
-                <Ionicons
-                  name={isLiked ? 'heart' : 'heart-outline'}
-                  size={20}
-                  color={isLiked ? '#FF3B30' : '#000000'}
-                />
-              </Pressable>
+              <View className="flex-row items-center gap-[18px]">
+                <Pressable
+                  onPress={() => toggleLike.mutate(isLiked)}
+                  disabled={toggleLike.isPending}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={isLiked ? '좋아요 취소' : '좋아요'}
+                >
+                  <Ionicons
+                    name={isLiked ? 'heart' : 'heart-outline'}
+                    size={20}
+                    color={isLiked ? '#FF3B30' : '#000000'}
+                  />
+                </Pressable>
+                <Pressable
+                  onPress={() => setShowPostReport(true)}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel="게시글 신고"
+                >
+                  <Ionicons name="flag-outline" size={20} color="#000000" />
+                </Pressable>
+              </View>
             ),
     });
   }, [navigation, isMyPost, isLiked, hasDetail, toggleLike, manage.remove.isPending]);
@@ -214,14 +227,24 @@ export function PostDetailScreen({ route, navigation }: Props) {
     );
   }
 
-  if (isError || !detail) {
+  if (!detail) {
     return (
       <View className="flex-1 items-center justify-center gap-sm bg-main">
-        <AppText color="textFootnote">불러오지 못했어요</AppText>
-        <Pressable onPress={() => refetch()} className="py-sm px-md">
-          <AppText weight="semiBold" style={{ color: colors.accentPrimary }}>
-            다시 시도
-          </AppText>
+        <AppText color="textFootnote">
+          {isError ? '서버 응답이 지연되고 있어요' : '불러오지 못했어요'}
+        </AppText>
+        <Pressable
+          onPress={() => refetch()}
+          className="py-sm px-md"
+          disabled={isFetching}
+        >
+          {isFetching ? (
+            <ActivityIndicator color={colors.accentPrimary} />
+          ) : (
+            <AppText weight="semiBold" style={{ color: colors.accentPrimary }}>
+              다시 시도
+            </AppText>
+          )}
         </Pressable>
       </View>
     );
@@ -232,6 +255,22 @@ export function PostDetailScreen({ route, navigation }: Props) {
 
   return (
     <View className="flex-1 bg-main">
+      {isError && (
+        <View className="mx-[24px] mb-sm flex-row items-center rounded-[10px] bg-content px-md py-sm">
+          <AppText size={12} color="textFootnote" className="flex-1 leading-[18px]">
+            최신 내용을 불러오지 못해 목록의 사연을 표시하고 있어요.
+          </AppText>
+          <Pressable onPress={() => refetch()} disabled={isFetching} hitSlop={8}>
+            {isFetching ? (
+              <ActivityIndicator size="small" color={colors.accentPrimary} />
+            ) : (
+              <AppText size={12} weight="semiBold" style={{ color: colors.accentPrimary }}>
+                다시 시도
+              </AppText>
+            )}
+          </Pressable>
+        </View>
+      )}
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 40 }}>
         {/* 히어로 아트워크 + 재생 오버레이 */}
         <View className="px-[24px]">
@@ -371,6 +410,16 @@ export function PostDetailScreen({ route, navigation }: Props) {
         visible={reportTarget != null}
         onClose={() => setReportTarget(null)}
         onSubmit={submitReport}
+      />
+
+      <ReportCommentSheet
+        visible={showPostReport}
+        subject="게시글"
+        onClose={() => setShowPostReport(false)}
+        onSubmit={() => {
+          setShowPostReport(false);
+          Alert.alert('신고 기능 준비 중', '게시글 작성자 정보가 API에 추가되면 신고가 접수됩니다.');
+        }}
       />
     </View>
   );

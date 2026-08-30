@@ -29,6 +29,8 @@ type RequestOptions = {
   auth?: boolean;
   headers?: Record<string, string>;
   signal?: AbortSignal;
+  /** 지정 시간이 지나면 요청을 중단한다. 미지정 시 fetch 기본 동작을 유지한다. */
+  timeoutMs?: number;
 };
 
 function buildUrl(path: string, query?: Query): string {
@@ -42,7 +44,7 @@ function buildUrl(path: string, query?: Query): string {
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = 'GET', body, query, auth = true, headers, signal } = options;
+  const { method = 'GET', body, query, auth = true, headers, signal, timeoutMs } = options;
 
   const finalHeaders: Record<string, string> = {
     Accept: 'application/json',
@@ -55,12 +57,37 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     if (token) finalHeaders.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(buildUrl(path, query), {
-    method,
-    headers: finalHeaders,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    signal,
-  });
+  const timeoutController = timeoutMs ? new AbortController() : null;
+  let didTimeout = false;
+  const abortFromCaller = () => timeoutController?.abort(signal?.reason);
+  if (signal && timeoutController) {
+    if (signal.aborted) abortFromCaller();
+    else signal.addEventListener('abort', abortFromCaller, { once: true });
+  }
+  const timeout = timeoutController
+    ? setTimeout(() => {
+        didTimeout = true;
+        timeoutController.abort();
+      }, timeoutMs)
+    : null;
+
+  let res: Response;
+  try {
+    res = await fetch(buildUrl(path, query), {
+      method,
+      headers: finalHeaders,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: timeoutController?.signal ?? signal,
+    });
+  } catch (error) {
+    if (didTimeout) {
+      throw new ApiError(408, 'Request timed out');
+    }
+    throw error;
+  } finally {
+    if (timeout) clearTimeout(timeout);
+    signal?.removeEventListener('abort', abortFromCaller);
+  }
 
   const text = await res.text();
   // 서버 Long id(2^53 초과)가 JSON.parse 에서 정밀도를 잃지 않도록 값 위치의 16자리+ 정수를 문자열로 감싼다

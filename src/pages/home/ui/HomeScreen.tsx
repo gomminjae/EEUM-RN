@@ -7,10 +7,11 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppText, AppImage, fonts, images } from '@/shared/ui';
 import { useShake } from '@/shared/lib/useShake';
-import { getRandomPost, type Post } from '@/entities/post';
+import { getRandomPost, primePostDetail, type Post } from '@/entities/post';
 import { HomeBottomNav } from '@/widgets/home-bottom-nav';
 import type { RootStackParamList } from '@/shared/config/navigation';
 
@@ -90,6 +91,7 @@ function ShakePrompt({ onTrigger }: { onTrigger: () => void }) {
 /** 원본 RandomPostCard — 짧고 가벼운 흔들림으로 등장 */
 function RandomPostCard({ post }: { post: Post }) {
   const navigation = useNavigation<Nav>();
+  const queryClient = useQueryClient();
 
   const translateY = useSharedValue(12);
   const translateX = useSharedValue(0);
@@ -147,7 +149,10 @@ function RandomPostCard({ post }: { post: Post }) {
         <Animated.View className="px-[32px] pb-lg" style={fadeStyle}>
           <Pressable
             className="h-[50px] rounded-[25px] bg-[#000000] items-center justify-center"
-            onPress={() => navigation.navigate('PostDetail', { postId: post.postId! })}
+            onPress={() => {
+              primePostDetail(queryClient, post);
+              navigation.navigate('PostDetail', { postId: post.postId! });
+            }}
           >
             <Text
               className="text-white"

@@ -26,6 +26,15 @@ export function parseData<T extends z.ZodTypeAny>(dataSchema: T, json: unknown):
   return dataSchema.parse(env.data);
 }
 
+/** data가 없는 성공 응답도 앱 레벨 에러 봉투는 빠뜨리지 않고 검증한다. */
+export function parseSuccess(json: unknown): void {
+  const env = envelopeSchema.parse(json);
+  if (env.error) throw toApiError(env.error);
+  if (env.result && env.result !== 'SUCCESS') {
+    throw new ApiError(200, `Request failed (${env.result})`, env);
+  }
+}
+
 /** 리스트 응답: data 가 null 이면 빈 배열 */
 export function parseList<T extends z.ZodTypeAny>(itemSchema: T, json: unknown): z.infer<T>[] {
   const env = envelopeSchema.parse(json);

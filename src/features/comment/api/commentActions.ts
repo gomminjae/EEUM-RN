@@ -22,6 +22,15 @@ const requestId = (id: string): number | string => {
 };
 
 const responseId = z.union([z.number(), z.string()]);
+const blockUserSchema = z
+  .object({
+    blockerUserId: responseId,
+    blockedUserId: responseId,
+  })
+  .transform((data) => ({
+    blockerUserId: String(data.blockerUserId),
+    blockedUserId: String(data.blockedUserId),
+  }));
 const commentReportSchema = z
   .object({
     reporterUserId: responseId.nullish(),
@@ -72,9 +81,11 @@ export async function blockUserAndReportComment(params: {
   blockedUserId: string;
 }): Promise<void> {
   await Promise.all([
-    api.post<unknown>('/user/block', {
-      blockedUserId: requestId(params.blockedUserId),
-    }),
+    api
+      .post<unknown>('/user/block', {
+        blockedUserId: requestId(params.blockedUserId),
+      })
+      .then((json) => parseData(blockUserSchema, json)),
     reportComment({
       commentId: params.commentId,
       reportedUserId: params.blockedUserId,

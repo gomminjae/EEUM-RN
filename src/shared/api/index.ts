@@ -1,2 +1,2 @@
 export { api, ApiError, setOnUnauthorized } from './client';
-export { parseData, parseList } from './zod';
+export { parseData, parseList, parseSuccess } from './zod';

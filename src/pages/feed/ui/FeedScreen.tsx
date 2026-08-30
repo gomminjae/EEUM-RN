@@ -2,9 +2,10 @@ import { useCallback, useLayoutEffect, useState } from 'react';
 import { View, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppText, AppImage, colors, fonts, images } from '@/shared/ui';
-import { type FeedKind, type Post } from '@/entities/post';
+import { primePostDetail, type FeedKind, type Post } from '@/entities/post';
 import { usePlayerStore } from '@/features/play-track';
 import type { RootStackParamList } from '@/shared/config/navigation';
 import { useFeed } from '../model/useFeed';
@@ -21,6 +22,7 @@ const TABS: { key: FeedKind; label: string }[] = [
 export function FeedScreen() {
   const [tab, setTab] = useState<FeedKind>('ing');
   const query = useFeed(tab);
+  const queryClient = useQueryClient();
   const navigation = useNavigation<Nav>();
   const togglePlay = usePlayerStore((s) => s.toggle);
   const playingUrl = usePlayerStore((s) => (s.isPlaying ? s.currentUrl : null));
@@ -71,9 +73,12 @@ export function FeedScreen() {
 
   const openPost = useCallback(
     (post: Post) => {
-      if (post.postId) navigation.navigate('PostDetail', { postId: post.postId });
+      if (post.postId) {
+        primePostDetail(queryClient, post);
+        navigation.navigate('PostDetail', { postId: post.postId });
+      }
     },
-    [navigation],
+    [navigation, queryClient],
   );
 
   return (

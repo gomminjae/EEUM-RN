@@ -5,9 +5,7 @@ import * as AppleAuthentication from "expo-apple-authentication";
 import { login as loginWithKakao } from "@react-native-seoul/kakao-login";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppImage, AppText, colors, images } from "@/shared/ui";
-import type { SocialAuthProvider } from "../api/authApi";
 import { useAuthStore } from "../model/authStore";
-import { TermsAgreementScreen } from "./TermsAgreementScreen";
 
 type NativeAuthError = {
   code?: string;
@@ -33,10 +31,6 @@ export function LoginScreen() {
   const serverError = useAuthStore((state) => state.error);
   const signInWithIdToken = useAuthStore((state) => state.signInWithIdToken);
   const [appleAvailable, setAppleAvailable] = useState(false);
-  const [authCandidate, setAuthCandidate] = useState<{
-    idToken: string;
-    provider: SocialAuthProvider;
-  } | null>(null);
   const [pendingProvider, setPendingProvider] = useState<
     "APPLE" | "KAKAO" | null
   >(null);
@@ -62,10 +56,7 @@ export function LoginScreen() {
       if (!credential.identityToken) {
         throw new Error("Apple에서 로그인 토큰을 받지 못했어요.");
       }
-      setAuthCandidate({
-        idToken: credential.identityToken,
-        provider: "APPLE",
-      });
+      await signInWithIdToken(credential.identityToken, "APPLE");
     } catch (error) {
       if (!isCanceled(error)) setNativeError(errorMessage(error));
     } finally {
@@ -84,7 +75,7 @@ export function LoginScreen() {
           "카카오 OpenID Connect가 활성화되지 않아 ID 토큰을 받지 못했어요.",
         );
       }
-      setAuthCandidate({ idToken: token.idToken, provider: "KAKAO" });
+      await signInWithIdToken(token.idToken, "KAKAO");
     } catch (error) {
       if (!isCanceled(error)) setNativeError(errorMessage(error));
     } finally {
@@ -93,22 +84,6 @@ export function LoginScreen() {
   };
 
   const disabled = pendingProvider !== null;
-
-  if (authCandidate) {
-    return (
-      <TermsAgreementScreen
-        providerName={authCandidate.provider === "APPLE" ? "Apple" : "카카오"}
-        isSubmitting={false}
-        onBack={() => setAuthCandidate(null)}
-        onSubmit={() =>
-          void signInWithIdToken(
-            authCandidate.idToken,
-            authCandidate.provider,
-          )
-        }
-      />
-    );
-  }
 
   return (
     <SafeAreaView className="flex-1 bg-main" edges={["top", "bottom"]}>

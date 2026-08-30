@@ -18,12 +18,29 @@ type Props = NativeStackScreenProps<RootStackParamList, 'EditPost'>;
 /** 원본 PostEditSheet 이식 — 제목/내용/음악 변경 (풀스크린, 음악검색 연동) */
 export function EditPostScreen({ route }: Props) {
   const { postId } = route.params;
-  const { data: detail, isLoading } = usePostDetail(postId);
+  const { data: detail, isLoading, isError, isFetching, refetch } = usePostDetail(postId);
 
-  if (isLoading || !detail) {
+  if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-main">
         <ActivityIndicator color={colors.accentPrimary} />
+      </View>
+    );
+  }
+
+  if (isError || !detail) {
+    return (
+      <View className="flex-1 items-center justify-center gap-sm bg-main">
+        <AppText color="textFootnote">수정할 사연을 불러오지 못했어요</AppText>
+        <Pressable className="px-md py-sm" disabled={isFetching} onPress={() => refetch()}>
+          {isFetching ? (
+            <ActivityIndicator color={colors.accentPrimary} />
+          ) : (
+            <AppText weight="semiBold" style={{ color: colors.accentPrimary }}>
+              다시 시도
+            </AppText>
+          )}
+        </Pressable>
       </View>
     );
   }

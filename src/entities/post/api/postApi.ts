@@ -96,7 +96,9 @@ const postDetailSchema = z
 
 /** 게시물 상세 (원본 PostAPI.getPostDetail) — GET /posts/{id} */
 export async function getPostDetail(postId: string): Promise<PostDetail> {
-  const json = await api.get<unknown>(`/posts/${postId}`);
+  const json = await api.get<unknown>(`/posts/${encodeURIComponent(postId)}`, {
+    timeoutMs: 12_000,
+  });
   return parseData(postDetailSchema, json);
 }
 
