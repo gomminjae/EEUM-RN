@@ -19,6 +19,7 @@ export function primePostDetail(queryClient: QueryClient, post: Post): void {
   if (!queryClient.getQueryData<PostDetail>(key)) {
     queryClient.setQueryData<PostDetail>(key, {
       postId: post.postId,
+      writerId: post.writerId,
       title: post.title ?? '',
       content: post.content ?? '',
       songName: post.songName ?? '',

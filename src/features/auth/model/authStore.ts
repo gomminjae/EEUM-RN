@@ -5,7 +5,6 @@ import type { UserData } from "@/entities/user";
 import {
   closeAccount as closeAccountRequest,
   completeRegistration as completeRegistrationRequest,
-  getProfile,
   socialLogin,
   type RegistrationProfile,
   type SocialAuthProvider,
@@ -74,18 +73,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ status: "loading", error: null });
     try {
       const user = await socialLogin(idToken, provider);
-      // 서버의 isRegistered 값만으로는 기존/신규 판별이 일관되지 않으므로
-      // 실제 저장된 프로필을 우선 확인한다. 닉네임이 있으면 기존 회원이다.
-      let needsRegistration: boolean;
-      try {
-        const profile = await getProfile(user);
-        needsRegistration = !profile.nickname?.trim();
-      } catch {
-        // 프로필 조회 자체가 실패한 경우에만 로그인 응답을 보조 신호로 사용한다.
-        needsRegistration = !user.isRegistered;
-      }
-
-      if (needsRegistration) {
+      await tokenStorage.set(user.accessToken);
+      if (!user.isRegistered) {
         set({
           status: "registration_terms_required",
           user,
@@ -94,9 +83,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return;
       }
       await authProviderStorage.set(provider);
-      await tokenStorage.set(user.accessToken);
       set({ status: "authenticated", user, pendingProvider: null });
     } catch (e) {
+      await Promise.allSettled([
+        tokenStorage.clear(),
+        authProviderStorage.clear(),
+      ]);
       set({
         status: "unauthenticated",
         user: null,
@@ -119,9 +111,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     set({ error: null });
     try {
-      await completeRegistrationRequest(user, profile);
+      await completeRegistrationRequest(profile);
       await authProviderStorage.set(pendingProvider);
-      await tokenStorage.set(user.accessToken);
       set({
         status: "authenticated",
         user: { ...user, isRegistered: true },
@@ -137,11 +128,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   cancelRegistration: () => {
-    set({
-      status: "unauthenticated",
-      user: null,
-      pendingProvider: null,
-      error: null,
+    set({ status: "loading", error: null });
+    void Promise.allSettled([
+      tokenStorage.clear(),
+      authProviderStorage.clear(),
+    ]).then(() => {
+      set({
+        status: "unauthenticated",
+        user: null,
+        pendingProvider: null,
+        error: null,
+      });
     });
   },
 

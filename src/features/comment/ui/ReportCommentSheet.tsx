@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Modal, View, TextInput, Pressable, StyleSheet } from 'react-native';
+import { View, TextInput, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppText, colors } from '@/shared/ui';
+import { AppText, BottomSheet, colors } from '@/shared/ui';
 
 const hairline = StyleSheet.hairlineWidth;
 
@@ -20,8 +19,7 @@ type ReportCommentSheetProps = {
   subject?: '댓글' | '게시글';
 };
 
-/** 원본 ReportReasonView 이식 — 풀스크린. 헤더(뒤로 + "신고하기") + 질문 + 사유 목록.
- *  OTHER 는 직접 입력 후 "신고하기". */
+/** 신고 사유를 선택하는 바텀시트. OTHER는 사유를 직접 입력한다. */
 export function ReportCommentSheet({
   visible,
   onClose,
@@ -55,70 +53,94 @@ export function ReportCommentSheet({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={close}>
-      <SafeAreaView className="flex-1 bg-main" edges={['top']}>
-        {/* 헤더 */}
-        <View className="flex-row items-center px-[20px] py-md">
-          <Pressable onPress={close} hitSlop={8}>
-            <Ionicons name="chevron-back" size={18} color="#000000" />
-          </Pressable>
-          <View className="flex-1 items-center">
-            <AppText size={17} weight="semiBold" style={{ color: colors.black }}>
+    <BottomSheet visible={visible} onClose={close}>
+      <View>
+        <View className="flex-row items-start justify-between">
+          <View className="flex-1 pr-md">
+            <AppText size={22} weight="bold">
               신고하기
             </AppText>
+            <AppText size={14} color="textFootnote" className="mt-xs leading-[20px]">
+              이 {subject}을 신고하는 이유를 선택해주세요.
+            </AppText>
           </View>
-          <View style={{ width: 18 }} />
+          <Pressable
+            accessibilityLabel="신고 화면 닫기"
+            accessibilityRole="button"
+            className="h-[36px] w-[36px] items-center justify-center rounded-full bg-content"
+            hitSlop={8}
+            onPress={close}
+          >
+            <Ionicons name="close" size={20} color={colors.textPrimary} />
+          </Pressable>
         </View>
 
-        {/* 질문 */}
-        <AppText size={16} weight="semiBold" style={{ color: colors.black }} className="px-[20px] pt-lg">
-          이 {subject}을 신고하는 이유가 무엇인가요?
-        </AppText>
-
-        {/* 사유 목록 */}
-        <View className="mt-lg">
+        <View className="mt-lg overflow-hidden rounded-[14px] bg-content">
           {REASONS.map(({ code, label }, i) => (
             <View key={code}>
-              <Pressable className="px-[20px] py-md" onPress={() => pick(code)}>
+              <Pressable
+                accessibilityRole="button"
+                className="min-h-[56px] flex-row items-center justify-between px-md py-[14px]"
+                onPress={() => pick(code)}
+              >
                 {code === 'OTHER' ? (
-                  <AppText size={15} style={{ color: colors.black }}>
-                    기타: <AppText size={15} style={{ color: colors.systemGray }}>입력해주세요</AppText>
-                  </AppText>
+                  <View className="flex-row items-center">
+                    <AppText size={15}>기타</AppText>
+                    <AppText size={14} color="textFootnote" className="ml-sm">
+                      직접 입력
+                    </AppText>
+                  </View>
                 ) : (
-                  <AppText size={15} style={{ color: colors.black }}>{label}</AppText>
+                  <AppText size={15}>{label}</AppText>
                 )}
+                <Ionicons name="chevron-forward" size={17} color={colors.textFootnote} />
               </Pressable>
               {i < REASONS.length - 1 && (
-                <View className="mx-[20px] bg-black/10" style={{ height: hairline }} />
+                <View className="ml-md bg-black/10" style={{ height: hairline }} />
               )}
             </View>
           ))}
         </View>
 
-        {/* 기타 입력 */}
         {showCustom && (
-          <View className="px-[20px] pt-lg gap-md">
+          <View className="mt-md">
             <TextInput
-              className="px-md py-md bg-black/[0.06] rounded-[8px] font-regular text-[15px] text-primary"
+              accessibilityLabel="기타 신고 사유"
+              className="min-h-[96px] rounded-[14px] bg-content px-md py-[14px] font-regular text-[15px] leading-[21px] text-primary"
               value={custom}
               onChangeText={setCustom}
               placeholder="신고 사유를 입력해주세요"
               placeholderTextColor={colors.textFootnote}
               autoFocus
+              maxLength={300}
+              multiline
+              textAlignVertical="top"
             />
+            <AppText size={12} color="textFootnote" className="mt-xs text-right">
+              {custom.length}/300
+            </AppText>
             <Pressable
-              className="items-center py-[14px] rounded-[8px]"
-              style={{ backgroundColor: custom.trim() ? '#000000' : colors.systemGray }}
+              accessibilityRole="button"
+              className="mt-md h-[52px] items-center justify-center rounded-[12px]"
+              style={{
+                backgroundColor: custom.trim()
+                  ? colors.accentPrimary
+                  : colors.systemGray5,
+              }}
               disabled={!custom.trim()}
               onPress={submitCustom}
             >
-              <AppText size={16} weight="semiBold" style={{ color: '#FFFFFF' }}>
+              <AppText
+                size={16}
+                weight="bold"
+                style={{ color: custom.trim() ? '#FFFFFF' : colors.systemGray }}
+              >
                 신고하기
               </AppText>
             </Pressable>
           </View>
         )}
-      </SafeAreaView>
-    </Modal>
+      </View>
+    </BottomSheet>
   );
 }

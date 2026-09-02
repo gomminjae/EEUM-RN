@@ -22,6 +22,7 @@ const hairline = StyleSheet.hairlineWidth;
 type CommentSheetProps = {
   visible: boolean;
   onClose: () => void;
+  onDismiss?: () => void;
   postId: string;
   comments: Comment[];
   selectedMusic: Music | null;
@@ -36,6 +37,7 @@ type CommentSheetProps = {
 export function CommentSheet({
   visible,
   onClose,
+  onDismiss,
   postId,
   comments,
   selectedMusic,
@@ -83,7 +85,13 @@ export function CommentSheet({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onDismiss={onDismiss}
+      onRequestClose={onClose}
+    >
       <KeyboardAvoidingView
         className="flex-1 bg-main"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

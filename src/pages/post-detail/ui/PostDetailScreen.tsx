@@ -6,6 +6,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppText, AppImage, colors, images } from '@/shared/ui';
 import { CommentItem, CommentCard, type Comment } from '@/entities/comment';
 import { useToggleLike } from '@/features/like-post';
+import { useReportPost } from '@/features/report-post';
 import { usePlayerStore } from '@/features/play-track';
 import { useMusicPicker } from '@/features/music-search';
 import {
@@ -33,6 +34,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
   const toggleLike = useToggleLike(postId);
   const manage = useManagePost(postId);
   const report = useReportComment(postId);
+  const postReport = useReportPost();
   const blockCommentAuthor = useBlockCommentAuthor(postId);
   const deleteComment = useDeleteComment(postId);
   const togglePlay = usePlayerStore((s) => s.toggle);
@@ -63,18 +65,25 @@ export function PostDetailScreen({ route, navigation }: Props) {
     },
     [togglePlay],
   );
-  // iOS 네이티브 모달은 dismiss 중 다른 모달 present 시 실패 → 시트가 열려있으면 닫고 나서 오픈
+  // iOS 네이티브 모달은 dismiss 완료 전에 다음 모달을 present할 수 없다.
   const sheetOpenRef = useRef(false);
+  const queuedReportTargetRef = useRef<Comment | null>(null);
   useEffect(() => {
     sheetOpenRef.current = showCommentSheet;
   }, [showCommentSheet]);
   const handleReport = useCallback((c: Comment) => {
     if (sheetOpenRef.current) {
+      queuedReportTargetRef.current = c;
       setShowCommentSheet(false);
-      setTimeout(() => setReportTarget(c), 350);
     } else {
       setReportTarget(c);
     }
+  }, []);
+
+  const handleCommentSheetDismiss = useCallback(() => {
+    const target = queuedReportTargetRef.current;
+    queuedReportTargetRef.current = null;
+    if (target) setReportTarget(target);
   }, []);
 
   const handleDeleteComment = useCallback(
@@ -210,6 +219,21 @@ export function PostDetailScreen({ route, navigation }: Props) {
       {
         commentId: target.commentId,
         reportedUserId: target.userId,
+        reportReason: reason,
+      },
+      {
+        onSuccess: () => Alert.alert('신고 완료', '신고가 접수되었어요'),
+        onError: () => Alert.alert('신고 실패', '잠시 후 다시 시도해주세요'),
+      },
+    );
+  };
+
+  const submitPostReport = (reason: string) => {
+    setShowPostReport(false);
+    postReport.mutate(
+      {
+        postId,
+        reportedUserId: detail?.writerId,
         reportReason: reason,
       },
       {
@@ -375,6 +399,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
         <CommentSheet
           visible={showCommentSheet}
           onClose={() => setShowCommentSheet(false)}
+          onDismiss={handleCommentSheetDismiss}
           postId={postId}
           comments={comments}
           selectedMusic={selectedMusic}
@@ -416,10 +441,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
         visible={showPostReport}
         subject="게시글"
         onClose={() => setShowPostReport(false)}
-        onSubmit={() => {
-          setShowPostReport(false);
-          Alert.alert('신고 기능 준비 중', '게시글 작성자 정보가 API에 추가되면 신고가 접수됩니다.');
-        }}
+        onSubmit={submitPostReport}
       />
     </View>
   );

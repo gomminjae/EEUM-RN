@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Modal, View, Pressable } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, View, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { spacing } from './theme';
 
@@ -14,14 +14,19 @@ export function BottomSheet({ visible, onClose, children }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable className="flex-1 bg-black/[0.35]" onPress={onClose} />
-      <View
-        className="bg-main rounded-t-[20px] px-lg pt-sm gap-xs"
-        style={{ paddingBottom: insets.bottom + spacing.md }}
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View className="self-center w-[48px] h-[4px] rounded-[2px] bg-footnote/40 mb-sm" />
-        {children}
-      </View>
+        <Pressable className="flex-1 bg-black/[0.35]" onPress={onClose} />
+        <View
+          className="bg-main rounded-t-[24px] px-lg pt-sm"
+          style={{ paddingBottom: insets.bottom + spacing.md }}
+        >
+          <View className="self-center w-[40px] h-[4px] rounded-[2px] bg-footnote/40 mb-md" />
+          {children}
+        </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

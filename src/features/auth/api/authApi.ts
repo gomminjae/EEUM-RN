@@ -9,11 +9,6 @@ export type RegistrationProfile = {
   email?: string;
 };
 
-export type UserProfile = {
-  nickname: string | null;
-  email: string | null;
-};
-
 /** 원본 UserDTO — 로그인 응답 */
 const userSchema = z.object({
   accessToken: z.string(),
@@ -42,37 +37,19 @@ export async function socialLogin(
     { idToken, provider },
     { auth: false },
   );
-  return parseData(userSchema, json);
+  const user = parseData(userSchema, json);
+  const accessToken = user.accessToken.trim().replace(/^Bearer\s+/i, "");
+  return { ...user, accessToken };
 }
 
 const profileSchema = z
   .object({
     nickname: z.string().nullish(),
     email: z.string().nullish(),
-  })
-  .transform((profile): UserProfile => ({
-    nickname: profile.nickname ?? null,
-    email: profile.email ?? null,
-  }));
-
-function pendingAuthHeaders(user: UserData): Record<string, string> {
-  const tokenType = user.tokenType.trim() || "Bearer";
-  return { Authorization: `${tokenType} ${user.accessToken}` };
-}
-
-/** 로그인 응답의 임시 토큰으로 서버 프로필이 실제 완성됐는지 확인한다. */
-export async function getProfile(user: UserData): Promise<UserProfile> {
-  const json = await api.get<unknown>("/user/profile", {
-    auth: false,
-    headers: pendingAuthHeaders(user),
-    timeoutMs: 12_000,
   });
-  return parseData(profileSchema, json);
-}
 
 /** 신규 사용자의 프로필을 저장해 회원가입을 완료한다. */
 export async function completeRegistration(
-  user: UserData,
   profile: RegistrationProfile,
 ): Promise<void> {
   const json = await api.patch<unknown>(
@@ -80,10 +57,6 @@ export async function completeRegistration(
     {
       nickname: profile.nickname,
       ...(profile.email ? { email: profile.email } : {}),
-    },
-    {
-      auth: false,
-      headers: pendingAuthHeaders(user),
     },
   );
   parseData(profileSchema, json);

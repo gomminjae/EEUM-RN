@@ -45,6 +45,7 @@ function buildUrl(path: string, query?: Query): string {
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, query, auth = true, headers, signal, timeoutMs } = options;
+  const url = buildUrl(path, query);
 
   const finalHeaders: Record<string, string> = {
     Accept: 'application/json',
@@ -73,7 +74,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   let res: Response;
   try {
-    res = await fetch(buildUrl(path, query), {
+    res = await fetch(url, {
       method,
       headers: finalHeaders,
       body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -82,6 +83,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   } catch (error) {
     if (didTimeout) {
       throw new ApiError(408, 'Request timed out');
+    }
+    if (__DEV__) {
+      console.error('[API Network Error]', { method, path, error });
     }
     throw error;
   } finally {
@@ -103,6 +107,14 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   if (!res.ok) {
+    if (__DEV__) {
+      console.error('[API Error]', {
+        method,
+        path,
+        status: res.status,
+        body: data,
+      });
+    }
     if (res.status === 401 && auth) onUnauthorized?.();
     throw new ApiError(res.status, `Request failed (${res.status})`, data);
   }

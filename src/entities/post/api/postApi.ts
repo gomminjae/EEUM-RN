@@ -69,6 +69,7 @@ export async function getFeedPosts(
 const postDetailSchema = z
   .object({
     postId: idSchema,
+    writerId: idSchema.nullish(),
     title: z.string().nullish(),
     content: z.string().nullish(),
     songName: z.string().nullish(),
@@ -82,6 +83,7 @@ const postDetailSchema = z
   .transform(
     (dto): PostDetail => ({
       postId: String(dto.postId),
+      writerId: dto.writerId == null ? null : String(dto.writerId),
       title: dto.title ?? '',
       content: dto.content ?? '',
       songName: dto.songName ?? '',

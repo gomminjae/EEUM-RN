@@ -25,6 +25,7 @@ export type FeedKind = 'ing' | 'done';
 /** 원본 Domain/Entity/PostDetail 이식 — getPostDetail 응답 (필드 non-null로 정규화) */
 export type PostDetail = {
   postId: string;
+  writerId: string | null;
   title: string;
   content: string;
   songName: string;

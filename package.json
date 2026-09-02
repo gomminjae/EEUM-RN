@@ -43,7 +43,9 @@
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
-    "ios": "sh scripts/run-ios-simulator.sh",
+    "preios": "node scripts/patch-expo-ios-cli.cjs",
+    "ios": "expo run:ios --scheme 이음",
+    "ios:release": "sh scripts/run-ios-simulator.sh",
     "web": "expo start --web"
   },
   "private": true
