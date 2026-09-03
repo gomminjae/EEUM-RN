@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { postKeys, type PostDetail } from '@/entities/post';
 import {
+  blockUser,
   blockUserAndReportComment,
   createComment,
   deleteComment,
@@ -26,9 +27,32 @@ export function useCreateComment(postId: string) {
 
 export function useReportComment(postId: string) {
   const qc = useQueryClient();
+  const detailKey = postKeys.detail(postId);
+
   return useMutation({
     mutationFn: reportComment,
-    onSuccess: () => invalidateCommentQueries(qc, postId),
+    onMutate: async ({ commentId }) => {
+      await qc.cancelQueries({ queryKey: detailKey });
+      const previous = qc.getQueryData<PostDetail>(detailKey);
+
+      // 신고된 댓글은 서버에서 삭제되므로 성공 응답 전에도 현재 캐시에서 숨긴다.
+      qc.setQueryData<PostDetail>(detailKey, (current) =>
+        current
+          ? {
+              ...current,
+              comments: current.comments.filter(
+                (comment) => comment.commentId !== commentId,
+              ),
+            }
+          : current,
+      );
+
+      return { previous };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previous) qc.setQueryData(detailKey, context.previous);
+    },
+    onSettled: () => invalidateCommentQueries(qc, postId),
   });
 }
 
@@ -59,12 +83,27 @@ export function useBlockCommentAuthor(postId: string) {
     onError: (_error, _variables, context) => {
       if (context?.previous) qc.setQueryData(detailKey, context.previous);
     },
-    onSettled: () =>
+    onSuccess: () =>
       Promise.all([
-        qc.invalidateQueries({ queryKey: detailKey }),
-        qc.invalidateQueries({ queryKey: ['feed'] }),
-        qc.invalidateQueries({ queryKey: ['inbox'] }),
+        qc.resetQueries({ queryKey: ['feed'] }),
+        qc.resetQueries({ queryKey: ['inbox'] }),
       ]),
+    onSettled: () => qc.invalidateQueries({ queryKey: detailKey }),
+  });
+}
+
+export function useBlockUser(postId: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: blockUser,
+    onSuccess: async () => {
+      qc.removeQueries({ queryKey: postKeys.detail(postId), exact: true });
+      await Promise.all([
+        qc.resetQueries({ queryKey: ['feed'] }),
+        qc.resetQueries({ queryKey: ['inbox'] }),
+      ]);
+    },
   });
 }
 

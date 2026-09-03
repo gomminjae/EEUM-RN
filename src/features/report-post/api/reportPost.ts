@@ -18,7 +18,7 @@ const postReportSchema = z.object({
 
 export type ReportPostParams = {
   postId: string;
-  reportedUserId?: string | null;
+  reportedUserId: string;
   reportReason: string;
 };
 
@@ -26,9 +26,7 @@ export type ReportPostParams = {
 export async function reportPost(params: ReportPostParams) {
   const json = await api.post<unknown>('/report/posts', {
     postId: requestId(params.postId),
-    ...(params.reportedUserId
-      ? { reportedUserId: requestId(params.reportedUserId) }
-      : {}),
+    reportedUserId: requestId(params.reportedUserId),
     reportReason: params.reportReason,
   });
   return parseData(postReportSchema, json);

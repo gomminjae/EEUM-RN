@@ -26,6 +26,7 @@ function makePost(p: Partial<Post> & { postId: string }): Post {
 const infiniteScrollPostSchema = z
   .object({
     postId: idSchema,
+    userId: idSchema.nullish(),
     title: z.string(),
     content: z.string(),
     songName: z.string().nullish(),
@@ -38,7 +39,7 @@ const infiniteScrollPostSchema = z
   .transform(
     (dto): Post => ({
       postId: String(dto.postId),
-      writerId: null,
+      writerId: dto.userId == null ? null : String(dto.userId),
       title: dto.title,
       content: dto.content,
       songName: dto.songName ?? null,
@@ -69,6 +70,8 @@ export async function getFeedPosts(
 const postDetailSchema = z
   .object({
     postId: idSchema,
+    userId: idSchema.nullish(),
+    // 구버전 응답과 랜덤 게시글 캐시도 안전하게 수용한다.
     writerId: idSchema.nullish(),
     title: z.string().nullish(),
     content: z.string().nullish(),
@@ -83,7 +86,12 @@ const postDetailSchema = z
   .transform(
     (dto): PostDetail => ({
       postId: String(dto.postId),
-      writerId: dto.writerId == null ? null : String(dto.writerId),
+      writerId:
+        dto.userId != null
+          ? String(dto.userId)
+          : dto.writerId != null
+            ? String(dto.writerId)
+            : null,
       title: dto.title ?? '',
       content: dto.content ?? '',
       songName: dto.songName ?? '',

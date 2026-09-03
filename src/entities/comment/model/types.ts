@@ -14,3 +14,5 @@ export type Comment = {
   modifiedAt: string | null;
   isDeleted: boolean | null;
 };
+
+export type CommentAction = 'report' | 'block' | 'delete';

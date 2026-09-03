@@ -19,6 +19,7 @@ import type { Music } from '@/entities/track';
 import { useMusicPicker } from '@/features/music-search';
 import { CompletionSheet, useShareStory, type CompletionType } from '@/features/share-post';
 import type { RootStackParamList } from '@/shared/config/navigation';
+import { containsObjectionableContent } from '@/shared/lib/contentModeration';
 
 const MAX_STORY = 200;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -51,6 +52,13 @@ export function ShareScreen() {
     if (!story.trim()) missing.push('내용');
     if (missing.length) {
       Alert.alert('입력 확인', `${missing.join(', ')}을(를) 입력해 주세요.`);
+      return;
+    }
+    if (containsObjectionableContent(title, story)) {
+      Alert.alert(
+        '게시할 수 없는 내용이에요',
+        '욕설이나 다른 사용자를 불쾌하게 할 수 있는 표현을 수정해주세요.',
+      );
       return;
     }
     Keyboard.dismiss();

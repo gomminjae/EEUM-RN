@@ -4,16 +4,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppText, AppImage, colors, images } from '@/shared/ui';
-import { CommentItem, CommentCard, type Comment } from '@/entities/comment';
+import { CommentItem, CommentCard, type Comment, type CommentAction } from '@/entities/comment';
 import { useToggleLike } from '@/features/like-post';
 import { useReportPost } from '@/features/report-post';
 import { usePlayerStore } from '@/features/play-track';
 import { useMusicPicker } from '@/features/music-search';
+import { useAuthStore } from '@/features/auth';
 import {
   CommentInputBar,
   CommentSheet,
   ReportCommentSheet,
   useBlockCommentAuthor,
+  useBlockUser,
   useDeleteComment,
   useReportComment,
 } from '@/features/comment';
@@ -36,10 +38,13 @@ export function PostDetailScreen({ route, navigation }: Props) {
   const report = useReportComment(postId);
   const postReport = useReportPost();
   const blockCommentAuthor = useBlockCommentAuthor(postId);
+  const blockPostAuthor = useBlockUser(postId);
   const deleteComment = useDeleteComment(postId);
   const togglePlay = usePlayerStore((s) => s.toggle);
   const playingUrl = usePlayerStore((s) => (s.isPlaying ? s.currentUrl : null));
   const consumePicked = useMusicPicker((s) => s.consume);
+  const currentUserId = useAuthStore((s) => s.currentUserId);
+  const rememberCurrentUserId = useAuthStore((s) => s.rememberCurrentUserId);
 
   const [actionSheet, setActionSheet] = useState(false);
   const [reportTarget, setReportTarget] = useState<Comment | null>(null);
@@ -65,26 +70,15 @@ export function PostDetailScreen({ route, navigation }: Props) {
     },
     [togglePlay],
   );
-  // iOS 네이티브 모달은 dismiss 완료 전에 다음 모달을 present할 수 없다.
+  // 댓글 작성 sheet 안에서 고른 액션은 sheet dismiss 뒤 실행한다.
   const sheetOpenRef = useRef(false);
-  const queuedReportTargetRef = useRef<Comment | null>(null);
+  const queuedCommentCommandRef = useRef<{
+    command: CommentAction;
+    comment: Comment;
+  } | null>(null);
   useEffect(() => {
     sheetOpenRef.current = showCommentSheet;
   }, [showCommentSheet]);
-  const handleReport = useCallback((c: Comment) => {
-    if (sheetOpenRef.current) {
-      queuedReportTargetRef.current = c;
-      setShowCommentSheet(false);
-    } else {
-      setReportTarget(c);
-    }
-  }, []);
-
-  const handleCommentSheetDismiss = useCallback(() => {
-    const target = queuedReportTargetRef.current;
-    queuedReportTargetRef.current = null;
-    if (target) setReportTarget(target);
-  }, []);
 
   const handleDeleteComment = useCallback(
     (comment: Comment) => {
@@ -142,21 +136,71 @@ export function PostDetailScreen({ route, navigation }: Props) {
     [blockCommentAuthor],
   );
 
-  const handleCommentAction = useCallback(
-    (comment: Comment) => {
-      Alert.alert('댓글 관리', undefined, [
-        { text: '취소', style: 'cancel' },
-        { text: '신고하기', onPress: () => handleReport(comment) },
-        {
-          text: '이 사용자 차단',
-          style: 'destructive',
-          onPress: () => handleBlockCommentAuthor(comment),
-        },
-        { text: '내 댓글 삭제', style: 'destructive', onPress: () => handleDeleteComment(comment) },
-      ]);
+  const executeCommentCommand = useCallback(
+    (comment: Comment, command: CommentAction) => {
+      if (command === 'report') {
+        setReportTarget(comment);
+        return;
+      }
+      if (command === 'block') {
+        handleBlockCommentAuthor(comment);
+        return;
+      }
+      handleDeleteComment(comment);
     },
-    [handleBlockCommentAuthor, handleDeleteComment, handleReport],
+    [handleBlockCommentAuthor, handleDeleteComment],
   );
+
+  const handleCommentAction = useCallback(
+    (comment: Comment, command: CommentAction) => {
+      if (sheetOpenRef.current) {
+        queuedCommentCommandRef.current = { command, comment };
+        setShowCommentSheet(false);
+        return;
+      }
+      executeCommentCommand(comment, command);
+    },
+    [executeCommentCommand],
+  );
+
+  const handleCommentSheetDismiss = useCallback(() => {
+    const queued = queuedCommentCommandRef.current;
+    queuedCommentCommandRef.current = null;
+    if (queued) executeCommentCommand(queued.comment, queued.command);
+  }, [executeCommentCommand]);
+
+  const handleBlockPostAuthor = useCallback(() => {
+    if (!detail?.writerId || blockPostAuthor.isPending) {
+      if (!detail?.writerId) {
+        Alert.alert(
+          '차단 실패',
+          '작성자 정보를 불러오지 못했어요. 새로고침 후 다시 시도해주세요.',
+        );
+      }
+      return;
+    }
+
+    Alert.alert(
+      '이 사용자를 차단할까요?',
+      '해당 사용자의 게시글과 댓글이 숨겨집니다.',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '차단',
+          style: 'destructive',
+          onPress: () =>
+            blockPostAuthor.mutate(detail.writerId!, {
+              onSuccess: () => {
+                Alert.alert('차단 완료', '사용자와 관련 콘텐츠를 숨겼어요.');
+                navigation.goBack();
+              },
+              onError: () =>
+                Alert.alert('차단 실패', '잠시 후 다시 시도해주세요.'),
+            }),
+        },
+      ],
+    );
+  }, [blockPostAuthor, detail?.writerId, navigation]);
 
   const isLiked = detail?.isLiked ?? false;
   const hasDetail = !!detail;
@@ -194,10 +238,28 @@ export function PostDetailScreen({ route, navigation }: Props) {
                 >
                   <Ionicons name="flag-outline" size={20} color="#000000" />
                 </Pressable>
+                <Pressable
+                  onPress={handleBlockPostAuthor}
+                  disabled={blockPostAuthor.isPending}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel="게시글 작성자 차단"
+                >
+                  <Ionicons name="person-remove-outline" size={20} color="#000000" />
+                </Pressable>
               </View>
             ),
     });
-  }, [navigation, isMyPost, isLiked, hasDetail, toggleLike, manage.remove.isPending]);
+  }, [
+    navigation,
+    isMyPost,
+    isLiked,
+    hasDetail,
+    toggleLike,
+    manage.remove.isPending,
+    handleBlockPostAuthor,
+    blockPostAuthor.isPending,
+  ]);
 
   const confirmDelete = () => {
     setActionSheet(false);
@@ -230,14 +292,24 @@ export function PostDetailScreen({ route, navigation }: Props) {
 
   const submitPostReport = (reason: string) => {
     setShowPostReport(false);
+    if (!detail?.writerId) {
+      Alert.alert(
+        '신고 실패',
+        '작성자 정보를 불러오지 못했어요. 새로고침 후 다시 시도해주세요.',
+      );
+      return;
+    }
     postReport.mutate(
       {
         postId,
-        reportedUserId: detail?.writerId,
+        reportedUserId: detail.writerId,
         reportReason: reason,
       },
       {
-        onSuccess: () => Alert.alert('신고 완료', '신고가 접수되었어요'),
+        onSuccess: () => {
+          navigation.goBack();
+          Alert.alert('신고 완료', '신고가 접수되었어요');
+        },
         onError: () => Alert.alert('신고 실패', '잠시 후 다시 시도해주세요'),
       },
     );
@@ -361,6 +433,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
                   <CommentItem
                     key={c.commentId ?? `comment-${i}`}
                     comment={c}
+                    isOwn={!!currentUserId && c.userId === currentUserId}
                     isPlaying={!!c.appleMusicUrl && playingUrl === c.appleMusicUrl}
                     onPlay={handlePlayComment}
                     onAction={handleCommentAction}
@@ -373,6 +446,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
                   <View key={c.commentId ?? `comment-${i}`} className="w-[48%] mb-[16px]">
                     <CommentCard
                       comment={c}
+                      isOwn={!!currentUserId && c.userId === currentUserId}
                       isPlaying={!!c.appleMusicUrl && playingUrl === c.appleMusicUrl}
                       onPlay={handlePlayComment}
                       onAction={handleCommentAction}
@@ -402,6 +476,8 @@ export function PostDetailScreen({ route, navigation }: Props) {
           onDismiss={handleCommentSheetDismiss}
           postId={postId}
           comments={comments}
+          currentUserId={currentUserId}
+          onResolveCurrentUserId={rememberCurrentUserId}
           selectedMusic={selectedMusic}
           playingUrl={playingUrl}
           onPlay={handlePlayComment}

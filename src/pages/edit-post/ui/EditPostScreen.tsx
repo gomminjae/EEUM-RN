@@ -1,5 +1,5 @@
 import { useCallback, useLayoutEffect, useState } from 'react';
-import { View, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import { usePostDetail, type PostDetail } from '@/entities/post';
 import { useMusicPicker } from '@/features/music-search';
 import { useManagePost } from '@/features/manage-post';
 import type { RootStackParamList } from '@/shared/config/navigation';
+import { containsObjectionableContent } from '@/shared/lib/contentModeration';
 
 const MAX = 200;
 type Props = NativeStackScreenProps<RootStackParamList, 'EditPost'>;
@@ -79,6 +80,13 @@ function EditForm({ postId, detail }: { postId: string; detail: PostDetail }) {
 
   const save = () => {
     if (!canSave) return;
+    if (containsObjectionableContent(title, content)) {
+      Alert.alert(
+        '저장할 수 없는 내용이에요',
+        '욕설이나 다른 사용자를 불쾌하게 할 수 있는 표현을 수정해주세요.',
+      );
+      return;
+    }
     update.mutate(
       {
         title: title.trim(),

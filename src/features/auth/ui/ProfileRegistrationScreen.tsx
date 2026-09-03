@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -12,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppText, colors } from "@/shared/ui";
 import { useAuthStore } from "../model/authStore";
+import { containsObjectionableContent } from "@/shared/lib/contentModeration";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -30,6 +32,13 @@ export function ProfileRegistrationScreen() {
     if (isSubmitting) return;
 
     const normalizedNickname = nickname.trim();
+    if (containsObjectionableContent(normalizedNickname)) {
+      Alert.alert(
+        "사용할 수 없는 닉네임이에요",
+        "욕설이나 다른 사용자를 불쾌하게 할 수 있는 표현을 수정해주세요.",
+      );
+      return;
+    }
     const normalizedEmail = email.trim();
     if (!normalizedNickname) {
       setValidationError("닉네임을 입력해주세요.");

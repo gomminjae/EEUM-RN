@@ -6,6 +6,7 @@ import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-aud
 type PlayerState = {
   currentUrl: string | null;
   isPlaying: boolean;
+  error: string | null;
   toggle: (url: string) => void;
   /** 항상 처음부터 재생 (원본 stop→play) — 카드 전환 자동재생용, 같은 url 토글 방지 */
   play: (url: string) => void;
@@ -13,59 +14,110 @@ type PlayerState = {
 };
 
 let player: AudioPlayer | null = null;
-let configured = false;
+let audioModePromise: Promise<void> | null = null;
+let playbackOperation = 0;
+let lastReportedError: string | null = null;
+
+function configureAudio(): Promise<void> {
+  if (!audioModePromise) {
+    audioModePromise = setAudioModeAsync({ playsInSilentMode: true }).catch((error: unknown) => {
+      audioModePromise = null;
+      throw error;
+    });
+  }
+  return audioModePromise;
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
 
 function ensurePlayer(set: (partial: Partial<PlayerState>) => void): AudioPlayer {
-  if (!configured) {
-    configured = true;
-    setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});
-  }
   if (!player) {
     player = createAudioPlayer();
     player.addListener('playbackStatusUpdate', (status) => {
-      if (status.didJustFinish) set({ isPlaying: false });
-      else set({ isPlaying: status.playing });
+      if (status.error) {
+        if (lastReportedError !== status.error) {
+          lastReportedError = status.error;
+          console.warn('[audio] playback failed', {
+            error: status.error,
+            playbackState: status.playbackState,
+            reasonForWaitingToPlay: status.reasonForWaitingToPlay,
+          });
+        }
+        set({ isPlaying: false, error: status.error });
+        return;
+      }
+
+      if (status.playing) lastReportedError = null;
+      set({
+        isPlaying: status.didJustFinish ? false : status.playing,
+        error: null,
+      });
     });
   }
   return player;
 }
 
+function startPlayback(
+  url: string,
+  operation: number,
+  set: (partial: Partial<PlayerState>) => void,
+  replaceSource: boolean,
+) {
+  void configureAudio()
+    .then(() => {
+      if (operation !== playbackOperation) return;
+
+      const activePlayer = ensurePlayer(set);
+      if (replaceSource) activePlayer.replace({ uri: url });
+      activePlayer.play();
+      set({ currentUrl: url, error: null });
+    })
+    .catch((error: unknown) => {
+      if (operation !== playbackOperation) return;
+
+      const message = errorMessage(error);
+      console.warn('[audio] setup failed', { error: message });
+      set({ currentUrl: null, isPlaying: false, error: message });
+    });
+}
+
 export const usePlayerStore = create<PlayerState>((set, get) => ({
   currentUrl: null,
   isPlaying: false,
+  error: null,
 
   toggle: (url) => {
     if (!url) return;
-    const p = ensurePlayer(set);
     const { currentUrl, isPlaying } = get();
 
-    if (currentUrl === url) {
+    if (currentUrl === url && player) {
       if (isPlaying) {
-        p.pause();
+        playbackOperation += 1;
+        player.pause();
         set({ isPlaying: false });
       } else {
-        p.play();
-        set({ isPlaying: true });
+        const operation = ++playbackOperation;
+        startPlayback(url, operation, set, false);
       }
       return;
     }
 
-    p.replace(url);
-    p.play();
-    set({ currentUrl: url, isPlaying: true });
+    const operation = ++playbackOperation;
+    startPlayback(url, operation, set, true);
   },
 
   play: (url) => {
     if (!url) return;
-    const p = ensurePlayer(set);
-    p.replace(url);
-    p.play();
-    set({ currentUrl: url, isPlaying: true });
+    const operation = ++playbackOperation;
+    startPlayback(url, operation, set, true);
   },
 
   stop: () => {
+    playbackOperation += 1;
     player?.pause();
-    set({ currentUrl: null, isPlaying: false });
+    set({ currentUrl: null, isPlaying: false, error: null });
   },
 }));
 

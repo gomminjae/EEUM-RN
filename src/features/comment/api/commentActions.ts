@@ -47,6 +47,14 @@ const commentReportSchema = z
     reportTime: data.reportTime ?? null,
   }));
 
+/** OpenAPI: POST /user/block */
+export async function blockUser(blockedUserId: string) {
+  const json = await api.post<unknown>('/user/block', {
+    blockedUserId: requestId(blockedUserId),
+  });
+  return parseData(blockUserSchema, json);
+}
+
 export async function createComment(draft: CommentDraft): Promise<Comment> {
   const json = await api.post<unknown>('/comments', {
     postId: requestId(draft.postId),
@@ -81,11 +89,7 @@ export async function blockUserAndReportComment(params: {
   blockedUserId: string;
 }): Promise<void> {
   await Promise.all([
-    api
-      .post<unknown>('/user/block', {
-        blockedUserId: requestId(params.blockedUserId),
-      })
-      .then((json) => parseData(blockUserSchema, json)),
+    blockUser(params.blockedUserId),
     reportComment({
       commentId: params.commentId,
       reportedUserId: params.blockedUserId,

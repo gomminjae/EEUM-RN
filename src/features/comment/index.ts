@@ -1,5 +1,6 @@
 export {
   useBlockCommentAuthor,
+  useBlockUser,
   useCreateComment,
   useDeleteComment,
   useReportComment,

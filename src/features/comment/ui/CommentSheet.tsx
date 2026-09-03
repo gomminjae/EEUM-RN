@@ -13,9 +13,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppImage, colors, images } from '@/shared/ui';
-import { CommentItem, type Comment } from '@/entities/comment';
+import { CommentItem, type Comment, type CommentAction } from '@/entities/comment';
 import type { Music } from '@/entities/track';
 import { useCreateComment } from '../model/useCommentActions';
+import { containsObjectionableContent } from '@/shared/lib/contentModeration';
 
 const hairline = StyleSheet.hairlineWidth;
 
@@ -25,10 +26,12 @@ type CommentSheetProps = {
   onDismiss?: () => void;
   postId: string;
   comments: Comment[];
+  currentUserId: string | null;
+  onResolveCurrentUserId: (userId: string) => void;
   selectedMusic: Music | null;
   playingUrl: string | null;
   onPlay: (comment: Comment) => void;
-  onCommentAction: (comment: Comment) => void;
+  onCommentAction: (comment: Comment, action: CommentAction) => void;
   onAddMusic: () => void;
   onRemoveMusic: () => void;
 };
@@ -40,6 +43,8 @@ export function CommentSheet({
   onDismiss,
   postId,
   comments,
+  currentUserId,
+  onResolveCurrentUserId,
   selectedMusic,
   playingUrl,
   onPlay,
@@ -65,6 +70,13 @@ export function CommentSheet({
 
   const submit = () => {
     if (!canSend) return;
+    if (containsObjectionableContent(text)) {
+      Alert.alert(
+        '게시할 수 없는 내용이에요',
+        '욕설이나 다른 사용자를 불쾌하게 할 수 있는 표현을 수정해주세요.',
+      );
+      return;
+    }
     createComment.mutate(
       {
         content: text.trim(),
@@ -75,7 +87,8 @@ export function CommentSheet({
         appleMusicUrl: selectedMusic?.previewMusicUrl,
       },
       {
-        onSuccess: () => {
+        onSuccess: (comment) => {
+          if (comment.userId) onResolveCurrentUserId(comment.userId);
           setText('');
           onRemoveMusic();
         },
@@ -111,6 +124,7 @@ export function CommentSheet({
             <CommentItem
               key={c.commentId ?? `comment-${i}`}
               comment={c}
+              isOwn={!!currentUserId && c.userId === currentUserId}
               isPlaying={!!c.appleMusicUrl && playingUrl === c.appleMusicUrl}
               onPlay={onPlay}
               onAction={onCommentAction}

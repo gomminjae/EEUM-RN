@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { setOnUnauthorized } from "@/shared/api";
-import { authProviderStorage, tokenStorage } from "@/shared/lib/storage";
+import {
+  authProviderStorage,
+  currentUserIdStorage,
+  tokenStorage,
+} from "@/shared/lib/storage";
 import type { UserData } from "@/entities/user";
 import {
   closeAccount as closeAccountRequest,
@@ -21,6 +25,7 @@ export type AuthStatus =
 type AuthState = {
   status: AuthStatus;
   user: UserData | null;
+  currentUserId: string | null;
   pendingProvider: SocialAuthProvider | null;
   error: string | null;
   /** 앱 시작 시 호출: 소셜 로그인으로 저장된 토큰이 있을 때만 인증 */
@@ -32,13 +37,32 @@ type AuthState = {
   acceptRegistrationTerms: () => void;
   completeRegistration: (profile: RegistrationProfile) => Promise<void>;
   cancelRegistration: () => void;
+  rememberCurrentUserId: (userId: string) => void;
   closeAccount: () => Promise<void>;
   signOut: () => Promise<void>;
+};
+
+const readUserIdFromToken = (token: string): string | null => {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    const claims = JSON.parse(atob(padded)) as Record<string, unknown>;
+    const candidate = claims.userId ?? claims.user_id ?? claims.id ?? claims.sub;
+    const userId = typeof candidate === "number" ? String(candidate) : candidate;
+
+    return typeof userId === "string" && /^\d+$/.test(userId) ? userId : null;
+  } catch {
+    return null;
+  }
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   status: "idle",
   user: null,
+  currentUserId: null,
   pendingProvider: null,
   error: null,
 
@@ -46,22 +70,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (get().status === "loading") return;
     set({ status: "loading", error: null });
     try {
-      const [existing, provider] = await Promise.all([
+      const [existing, provider, storedUserId] = await Promise.all([
         tokenStorage.get(),
         authProviderStorage.get(),
+        currentUserIdStorage.get(),
       ]);
       if (existing && (provider === "APPLE" || provider === "KAKAO")) {
-        set({ status: "authenticated" });
+        set({
+          status: "authenticated",
+          currentUserId: readUserIdFromToken(existing) ?? storedUserId,
+        });
         return;
       }
       // 이전 빌드의 게스트 토큰 또는 불완전한 저장 상태는 소셜 로그인으로 전환한다.
       if (existing || provider) {
-        await Promise.all([tokenStorage.clear(), authProviderStorage.clear()]);
+        await Promise.all([
+          tokenStorage.clear(),
+          authProviderStorage.clear(),
+          currentUserIdStorage.clear(),
+        ]);
       }
-      set({ status: "unauthenticated" });
+      set({ status: "unauthenticated", currentUserId: null });
     } catch (e) {
       set({
         status: "unauthenticated",
+        currentUserId: null,
         error:
           e instanceof Error ? e.message : "로그인 정보를 확인하지 못했어요",
       });
@@ -74,24 +107,34 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const user = await socialLogin(idToken, provider);
       await tokenStorage.set(user.accessToken);
+      const currentUserId = readUserIdFromToken(user.accessToken);
+      if (currentUserId) await currentUserIdStorage.set(currentUserId);
       if (!user.isRegistered) {
         set({
           status: "registration_terms_required",
           user,
+          currentUserId,
           pendingProvider: provider,
         });
         return;
       }
       await authProviderStorage.set(provider);
-      set({ status: "authenticated", user, pendingProvider: null });
+      set({
+        status: "authenticated",
+        user,
+        currentUserId,
+        pendingProvider: null,
+      });
     } catch (e) {
       await Promise.allSettled([
         tokenStorage.clear(),
         authProviderStorage.clear(),
+        currentUserIdStorage.clear(),
       ]);
       set({
         status: "unauthenticated",
         user: null,
+        currentUserId: null,
         pendingProvider: null,
         error: e instanceof Error ? e.message : "로그인에 실패했어요",
       });
@@ -132,14 +175,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     void Promise.allSettled([
       tokenStorage.clear(),
       authProviderStorage.clear(),
+      currentUserIdStorage.clear(),
     ]).then(() => {
       set({
         status: "unauthenticated",
         user: null,
+        currentUserId: null,
         pendingProvider: null,
         error: null,
       });
     });
+  },
+
+  rememberCurrentUserId: (userId) => {
+    set({ currentUserId: userId });
+    void currentUserIdStorage.set(userId);
   },
 
   closeAccount: async () => {
@@ -148,29 +198,45 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await Promise.allSettled([
       tokenStorage.clear(),
       authProviderStorage.clear(),
+      currentUserIdStorage.clear(),
     ]);
     set({
       status: "unauthenticated",
       user: null,
+      currentUserId: null,
       pendingProvider: null,
       error: null,
     });
   },
 
   signOut: async () => {
-    await Promise.all([tokenStorage.clear(), authProviderStorage.clear()]);
-    set({ status: "unauthenticated", user: null, pendingProvider: null });
+    await Promise.all([
+      tokenStorage.clear(),
+      authProviderStorage.clear(),
+      currentUserIdStorage.clear(),
+    ]);
+    set({
+      status: "unauthenticated",
+      user: null,
+      currentUserId: null,
+      pendingProvider: null,
+    });
   },
 }));
 
 /** 토큰 만료(401) → 저장된 세션을 폐기하고 로그인 화면으로 돌아간다. */
 setOnUnauthorized(() => {
   if (useAuthStore.getState().status !== "authenticated") return;
-  void Promise.all([tokenStorage.clear(), authProviderStorage.clear()]).then(
+  void Promise.all([
+    tokenStorage.clear(),
+    authProviderStorage.clear(),
+    currentUserIdStorage.clear(),
+  ]).then(
     () =>
       useAuthStore.setState({
         status: "unauthenticated",
         user: null,
+        currentUserId: null,
         pendingProvider: null,
       }),
   );
