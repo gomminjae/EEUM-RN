@@ -15,7 +15,7 @@ export class ApiError extends Error {
 
 type Query = Record<string, string | number | boolean | undefined | null>;
 
-/** 401(토큰 만료) 시 호출될 핸들러 — features/auth 가 등록 (레이어 역전 방지) */
+/** 토큰 누락 또는 401 시 호출될 핸들러 — features/auth 가 등록 (레이어 역전 방지) */
 let onUnauthorized: (() => void) | null = null;
 export function setOnUnauthorized(fn: () => void) {
   onUnauthorized = fn;
@@ -25,7 +25,7 @@ type RequestOptions = {
   method?: string;
   body?: unknown;
   query?: Query;
-  /** 기본 true — Authorization 헤더에 토큰 주입 (원본 AccessTokenPlugin 대체) */
+  /** 기본 true — 토큰 필수, 없으면 요청을 보내지 않는다. 로그인 요청은 false. */
   auth?: boolean;
   headers?: Record<string, string>;
   signal?: AbortSignal;
@@ -54,8 +54,12 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   };
 
   if (auth) {
-    const token = await tokenStorage.get();
-    if (token) finalHeaders.Authorization = `Bearer ${token}`;
+    const token = (await tokenStorage.get())?.trim();
+    if (!token) {
+      onUnauthorized?.();
+      throw new ApiError(401, '로그인이 필요합니다. 다시 로그인해주세요.');
+    }
+    finalHeaders.Authorization = `Bearer ${token}`;
   }
 
   const timeoutController = timeoutMs ? new AbortController() : null;
